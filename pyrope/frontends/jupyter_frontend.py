@@ -169,6 +169,8 @@ class JupyterFrontend:
 
     def render_feedback(self, feedback):
         feedback = self.formatter(feedback, **self.runner.get_answers())
+        # Otherwise the following JavaScript snippet could have invalid syntax.
+        feedback = feedback.replace("'", r"\'")
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.submit_section.feedback_div_ID}\','
             f' \'{feedback}\')'
