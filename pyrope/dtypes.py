@@ -338,9 +338,9 @@ class MatrixType(DType):
             )
         if not isinstance(compare_elementwise, bool):
             raise ValueError("'compare_elementwise' must be boolean.")
-        if isinstance(rtol, numbers.Real):
+        if not isinstance(rtol, numbers.Real):
             raise ValueError("'rtol' must be real.")
-        if isinstance(atol, numbers.Real):
+        if not isinstance(atol, numbers.Real):
             raise ValueError("'atol' must be real.")
         self.nrows = nrows
         self.ncols = ncols
