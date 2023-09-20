@@ -528,7 +528,11 @@ class ExercisePool(collections.UserList):
                 )
             sys.path.insert(0, dirname)
             importlib.invalidate_caches()
-            module = importlib.import_module(modulename)
+            if modulename in sys.modules:
+                module = sys.modules[modulename]
+                importlib.reload(module)
+            else:
+                module = importlib.import_module(modulename)
             self.add_exercises_from_module(module)
 
 
