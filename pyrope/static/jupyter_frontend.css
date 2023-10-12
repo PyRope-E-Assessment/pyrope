@@ -20,11 +20,6 @@ div.pyrope .MathJax_Display {
     display: inline-block !important;
 }
 
-/* Paragraphs should be rendered as inline elements. */
-div.pyrope p {
-    display: inline;
-}
-
 /* base css class */
 .pyrope {
     margin-top: 3px;
