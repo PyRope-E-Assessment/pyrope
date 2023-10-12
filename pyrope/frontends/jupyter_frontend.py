@@ -1,4 +1,3 @@
-
 from functools import cached_property
 import os
 from pathlib import Path
@@ -31,12 +30,8 @@ class JupyterFrontend:
         self.total_max_score = None
         self.total_score = None
 
-        # Reload all imported packages for debugging purposes.
+        # Get the IPython instance.
         self.ipy = get_ipython()
-        line_magics = self.ipy.magics_manager.magics.get('line')
-        if self.debug and 'autoreload' not in line_magics:
-            self.ipy.run_line_magic('load_ext', 'autoreload')
-            self.ipy.run_line_magic('autoreload', '3')
 
         # Load .css file for jupyter frontend styles.
         filepath = config.jupyter_frontend_css
