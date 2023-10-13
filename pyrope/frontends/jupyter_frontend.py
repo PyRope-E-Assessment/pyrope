@@ -278,9 +278,9 @@ class JupyterSubmitSection(ipy_widgets.VBox):
         vspace = ipy_widgets.Box(layout={'height': '15px'})
         result = ipy_widgets.HTML(
             f'<div data-pyrope-id="{self.feedback_div_ID}" '
-            f'class="pyrope feedback"></div>'
+            f'class="pyrope feedback rendered_html"></div>'
             f'<div data-pyrope-id="{self.score_div_ID}" '
-            f'class="pyrope score"></div>'
+            f'class="pyrope score rendered_html"></div>'
         )
         children = (btn_box, vspace, self.submit_output, result)
 

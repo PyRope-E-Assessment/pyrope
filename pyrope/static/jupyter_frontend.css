@@ -24,6 +24,7 @@ div.pyrope .MathJax_Display {
 .pyrope {
     margin-top: 3px;
     margin-bottom: 3px;
+    line-height: 20px;
 }
 
 table.pyrope {
@@ -73,6 +74,11 @@ span.pyrope.score:empty, span.pyrope.solution:empty {
 /* Styles for widget's solution span. */
 span.pyrope.solution {
     color: var(--blue);
+}
+
+/* Styles for the total score. */
+div.pyrope.score {
+    margin-top: 1em;
 }
 
 /* Separate exercises with a horizontal rule. */
