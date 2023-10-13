@@ -1,6 +1,6 @@
-/* css for the jupyter frontend */
+/* CSS for the Jupyter Frontend. */
 
-/* global variables */
+/* Global variables */
 :root {
     --blue: #1476fb;
     --red: #ff0000;
@@ -9,18 +9,18 @@
     --black: #000000;
 }
 
-/* so that tables created by pandoc have same font size */
+/* So that tables created by pandoc have the same font size. */
 .rendered_html table {
     font-size: inherit;
 }
 
-/*  override css for MathJax_Display class */
+/*  Override CSS for MathJax_Display class. */
 div.pyrope .MathJax_Display {
     text-align: center !important;
     display: inline-block !important;
 }
 
-/* base css class */
+/* PyRope's base CSS class. */
 .pyrope {
     margin-top: 3px;
     margin-bottom: 3px;
@@ -36,7 +36,8 @@ table.pyrope * {
     text-align: left;
 }
 
-/* all children of span.pyrope are displayed as inline elements and centered vertically */
+/* All children of span.pyrope are displayed as inline elements and centered
+vertically. */
 span.pyrope * {
     display: inline;
     vertical-align: middle;
