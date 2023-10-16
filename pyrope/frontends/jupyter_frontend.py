@@ -138,6 +138,7 @@ class JupyterFrontend:
             'pipe_tables',
             'strikeout',
             'task_lists',
+            'tex_math_dollars',
         ]
 
         template = convert_pandoc(
