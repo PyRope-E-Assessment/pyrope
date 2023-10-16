@@ -150,8 +150,6 @@ class JupyterFrontend:
             ]
         )
 
-        # Remove linebreaks because they have no meaning in HTML.
-        template = template.replace('\n', '')
         return f'<div class="pyrope">{template}</div>'
 
     def render_preamble(self, preamble):
