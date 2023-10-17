@@ -7,13 +7,13 @@ import pyrope
 # Maximum length for text field input.
 #
 # This should be set as small as possible for secure input parsing.
-maximum_input_length = 256
+maximum_input_length: int = 256
 
 
 # Transformations for parsing symbolic expressions.
 #
 # https://docs.sympy.org/latest/modules/parsing.html#parsing-transformations-reference
-transformations = (
+transformations: tuple[str, ...] = (
     # Splits symbol names for implicit multiplication.
     #
     # Intended to let expressions like xyz be parsed as x*y*z. Does not split
@@ -69,7 +69,7 @@ transformations = (
 # Automated exercise tests are repeated with different (faked) user inputs.
 # This option limits the maximal number of repetitions in order to restrict
 # the testing time.
-maximum_test_repetitions = 1024
+maximum_test_repetitions: int = 1024
 
 
 # Valid representations for boolean values.
@@ -77,7 +77,7 @@ maximum_test_repetitions = 1024
 # Valid representations Python's boolean values False and True can be defined
 # with this option. A representation pair consists of a value for False
 # followed by a value for True.
-boolean_representations = (
+boolean_representations: tuple[tuple[str, str], ...] = (
     ('0', '1'),
     ('False', 'True'),
     ('false', 'true'),
@@ -101,6 +101,6 @@ def process_total_score(total_score: int | float) -> int | float:  # noqa
 
 
 # Path to CSS file for jupyter frontend styles.
-dirname = os.path.dirname(pyrope.__file__)
-filename = 'static/jupyter_frontend.css'
-jupyter_frontend_css = os.path.join(dirname, filename)
+dirname: str = os.path.dirname(pyrope.__file__)
+filename: str = 'static/jupyter_frontend.css'
+jupyter_frontend_css: str = os.path.join(dirname, filename)
