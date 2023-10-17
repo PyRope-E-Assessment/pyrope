@@ -104,3 +104,10 @@ def process_total_score(total_score: int | float) -> int | float:  # noqa
 dirname: str = os.path.dirname(pyrope.__file__)
 filename: str = 'static/jupyter_frontend.css'
 jupyter_frontend_css: str = os.path.join(dirname, filename)
+
+
+# Default values for node 'OneOf'.
+#
+# If there are more than 'one_of_maximum_radio_buttons' options, then these
+# options are rendered as a dropdown instead of radio buttons.
+one_of_maximum_radio_buttons: int = 5

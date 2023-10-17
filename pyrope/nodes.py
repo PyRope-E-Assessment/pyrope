@@ -433,7 +433,7 @@ class OneOf(Node):
     def __init__(self, *args, widget=None):
         self.dtype = OneOfType(options=args)
         if widget is None:
-            if len(args) <= 5:
+            if len(args) <= config.one_of_maximum_radio_buttons:
                 widget = widgets.RadioButtons(*args)
             else:
                 widget = widgets.Dropdown(*args)
