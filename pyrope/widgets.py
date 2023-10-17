@@ -65,13 +65,6 @@ class Widget(nodes.Node):
             if isinstance(obj, NotifyingAttribute):
                 obj.notify(self)
 
-    def new_instance(self):
-        kwargs = {}
-        for name, obj in inspect.getmembers(self.__class__):
-            if isinstance(obj, NotifyingAttribute):
-                kwargs[name] = getattr(self, name)
-        return self.__class__(**kwargs)
-
     def validate(self):
         ifield = self
         while ifield.parent is not None and len(ifield.parent.ifields) == 1:

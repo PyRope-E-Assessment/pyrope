@@ -280,11 +280,7 @@ class ElementwiseComplex(Node):
 
     def __init__(self, i_on_the='right', widget=None):
         if widget is None:
-            widget_a = widgets.Text()
-            widget_b = widgets.Text()
-        else:
-            widget_a = widget
-            widget_b = widget.new_instance()
+            widget = widgets.Text()
         self.dtype = ComplexType()
         if i_on_the == 'right':
             template = '<<a>> + <<b>> i'
@@ -293,7 +289,7 @@ class ElementwiseComplex(Node):
         else:
             raise ValueError("Parameter 'i_on_the' must be 'left' or 'right'.")
         Node.__init__(
-            self, template, a=Real(widget=widget_a), b=Real(widget=widget_b)
+            self, template, a=Real(widget=widget), b=Real(widget=widget)
         )
 
     def assemble(self, **ifields):
@@ -472,15 +468,9 @@ class ElementwiseRational(Node):
 
     def __init__(self, widget=None):
         if widget is None:
-            widget_a = widgets.Text()
-            widget_b = widgets.Text()
-        else:
-            widget_a = widget
-            widget_b = widget.new_instance()
-        self.dtype = RationalType()
+            widget = widgets.Text()
         Node.__init__(
-            self, '<<a>> / <<b>>', a=Int(widget=widget_a),
-            b=Int(widget=widget_b)
+            self, '<<a>> / <<b>>', a=Int(widget=widget), b=Int(widget=widget)
         )
 
     def assemble(self, **ifields):
