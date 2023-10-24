@@ -28,16 +28,16 @@ class Node:
     the_solution = TypeChecked()
     solution = TypeChecked()
 
-    def __init__(self, template, auto_score_none=True, **ifields):
+    def __init__(self, template, treat_none_manually=False, **ifields):
         self.ID = uuid4()
         self.parent = None
         ifields = {
             name: ifield.clone() for name, ifield in ifields.items()
         }
 
-        if not isinstance(auto_score_none, bool):
-            raise ValueError("'auto_score_none' has to be a boolean.")
-        self.auto_score_none = auto_score_none
+        if not isinstance(treat_none_manually, bool):
+            raise ValueError("'treat_none_manually' has to be a boolean.")
+        self.treat_none_manually = treat_none_manually
 
         for name, ifield in ifields.items():
             if not isinstance(ifield, Node):
@@ -255,11 +255,13 @@ class Parser(Node):
 
 class Bool(Node):
 
-    def __init__(self, widget=None, auto_score_none=True):
+    def __init__(self, widget=None, treat_none_manually=False):
         if widget is None:
             widget = widgets.Checkbox()
         self.dtype = BoolType()
-        Node.__init__(self, '<<_>>', _=widget, auto_score_none=auto_score_none)
+        Node.__init__(
+            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
+        )
 
     def assemble(self, _):
         if _ == '':
@@ -271,7 +273,7 @@ class Complex(Node):
 
     def __init__(
             self, elementwise=True, i_on_the='right', widget=None,
-            auto_score_none=True
+            treat_none_manually=False
     ):
         if widget is None:
             widget = widgets.Text()
@@ -279,16 +281,20 @@ class Complex(Node):
         if elementwise is True:
             _ = ElementwiseComplex(
                 i_on_the=i_on_the, widget=widget,
-                auto_score_none=auto_score_none
+                treat_none_manually=treat_none_manually
             )
         else:
             _ = Parser(widget, dtype=self.dtype)
-        Node.__init__(self, '<<_>>', _=_, auto_score_none=auto_score_none)
+        Node.__init__(
+            self, '<<_>>', _=_, treat_none_manually=treat_none_manually
+        )
 
 
 class ElementwiseComplex(Node):
 
-    def __init__(self, i_on_the='right', widget=None, auto_score_none=True):
+    def __init__(
+            self, i_on_the='right', widget=None, treat_none_manually=False
+    ):
         if widget is None:
             widget_a = widgets.Text()
             widget_b = widgets.Text()
@@ -304,7 +310,7 @@ class ElementwiseComplex(Node):
             raise ValueError("Parameter 'i_on_the' must be 'left' or 'right'.")
         Node.__init__(
             self, template, a=Real(widget=widget_a), b=Real(widget=widget_b),
-            auto_score_none=auto_score_none
+            treat_none_manually=treat_none_manually
         )
 
     def assemble(self, **ifields):
@@ -316,25 +322,28 @@ class ElementwiseComplex(Node):
 
 class Dict(Node):
 
-    def __init__(self, count=None, widget=None, auto_score_none=True):
+    def __init__(self, count=None, widget=None, treat_none_manually=False):
         if widget is None:
             widget = widgets.Text()
         self.dtype = DictType(count=count)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            auto_score_none=auto_score_none
+            treat_none_manually=treat_none_manually
         )
 
 
 class Expression(Node):
 
     def __init__(
-            self, symbols=None, widget=None, auto_score_none=True, **kwargs
+            self, symbols=None, widget=None, treat_none_manually=False,
+            **kwargs
     ):
         if widget is None:
             widget = widgets.Text()
         self.dtype = ExpressionType(symbols=symbols)
-        Node.__init__(self, '<<_>>', _=widget, auto_score_none=auto_score_none)
+        Node.__init__(
+            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
+        )
         if 'transformations' not in kwargs:
             kwargs['transformations'] = tuple(
                 getattr(sympy.parsing.sympy_parser, transformation)
@@ -378,7 +387,8 @@ class Equation(Expression):
 class Int(Node):
 
     def __init__(
-            self, minimum=None, maximum=None, widget=None, auto_score_none=True
+            self, minimum=None, maximum=None, widget=None,
+            treat_none_manually=False
     ):
         self.dtype = IntType(minimum, maximum)
         if widget is None:
@@ -388,17 +398,19 @@ class Int(Node):
                 widget = widgets.Text()
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            auto_score_none=auto_score_none
+            treat_none_manually=treat_none_manually
         )
 
 
 class Matrix(Node):
 
-    def __init__(self, widget=None, auto_score_none=True, **kwargs):
+    def __init__(self, widget=None, treat_none_manually=False, **kwargs):
         self.dtype = MatrixType(**kwargs)
         if widget is None:
             widget = widgets.Text()
-        Node.__init__(self, '<<_>>', _=widget, auto_score_none=auto_score_none)
+        Node.__init__(
+            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
+        )
 
     def assemble(self, _):
         if _ == '':
@@ -416,11 +428,13 @@ class Matrix(Node):
 
 class _Vector(Matrix):
 
-    def __init__(self, widget=None, auto_score_none=True, **kwargs):
+    def __init__(self, widget=None, treat_none_manually=False, **kwargs):
         self.dtype = VectorType(**kwargs)
         if widget is None:
             widget = widgets.Text()
-        Node.__init__(self, '<<_>>', _=widget, auto_score_none=auto_score_none)
+        Node.__init__(
+            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
+        )
 
 
 class ColumnVector(_Vector):
@@ -451,7 +465,7 @@ class Natural(Int):
 
 class OneOf(Node):
 
-    def __init__(self, *args, widget=None, auto_score_none=True):
+    def __init__(self, *args, widget=None, treat_none_manually=False):
         self.dtype = OneOfType(options=args)
         if widget is None:
             if len(args) <= 5:
@@ -460,24 +474,28 @@ class OneOf(Node):
                 widget = widgets.Dropdown(*args)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            auto_score_none=auto_score_none
+            treat_none_manually=treat_none_manually
         )
 
 
 class Rational(Node):
 
-    def __init__(self, elementwise=True, widget=None, auto_score_none=True):
+    def __init__(
+            self, elementwise=True, widget=None, treat_none_manually=False
+    ):
         if widget is None:
             widget = widgets.Text()
         self.elementwise = elementwise
         self.dtype = RationalType()
         if self.elementwise is True:
             _ = ElementwiseRational(
-                widget=widget, auto_score_none=auto_score_none
+                widget=widget, treat_none_manually=treat_none_manually
             )
         else:
             _ = widget
-        Node.__init__(self, '<<_>>', _=_, auto_score_none=auto_score_none)
+        Node.__init__(
+            self, '<<_>>', _=_, treat_none_manually=treat_none_manually
+        )
 
     def assemble(self, _):
         if _ == '':
@@ -496,7 +514,7 @@ class Rational(Node):
 
 class ElementwiseRational(Node):
 
-    def __init__(self, widget=None, auto_score_none=True):
+    def __init__(self, widget=None, treat_none_manually=False):
         if widget is None:
             widget_a = widgets.Text()
             widget_b = widgets.Text()
@@ -506,7 +524,7 @@ class ElementwiseRational(Node):
         self.dtype = RationalType()
         Node.__init__(
             self, '<<a>> / <<b>>', a=Int(widget=widget_a),
-            b=Int(widget=widget_b), auto_score_none=auto_score_none
+            b=Int(widget=widget_b), treat_none_manually=treat_none_manually
         )
 
     def assemble(self, **ifields):
@@ -518,13 +536,13 @@ class ElementwiseRational(Node):
 
 class Real(Node):
 
-    def __init__(self, widget=None, auto_score_none=True):
+    def __init__(self, widget=None, treat_none_manually=False):
         if widget is None:
             widget = widgets.Text()
         self.dtype = RealType()
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            auto_score_none=auto_score_none
+            treat_none_manually=treat_none_manually
         )
 
 
@@ -532,37 +550,39 @@ class Set(Node):
 
     def __init__(
             self, count=None, compare='equality', widget=None,
-            auto_score_none=True
+            treat_none_manually=False
     ):
         if widget is None:
             widget = widgets.Text()
         self.dtype = SetType(count=count, compare=compare)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            auto_score_none=auto_score_none
+            treat_none_manually=treat_none_manually
         )
 
 
 class String(Node):
 
-    def __init__(self, strip=False, widget=None, auto_score_none=True):
+    def __init__(self, strip=False, widget=None, treat_none_manually=False):
         if widget is None:
             widget = widgets.Text()
         self.dtype = StringType(strip)
-        Node.__init__(self, '<<_>>', _=widget, auto_score_none=auto_score_none)
+        Node.__init__(
+            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
+        )
 
 
 class Tuple(Node):
 
     dtype = TupleType
 
-    def __init__(self, count=None, widget=None, auto_score_none=True):
+    def __init__(self, count=None, widget=None, treat_none_manually=False):
         if widget is None:
             widget = widgets.Text()
         self.dtype = self.dtype(count=count)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            auto_score_none=auto_score_none
+            treat_none_manually=treat_none_manually
         )
 
 
