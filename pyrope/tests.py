@@ -185,9 +185,15 @@ class TestParametrizedExercise(unittest.TestCase):
     @with_all_pexercises
     def test_no_score_for_empty_inputs(self, pexercise):
         '''
-        If all input fields are empty, the total score should be zero.
+        If all input fields are empty and treat None automatically, the total
+        score should be zero.
         '''
         if pexercise.ifields == {}:
+            return
+        if any([
+            ifield.treat_none_manually
+            for ifield in pexercise.ifields.values()
+        ]):
             return
         pexercise.answers = {
             name: None
