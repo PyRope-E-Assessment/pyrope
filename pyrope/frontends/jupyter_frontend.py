@@ -438,7 +438,8 @@ class JupyterWidgetResultSpan:
 
     @solution.setter
     def solution(self, value):
-        self._solution = str(value)
+        # Otherwise the following JavaScript snippet could have invalid syntax.
+        self._solution = str(value).replace("'", r"\'")
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.solution_ID}\', '
             f'\'{self._solution}\')'
