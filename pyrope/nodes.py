@@ -336,7 +336,7 @@ class Expression(Node):
         return expr
 
     def disassemble(self, value):
-        return {'_': str(value)}
+        return {'_': sympy.srepr(value)}
 
 
 class Equation(Expression):

@@ -208,6 +208,14 @@ class ExpressionType(DType):
     def dummy_value(self):
         return One()
 
+    def cast(self, value):
+        e, i = sympy.symbols('e i')
+        if e not in self.symbols:
+            value = value.subs(e, sympy.E)
+        if i not in self.symbols:
+            value = value.subs(i, sympy.I)
+        return value
+
     def compare(self, LHS, RHS):
         return LHS.equals(RHS)
 
