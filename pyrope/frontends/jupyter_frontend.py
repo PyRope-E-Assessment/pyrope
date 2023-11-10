@@ -160,9 +160,8 @@ class JupyterFrontend:
         display(HTML(self.formatter(template, allow_widgets=True)))
 
         # Prevent matplotlib from rendering a plot directly after an
-        # exercise is rendered. This also clears the current figure
-        # for the next exercise.
-        plt.close()
+        # exercise's preamble and problem are rendered.
+        plt.close(fig='all')
 
     def render_feedback(self, feedback):
         feedback = self.formatter(feedback, **self.runner.get_answers())
@@ -191,6 +190,12 @@ class JupyterFrontend:
             f'PyRope.set_inner_html(\'{self.submit_section.score_div_ID}\', '
             f'\'{score_string}\')'
         ))
+
+        # Prevent matplotlib from rendering a plot directly after an
+        # exercise's feedback is rendered. It is important to call plt.close
+        # again because render_feedback is called asynchronously via the
+        # submit button.
+        plt.close(fig='all')
 
     def get_answers(self):
         self.submit, self.submit_anyway = True, False
