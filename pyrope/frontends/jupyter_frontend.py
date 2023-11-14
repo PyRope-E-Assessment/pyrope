@@ -1,4 +1,5 @@
 
+from base64 import b64encode
 from functools import cached_property
 import os
 from pathlib import Path
@@ -18,6 +19,13 @@ from pyrope.widgets import (
     Checkbox, Dropdown, RadioButtons, Slider, Text, Textarea, Widget,
     WidgetFactory
 )
+
+
+def base64(obj):
+    # Stringify objects and encode these strings with base64 before they are
+    # inserted into a JavaScript snippet to avoid invalid JavaScript syntax
+    # because of special characters etc.
+    return b64encode(bytes(str(obj), 'utf-8')).decode('utf-8')
 
 
 class JupyterFrontend:
@@ -165,11 +173,9 @@ class JupyterFrontend:
 
     def render_feedback(self, feedback):
         feedback = self.formatter(feedback, **self.runner.get_answers())
-        # Otherwise the following JavaScript snippet could have invalid syntax.
-        feedback = feedback.replace("'", r"\'")
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.submit_section.feedback_div_ID}\','
-            f' \'{feedback}\')'
+            f' \'{base64(feedback)}\')'
         ))
         score_string = ''
         if self.total_score is not None and self.total_max_score is not None:
@@ -188,7 +194,7 @@ class JupyterFrontend:
             )
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.submit_section.score_div_ID}\', '
-            f'\'{score_string}\')'
+            f'\'{base64(score_string)}\')'
         ))
 
         # Prevent matplotlib from rendering a plot directly after an
@@ -434,7 +440,7 @@ class JupyterWidgetResultSpan:
         self._score = str(value)
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.score_ID}\', '
-            f'\'{self._score}\')'
+            f'\'{base64(self._score)}\')'
         ))
 
     @property
@@ -443,11 +449,10 @@ class JupyterWidgetResultSpan:
 
     @solution.setter
     def solution(self, value):
-        # Otherwise the following JavaScript snippet could have invalid syntax.
-        self._solution = str(value).replace("'", r"\'")
+        self._solution = str(value)
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.solution_ID}\', '
-            f'\'{self._solution}\')'
+            f'\'{base64(self._solution)}\')'
         ))
 
     def __str__(self):

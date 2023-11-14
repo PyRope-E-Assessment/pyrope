@@ -112,10 +112,10 @@ class PyRope {
 	}
 
 	// This methods sets innerHTML for all nodes with data-pyrope-id 'pyrope_id' to
-	// 'inner_html'.
+	// 'inner_html'. Note that 'inner_html' is a base64 encoded string.
 	static set_inner_html(pyrope_id, inner_html) {
 		document.querySelectorAll(`[data-pyrope-id="${pyrope_id}"]`).forEach(
-			node => node.innerHTML = inner_html
+			node => node.innerHTML = atob(inner_html)
 		);
 	}
 
