@@ -209,7 +209,10 @@ class ExpressionType(DType):
         return One()
 
     def compare(self, LHS, RHS):
-        return LHS.equals(RHS)
+        result = LHS.equals(RHS)
+        if result is None:
+            return False
+        return result
 
     def check_type(self, value):
         DType.check_type(self, value)
