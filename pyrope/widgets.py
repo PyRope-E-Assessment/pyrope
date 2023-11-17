@@ -48,6 +48,8 @@ class Widget(nodes.Node):
         self._displayed_score = None
         self._show_max_score = False
         self._displayed_max_score = None
+        self._correct = None
+        self._show_correct = False
 
     @property
     def template(self):
@@ -245,13 +247,22 @@ class Widget(nodes.Node):
         try:
             value = ifield.value
         except ValidationError:
+            self.correct = False
             return 0.0
         if value is None:
+            self.correct = False
             return 0.0
 
         # If no score, but a unique sample solution is given, the input field
         # is scored by comparing it to this sample solution.
-        return float(ifield.compare(value, the_solution))
+        score = float(ifield.compare(value, the_solution))
+
+        if score == self.auto_max_score:
+            self.correct = True
+        else:
+            self.correct = False
+
+        return score
 
     @property
     def displayed_score(self):
@@ -282,6 +293,27 @@ class Widget(nodes.Node):
                 self.__class__, 'attribute',
                 {'displayed_score': self.displayed_score}
             )
+
+    @property
+    def correct(self):
+        return self._correct
+
+    @correct.setter
+    def correct(self, value):
+        self._correct = value
+        if self.show_correct is True:
+            self.notify(self.__class__, 'attribute', {'correct': self.correct})
+
+    @property
+    def show_correct(self):
+        return self._show_correct
+
+    @show_correct.setter
+    def show_correct(self, value):
+        self._show_correct = value
+        self.notify(self.__class__, 'attribute', {'show_correct': value})
+        if value is True:
+            self.notify(self.__class__, 'attribute', {'correct': self.correct})
 
 
 class Checkbox(Widget):
