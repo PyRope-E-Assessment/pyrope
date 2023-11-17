@@ -246,6 +246,10 @@ class JupyterFrontend:
         for widget in self.widgets.values():
             widget.display_solution(show=show)
 
+    def display_widget_correct(self, show=True):
+        for widget in self.widgets.values():
+            widget.display_correct(show=show)
+
 
 def escape_markdown(s):
     # cf. https://github.com/mattcone/markdown-guide/blob/master/_basic-syntax/escaping-characters.md  # noqa
@@ -347,6 +351,7 @@ class JupyterSubmitSection(ipy_widgets.VBox):
                 if not self.show_solutions:
                     self.solution_btn.click()
                 self.frontend.display_widget_scores()
+                self.frontend.display_widget_correct()
 
         def f_anyway(btn):
             if self.submit_anyway:
@@ -355,6 +360,7 @@ class JupyterSubmitSection(ipy_widgets.VBox):
                 if not self.show_solutions:
                     self.solution_btn.click()
                 self.frontend.display_widget_scores()
+                self.frontend.display_widget_correct()
             else:
                 btn.on_click(f_anyway, remove=True)
                 btn.on_click(f)
@@ -465,6 +471,7 @@ class JupyterHtmlWidget:
         self.displayed_max_score = None
         self.displayed_score = None
         self.solution = ''
+        self.correct = None
         self._disabled = False
         self._valid = 'valid'
         self._value = None
@@ -568,6 +575,18 @@ class JupyterHtmlWidget:
             self.result_span.solution = self.solution
         else:
             self.result_span.solution = ''
+
+    def display_correct(self, show=True):
+        if show:
+            mapping = {
+                True: 'valid',
+                False: 'invalid',
+                None: '',
+            }
+            css_class = mapping.get(self.correct, '')
+        else:
+            css_class = ''
+        self.comm.send({'className': f'pyrope {css_class}'})
 
 
 class JupyterHtmlCheckbox(JupyterHtmlWidget):
