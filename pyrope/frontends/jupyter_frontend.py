@@ -327,6 +327,14 @@ class JupyterSubmitSection(ipy_widgets.VBox):
     def submit_btn(self):
         btn = ipy_widgets.Button(description='Submit')
 
+        def finish_exercise():
+            self.runner.finish()
+            self.frontend.disable_widgets()
+            if not self.show_solutions:
+                self.solution_btn.click()
+            self.frontend.display_widget_scores()
+            self.frontend.display_widget_correct()
+
         def f(btn):
             self.submit_output.clear_output()
 
@@ -346,21 +354,11 @@ class JupyterSubmitSection(ipy_widgets.VBox):
                 btn.on_click(f_anyway)
 
             if self.submit:
-                self.runner.finish()
-                self.frontend.disable_widgets()
-                if not self.show_solutions:
-                    self.solution_btn.click()
-                self.frontend.display_widget_scores()
-                self.frontend.display_widget_correct()
+                finish_exercise()
 
         def f_anyway(btn):
             if self.submit_anyway:
-                self.runner.finish()
-                self.frontend.disable_widgets()
-                if not self.show_solutions:
-                    self.solution_btn.click()
-                self.frontend.display_widget_scores()
-                self.frontend.display_widget_correct()
+                finish_exercise()
             else:
                 btn.on_click(f_anyway, remove=True)
                 btn.on_click(f)
