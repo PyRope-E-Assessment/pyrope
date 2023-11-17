@@ -346,9 +346,9 @@ class MatrixType(DType):
             )
         if not isinstance(compare_elementwise, bool):
             raise ValueError("'compare_elementwise' must be boolean.")
-        if isinstance(rtol, numbers.Real):
+        if not isinstance(rtol, numbers.Real):
             raise ValueError("'rtol' must be real.")
-        if isinstance(atol, numbers.Real):
+        if not isinstance(atol, numbers.Real):
             raise ValueError("'atol' must be real.")
         self.nrows = nrows
         self.ncols = ncols
@@ -658,43 +658,67 @@ class ListType(TupleType):
 
 class VectorType(MatrixType):
 
-    def __init__(
-        self, orientation='column', dim=None, allow_flat_list=True, **kwargs,
-    ):
+    dtype = np.ndarray
+
+    def __init__(self, count=None, orientation='column', **kwargs):
         if orientation not in ('row', 'column'):
             raise ValueError("'orientation' must either be 'column' or 'row'.")
-        if dim is not None:
-            if not isinstance(dim, int):
-                raise ValueError("Dimension must be integer.")
-            if not dim > 1:
-                raise ValueError(f'Dimension must be positive, not {dim}.')
-        if not isinstance(allow_flat_list, bool):
-            raise ValueError("'allow_flat_list' must be boolean.")
-        nrows, ncols = 1, 1
-        if orientation == 'row':
-            ncols = dim
-        if orientation == 'column':
-            nrows = dim
-        MatrixType.__init__(self, nrows=nrows, ncols=ncols, **kwargs)
+        if count is not None:
+            if not isinstance(count, int) or not count >= 1:
+                raise ValueError(
+                    "'count' must be an integer greater than or equal to 1."
+                )
+        for kw in ('nrows', 'ncols'):
+            if kwargs.pop(kw, None) is not None:
+                raise TypeError(
+                    f"{self.__class__.__name__}.__init__() got an unexpected "
+                    f"keyword argument '{kw}'."
+                )
+        MatrixType.__init__(self, **kwargs)
+        self.count = count
         self.orientation = orientation
-        self.dim = dim
-        self.allow_flat_list = allow_flat_list
 
     @property
     def info(self):
-        info = f'a {self.dim}-dimensional {self.orientation} vector'
+        info = f'a {self.count}-dimensional {self.orientation} vector'
         if self.sub_dtype == numbers.Number:
             return info
         return f'{info} of {self.sub_dtype.__name__} numbers'
 
+    def trivial_value(self):
+        return np.array([0])
+
+    def dummy_value(self):
+        if self.count is None:
+            return np.array([0])
+        return np.array([0] * self.count)
+
     def cast(self, value):
-        try:
-            value = np.array(value)
-        except ValueError:
+        value = MatrixType.cast(self, value)
+        if not isinstance(value, self.dtype):
             return value
-        if not (self.allow_flat_list and value.ndim == 1):
-            return value
-        if self.orientation == 'column':
-            return np.reshape(value, (-1, 1))
-        else:
-            return np.reshape(value, (1, -1))
+        if (
+            len(value.shape) == 2 and (
+                (value.shape[1] == 1 and self.orientation == 'column') or
+                (value.shape[0] == 1 and self.orientation == 'row')
+            )
+        ):
+            value = value.flatten()
+        return value
+
+    def check_type(self, value):
+        DType.check_type(self, value)
+        if len(value.shape) != 1:
+            raise ValidationError(
+                f'Expected one dimension, not {len(value.shape)}.'
+            )
+        if self.count is not None and value.size != self.count:
+            raise ValidationError(
+                f'Expected a vector with {self.count} elements, '
+                f'not {value.size}.'
+            )
+        for element in value:
+            if not isinstance(element, self.sub_dtype):
+                raise ValidationError(
+                    f'Elements must be {self.sub_dtype.__name__}.'
+                )
