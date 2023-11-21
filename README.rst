@@ -104,7 +104,7 @@ Requirements
 * `Python3 <https://www.python.org/downloads>`_ version 3.11 or higher and pip,
   which is a built-in package
 * `Git client <https://git-scm.com/downloads>`_
-* `Pandoc <https://pandoc.org/installing.html>`_ for converting exercise
+* `Pandoc <https://pandoc.org/installing.html>`_ (<= 2.19) for converting exercise
   templates
 
 Windows
