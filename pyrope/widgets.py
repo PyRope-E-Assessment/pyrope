@@ -288,8 +288,8 @@ class Checkbox(Widget):
 
     checked = NotifyingAttribute(dtype=bool)
 
-    def __init__(self, checked=False, description=''):
-        Widget.__init__(self, description=description)
+    def __init__(self, checked=False, **kwargs):
+        Widget.__init__(self, **kwargs)
         self._value = checked
         self.checked = checked
 
@@ -298,8 +298,8 @@ class Dropdown(Widget):
 
     options = NotifyingAttribute(dtype=tuple)
 
-    def __init__(self, *args, description=''):
-        Widget.__init__(self, description=description)
+    def __init__(self, *args, **kwargs):
+        Widget.__init__(self, **kwargs)
         self.options = args
 
 
@@ -308,8 +308,8 @@ class RadioButtons(Widget):
     options = NotifyingAttribute(dtype=tuple)
     vertical = NotifyingAttribute(dtype=bool)
 
-    def __init__(self, *args, description='', vertical=True):
-        Widget.__init__(self, description=description)
+    def __init__(self, *args, vertical=True, **kwargs):
+        Widget.__init__(self, **kwargs)
         self.options = args
         self.vertical = vertical
 
@@ -323,10 +323,10 @@ class Slider(Widget):
     width = NotifyingAttribute(dtype=int)
 
     def __init__(
-            self, minimum, maximum, description='', label_position='right',
-            step=1, width=25
+            self, minimum, maximum, label_position='right', step=1, width=25,
+            **kwargs
     ):
-        Widget.__init__(self, description=description)
+        Widget.__init__(self, **kwargs)
         if label_position not in ('left', 'right', 'neither'):
             raise ValueError(
                 "'label_position' has to be either left, right or neither."
@@ -343,8 +343,8 @@ class Text(Widget):
     placeholder = NotifyingAttribute()
     width = NotifyingAttribute(dtype=int)
 
-    def __init__(self, description='', placeholder='', width=20):
-        Widget.__init__(self, description=description)
+    def __init__(self, placeholder='', width=20, **kwargs):
+        Widget.__init__(self, **kwargs)
         self.placeholder = placeholder
         self.width = width
 
@@ -353,10 +353,9 @@ class Textarea(Text):
 
     height = NotifyingAttribute(dtype=int)
 
-    def __init__(self, description='', height=4, placeholder='', width=50):
-        Text.__init__(
-            self, description=description, placeholder=placeholder, width=width
-        )
+    def __init__(self, height=4, width=50, **kwargs):
+        kwargs['width'] = width
+        Text.__init__(self, **kwargs)
         self.height = height
 
 
