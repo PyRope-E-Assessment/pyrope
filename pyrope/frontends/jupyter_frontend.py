@@ -653,6 +653,7 @@ class _JupyterHtmlRadioButton(JupyterHtmlWidget):
 
     @value.setter
     def value(self, value):
+        self._value = value
         self.comm.send({'checked': value}, {'sync': True})
 
 
