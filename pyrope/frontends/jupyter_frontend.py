@@ -679,6 +679,7 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
         self.radio_buttons = []
         JupyterHtmlWidget.__init__(self, widget, runner)
         self._options = ()
+        self._correct = None
         self.times_rendered = 0
         self.vertical = False
 
@@ -697,6 +698,16 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
                 '<span style="display: inline-block; width: 20px;"></span>'
                 .join([str(btn) for btn in self.radio_buttons])
             )
+
+    @property
+    def correct(self):
+        return self._correct
+
+    @correct.setter
+    def correct(self, value):
+        self._correct = value
+        for btn in self.radio_buttons:
+            btn.correct = value
 
     @property
     def disabled(self):
@@ -739,6 +750,10 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
     def change_hover_text(self, text):
         for btn in self.radio_buttons:
             btn.change_hover_text(text)
+
+    def display_correct(self, show=True):
+        for btn in self.radio_buttons:
+            btn.display_correct()
 
 
 class JupyterHtmlSlider(JupyterHtmlWidget):
