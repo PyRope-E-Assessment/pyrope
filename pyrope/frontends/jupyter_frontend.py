@@ -572,8 +572,8 @@ class JupyterHtmlWidget:
 
 class JupyterHtmlCheckbox(JupyterHtmlWidget):
 
-    def __init__(self, widget, runner):
-        JupyterHtmlWidget.__init__(self, widget, runner)
+    def __init__(self, *args):
+        JupyterHtmlWidget.__init__(self, *args)
         self.checked = False
 
     def __str__(self):
@@ -602,8 +602,8 @@ class JupyterHtmlCheckbox(JupyterHtmlWidget):
 
 class JupyterHtmlDropdown(JupyterHtmlWidget):
 
-    def __init__(self, widget, runner):
-        JupyterHtmlWidget.__init__(self, widget, runner)
+    def __init__(self, *args):
+        JupyterHtmlWidget.__init__(self, *args)
         self.options = ()
 
     def __str__(self):
@@ -658,9 +658,9 @@ class _JupyterHtmlRadioButton(JupyterHtmlWidget):
 
 class JupyterHtmlRadioButtons(JupyterHtmlWidget):
 
-    def __init__(self, widget, runner):
+    def __init__(self, *args):
         self.radio_buttons = []
-        JupyterHtmlWidget.__init__(self, widget, runner)
+        JupyterHtmlWidget.__init__(self, *args)
         self._options = ()
         self.times_rendered = 0
         self.vertical = False
@@ -726,8 +726,8 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
 
 class JupyterHtmlSlider(JupyterHtmlWidget):
 
-    def __init__(self, widget, runner):
-        JupyterHtmlWidget.__init__(self, widget, runner)
+    def __init__(self, *args):
+        JupyterHtmlWidget.__init__(self, *args)
         self.label_ID = f'id_{uuid4().hex}'
         self.label_position = 'right'
         self.maximum = 100
@@ -756,8 +756,8 @@ class JupyterHtmlSlider(JupyterHtmlWidget):
 
 class JupyterHtmlText(JupyterHtmlWidget):
 
-    def __init__(self, widget, runner):
-        JupyterHtmlWidget.__init__(self, widget, runner)
+    def __init__(self, *args):
+        JupyterHtmlWidget.__init__(self, *args)
         self.placeholder = ''
         self.width = 20
 
@@ -774,8 +774,8 @@ class JupyterHtmlText(JupyterHtmlWidget):
 
 class JupyterHtmlTextarea(JupyterHtmlText):
 
-    def __init__(self, widget, runner):
-        JupyterHtmlText.__init__(self, widget, runner)
+    def __init__(self, *args):
+        JupyterHtmlText.__init__(self, *args)
         self.height = 4
 
     def __str__(self):
