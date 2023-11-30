@@ -384,7 +384,7 @@ class TestParametrizedExercise(unittest.TestCase):
             return
         self.assertIsInstance(
             scores, dict,
-            f'If implemented, the scores method of exercise {exercise} must '
+            f'If implemented, the score method of exercise {exercise} must '
             f'return an integer, a float or a dictionary (got '
             f'{type(scores)}).'
         )
