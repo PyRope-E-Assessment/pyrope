@@ -28,7 +28,10 @@ class Exercise(abc.ABC):
     def __init_subclass__(cls):
         cls.__init__ = Exercise.__init__
 
-    def __init__(self, **kwargs):
+    def __init__(self, weights=None, **kwargs):
+        if weights is None:
+            weights = 1.0
+        self.weights = weights
         self.kwargs = kwargs
 
     @property
@@ -230,6 +233,22 @@ class ParametrizedExercise:
         self.model.value = answers
 
     @cached_property
+    def score_weights(self):
+        weights = self.exercise.weights
+        if isinstance(weights, score_types):
+            weights = float(weights)
+            if len(self.ifields) == 0:
+                return {None: weights}
+            return {name: weights for name in self.ifields.keys()}
+        weights = weights.copy()
+        for name in self.ifields.keys():
+            if name not in weights.keys():
+                weights[name] = 1.0
+            else:
+                weights[name] = float(weights[name])
+        return weights
+
+    @cached_property
     def max_scores(self):
         solution = self.solution
         scores = self.apply(
@@ -244,7 +263,7 @@ class ParametrizedExercise:
                     )
         if scores is None:
             max_scores = {
-                name: float(ifield.auto_max_score)
+                name: float(ifield.auto_max_score) * self.score_weights[name]
                 for name, ifield in self.ifields.items()
             }
             self._max_total_score = sum(max_scores.values())
@@ -252,7 +271,9 @@ class ParametrizedExercise:
                 ifield.displayed_max_score = max_scores[name]
             return max_scores
         if isinstance(scores, tuple):
-            self._max_total_score = float(scores[1])
+            self._max_total_score = (
+                float(scores[1]) * list(self.score_weights.values())[0]
+            )
             if len(self.ifields) == 1:
                 name = list(self.ifields.keys())[0]
                 ifield = list(self.ifields.values())[0]
@@ -272,7 +293,9 @@ class ParametrizedExercise:
             if value is None and name in max_scores:
                 max_scores[name] = None
         if isinstance(scores, score_types):
-            self._max_total_score = float(max_scores)
+            self._max_total_score = (
+                float(max_scores) * list(self.score_weights.values())[0]
+            )
             if len(self.ifields) == 1:
                 name = list(self.ifields.keys())[0]
                 ifield = list(self.ifields.values())[0]
@@ -292,6 +315,7 @@ class ParametrizedExercise:
                     max_scores[name] = float(value[1])
                 elif value is None or solution[name] is None:
                     max_scores[name] = self.ifields[name].auto_max_score
+                max_scores[name] *= self.score_weights[name]
                 self.ifields[name].displayed_max_score = max_scores[name]
             self._max_total_score = sum(max_scores.values())
             return max_scores
@@ -339,13 +363,17 @@ class ParametrizedExercise:
         names = list(self.ifields.keys())
         ifields = list(self.ifields.values())
         if isinstance(scores, score_types):
-            self._total_score = float(scores)
+            self._total_score = (
+                float(scores) * list(self.score_weights.values())[0]
+            )
             if len(names) == 1:
                 ifields[0].displayed_score = self._total_score
                 return {names[0]: self._total_score}
             return no_scores
         if isinstance(scores, tuple):
-            self._total_score = float(scores[0])
+            self._total_score = (
+                float(scores[0]) * list(self.score_weights.values())[0]
+            )
             if len(names) == 1:
                 ifields[0].displayed_score = self._total_score
                 return {names[0]: self._total_score}
@@ -357,7 +385,7 @@ class ParametrizedExercise:
                 scores[name] = ifield.auto_score
             if isinstance(scores[name], tuple):
                 scores[name] = scores[name][0]
-            scores[name] = float(scores[name])
+            scores[name] = float(scores[name]) * self.score_weights[name]
             ifield.displayed_score = scores[name]
         self._total_score = sum([
             scores[name][0]

@@ -159,6 +159,51 @@ class TestParametrizedExercise(unittest.TestCase):
             )
 
     @with_all_pexercises
+    def test_score_weights(self, pexercise):
+        '''
+        Scores can be weighted via the key word argument 'weights' of the
+        Exercise class. Input fields can be weighted either all the same or
+        individually. 'weights' needs to be an integer, a float or a
+        dictionary. In case of a dictionary, a key is the name if an input
+        field and a value is the corresponding weight in form of an integer or
+        a float.
+        '''
+        weights = pexercise.exercise.weights
+        print(weights)
+        score_output = pexercise.apply(
+            pexercise.exercise.score,
+            pexercise.parameters | pexercise.dummy_input
+        )
+
+        self.assertIsInstance(
+            weights, core.score_types + (dict,),
+            f"'weights' has to be an integer, a float or a dictionary, got "
+            f"{type(weights)}."
+        )
+        if (
+            isinstance(score_output, core.score_types) and
+            len(pexercise.ifields) > 1
+        ):
+            self.assertIsInstance(
+                weights, core.score_types,
+                "It is only possible to weight scores of input fields "
+                "individually if the score method returns an input-field-wise "
+                "scoring."
+            )
+        if isinstance(weights, dict):
+            for name, weight in weights.items():
+                self.assertIsInstance(
+                    weight, core.score_types,
+                    f"All score weights have to be either an integer or a "
+                    f"float, got {type(weight)}."
+                )
+                self.assertIn(
+                    name, pexercise.ifields.keys(),
+                    f"Cannot weight score. There is no input field named "
+                    f"'{name}'."
+                )
+
+    @with_all_pexercises
     def test_maximal_total_score_is_positive(self, pexercise):
         '''
         The maximal total score should be positive.
