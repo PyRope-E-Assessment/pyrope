@@ -189,17 +189,27 @@ class TestParametrizedExercise(unittest.TestCase):
                 "individually if the score method returns an input-field-wise "
                 "scoring."
             )
+        if isinstance(weights, core.float_types):
+            self.assertGreater(
+                weights, 0.0,
+                f"Score weights have to be greater than 0, got {weights}."
+            )
         if isinstance(weights, dict):
             for name, weight in weights.items():
+                self.assertIn(
+                    name, pexercise.ifields.keys(),
+                    f"Cannot weight score. There is no input field named "
+                    f"'{name}'."
+                )
                 self.assertIsInstance(
                     weight, core.float_types,
                     f"All score weights have to be either an integer or a "
                     f"float, got {type(weight)}."
                 )
-                self.assertIn(
-                    name, pexercise.ifields.keys(),
-                    f"Cannot weight score. There is no input field named "
-                    f"'{name}'."
+                self.assertGreater(
+                    weight, 0.0,
+                    f"All score weights have to be greater than 0, got "
+                    f"{weight}."
                 )
 
     @with_all_pexercises
