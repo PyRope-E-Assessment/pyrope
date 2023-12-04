@@ -169,7 +169,6 @@ class TestParametrizedExercise(unittest.TestCase):
         a float.
         '''
         weights = pexercise.exercise.weights
-        print(weights)
         score_output = pexercise.apply(
             pexercise.exercise.score,
             pexercise.parameters | pexercise.dummy_input
