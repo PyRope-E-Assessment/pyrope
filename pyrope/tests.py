@@ -175,16 +175,16 @@ class TestParametrizedExercise(unittest.TestCase):
         )
 
         self.assertIsInstance(
-            weights, core.score_types + (dict,),
+            weights, core.float_types + (dict,),
             f"'weights' has to be an integer, a float or a dictionary, got "
             f"{type(weights)}."
         )
         if (
-            isinstance(score_output, core.score_types) and
+            isinstance(score_output, core.float_types) and
             len(pexercise.ifields) > 1
         ):
             self.assertIsInstance(
-                weights, core.score_types,
+                weights, core.float_types,
                 "It is only possible to weight scores of input fields "
                 "individually if the score method returns an input-field-wise "
                 "scoring."
@@ -192,7 +192,7 @@ class TestParametrizedExercise(unittest.TestCase):
         if isinstance(weights, dict):
             for name, weight in weights.items():
                 self.assertIsInstance(
-                    weight, core.score_types,
+                    weight, core.float_types,
                     f"All score weights have to be either an integer or a "
                     f"float, got {type(weight)}."
                 )
@@ -298,7 +298,7 @@ class TestParametrizedExercise(unittest.TestCase):
         )
 
         if (
-            isinstance(output, core.score_types + (tuple,)) and
+            isinstance(output, core.float_types + (tuple,)) and
             len(pexercise.ifields) >= 2
         ):
             for name, ifield in pexercise.ifields.items():
@@ -436,7 +436,7 @@ class TestParametrizedExercise(unittest.TestCase):
 
         if scores is None:
             return
-        if isinstance(scores, core.score_types):
+        if isinstance(scores, core.float_types):
             return
         if isinstance(scores, tuple):
             self.assertEqual(
@@ -447,7 +447,7 @@ class TestParametrizedExercise(unittest.TestCase):
             )
             for score in scores:
                 self.assertIsInstance(
-                    score, core.score_types,
+                    score, core.float_types,
                     f'The two elements in the tuple returned by the score '
                     f'method of exercise {exercise} must be integers or '
                     f'floats (got {type(score)}).'
@@ -475,7 +475,7 @@ class TestParametrizedExercise(unittest.TestCase):
                 f"The score method of exercise {exercise} scores a "
                 f"non-existent input field '{name}'."
             )
-            if isinstance(score, core.score_types):
+            if isinstance(score, core.float_types):
                 continue
             self.assertIsInstance(
                 score, tuple,
@@ -490,7 +490,7 @@ class TestParametrizedExercise(unittest.TestCase):
             )
             for component in score:
                 self.assertIsInstance(
-                    component, core.score_types,
+                    component, core.float_types,
                     f"The two elements in the score tuple for input field "
                     f"'{name}' in exercise {exercise} must be integers or "
                     f"floats (got {type(component)})."

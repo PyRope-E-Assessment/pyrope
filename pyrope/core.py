@@ -20,7 +20,7 @@ from pyrope import frontends, tests
 from pyrope.config import process_total_score
 
 
-score_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
+float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
 
 
 class Exercise(abc.ABC):
@@ -235,7 +235,7 @@ class ParametrizedExercise:
     @cached_property
     def score_weights(self):
         weights = self.exercise.weights
-        if isinstance(weights, score_types):
+        if isinstance(weights, float_types):
             weights = float(weights)
             if len(self.ifields) == 0:
                 return {None: weights}
@@ -254,7 +254,7 @@ class ParametrizedExercise:
         scores = self.apply(
             self.exercise.score, self.parameters | self.dummy_input
         )
-        if scores is None or isinstance(scores, score_types):
+        if scores is None or isinstance(scores, float_types):
             for name, value in solution.items():
                 if value is None:
                     raise IllPosedError(
@@ -292,7 +292,7 @@ class ParametrizedExercise:
         for name, value in solution.items():
             if value is None and name in max_scores:
                 max_scores[name] = None
-        if isinstance(scores, score_types):
+        if isinstance(scores, float_types):
             self._max_total_score = (
                 float(max_scores) * list(self.score_weights.values())[0]
             )
@@ -309,7 +309,7 @@ class ParametrizedExercise:
                 for name in self.ifields
             }
             for name, value in max_scores.items():
-                if isinstance(value, score_types):
+                if isinstance(value, float_types):
                     max_scores[name] = float(value)
                 elif isinstance(value, tuple):
                     max_scores[name] = float(value[1])
@@ -362,7 +362,7 @@ class ParametrizedExercise:
             scores = no_scores
         names = list(self.ifields.keys())
         ifields = list(self.ifields.values())
-        if isinstance(scores, score_types):
+        if isinstance(scores, float_types):
             self._total_score = (
                 float(scores) * list(self.score_weights.values())[0]
             )
