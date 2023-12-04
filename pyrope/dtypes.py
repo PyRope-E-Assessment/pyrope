@@ -209,7 +209,7 @@ class ExpressionType(DType):
         return One()
 
     def cast(self, value):
-        e, i = sympy.symbols('e i')
+        e, i = sympy.symbols('e, i')
         if e not in self.symbols:
             value = value.subs(e, sympy.E)
         if i not in self.symbols:
