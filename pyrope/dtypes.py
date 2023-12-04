@@ -412,7 +412,7 @@ class MatrixType(DType):
         for element in value.flat:
             if not isinstance(element, self.sub_dtype):
                 raise ValidationError(
-                    f'Entries must be {self.sub_dtype.__name__}.'
+                    f'Entries must be {self.sub_dtype.__name__}s.'
                 )
 
     def compare(self, LHS, RHS):
@@ -720,5 +720,5 @@ class VectorType(MatrixType):
         for element in value:
             if not isinstance(element, self.sub_dtype):
                 raise ValidationError(
-                    f'Elements must be {self.sub_dtype.__name__}.'
+                    f'Elements must be {self.sub_dtype.__name__}s.'
                 )
