@@ -115,7 +115,12 @@ class PyRope {
 	// 'inner_html'. Note that 'inner_html' is a base64 encoded string.
 	static set_inner_html(pyrope_id, inner_html) {
 		document.querySelectorAll(`[data-pyrope-id="${pyrope_id}"]`).forEach(
-			node => node.innerHTML = atob(inner_html)
+			node => {
+				node.innerHTML = new TextDecoder().decode(
+					Uint8Array.from(atob(inner_html), (m) => m.codePointAt(0))
+				);
+				MathJax.Hub.Typeset(node);
+			}
 		);
 	}
 
