@@ -422,7 +422,7 @@ class Matrix(Node):
         return {'_': str(value.tolist())}
 
 
-class _Vector(Matrix):
+class Vector(Matrix):
 
     def __init__(self, widget=None, treat_none_manually=False, **kwargs):
         self.dtype = VectorType(**kwargs)
@@ -431,21 +431,6 @@ class _Vector(Matrix):
         Node.__init__(
             self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
         )
-
-
-class ColumnVector(_Vector):
-
-    def __init__(self, **kwargs):
-        _Vector.__init__(self, orientation='column', **kwargs)
-
-
-class RowVector(_Vector):
-
-    def __init__(self, **kwargs):
-        _Vector.__init__(self, orientation='row', **kwargs)
-
-
-Vector = ColumnVector
 
 
 class Natural(Int):
