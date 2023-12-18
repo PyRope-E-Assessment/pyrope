@@ -405,6 +405,26 @@ class ParametrizedExercise:
         return self._max_total_score
 
     @property
+    def correct(self):
+        max_scores = self.max_scores
+        scores = self.scores
+        correct = {}
+        for name, ifield in self.ifields.items():
+            if (
+                ifield.correct is None and
+                scores[name] is not None and
+                max_scores[name] is not None
+            ):
+                if scores[name] == max_scores[name]:
+                    correct[name] = True
+                else:
+                    correct[name] = False
+                ifield.correct = correct[name]
+            else:
+                correct[name] = ifield.correct
+        return correct
+
+    @property
     def feedback(self):
         kwargs = self.parameters | self.answers
         feedback = self.apply(self.exercise.feedback, kwargs)
@@ -463,9 +483,11 @@ class ExerciseRunner:
             self.pexercise.__class__, 'total_score',
             process_total_score(self.pexercise.total_score)
         )
+        self.pexercise.correct
         for widget in self.pexercise.model.widgets:
             widget.show_max_score = True
             widget.show_score = True
+            widget.show_correct = True
         self.frontend.render_feedback(self.pexercise.feedback)
 
     def get_solutions(self):

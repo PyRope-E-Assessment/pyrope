@@ -256,6 +256,10 @@ class JupyterFrontend:
         for widget in self.widgets.values():
             widget.display_solution(show=show)
 
+    def display_widget_correct(self, show=True):
+        for widget in self.widgets.values():
+            widget.display_correct(show=show)
+
 
 def escape_markdown(s):
     # cf. https://github.com/mattcone/markdown-guide/blob/master/_basic-syntax/escaping-characters.md  # noqa
@@ -333,6 +337,14 @@ class JupyterSubmitSection(ipy_widgets.VBox):
     def submit_btn(self):
         btn = ipy_widgets.Button(description='Submit')
 
+        def finish_exercise():
+            self.runner.finish()
+            self.frontend.disable_widgets()
+            if not self.show_solutions:
+                self.solution_btn.click()
+            self.frontend.display_widget_scores()
+            self.frontend.display_widget_correct()
+
         def f(btn):
             self.submit_output.clear_output()
 
@@ -352,19 +364,11 @@ class JupyterSubmitSection(ipy_widgets.VBox):
                 btn.on_click(f_anyway)
 
             if self.submit:
-                self.runner.finish()
-                self.frontend.disable_widgets()
-                if not self.show_solutions:
-                    self.solution_btn.click()
-                self.frontend.display_widget_scores()
+                finish_exercise()
 
         def f_anyway(btn):
             if self.submit_anyway:
-                self.runner.finish()
-                self.frontend.disable_widgets()
-                if not self.show_solutions:
-                    self.solution_btn.click()
-                self.frontend.display_widget_scores()
+                finish_exercise()
             else:
                 btn.on_click(f_anyway, remove=True)
                 btn.on_click(f)
@@ -475,6 +479,7 @@ class JupyterHtmlWidget:
         self.displayed_max_score = None
         self.displayed_score = None
         self.solution = ''
+        self.correct = None
         self._disabled = False
         self._valid = 'valid'
         self._value = None
@@ -579,6 +584,18 @@ class JupyterHtmlWidget:
         else:
             self.result_span.solution = ''
 
+    def display_correct(self, show=True):
+        if show:
+            mapping = {
+                True: 'valid',
+                False: 'invalid',
+                None: '',
+            }
+            css_class = mapping.get(self.correct, '')
+        else:
+            css_class = ''
+        self.comm.send({'className': f'pyrope {css_class}'})
+
 
 class JupyterHtmlCheckbox(JupyterHtmlWidget):
 
@@ -673,6 +690,7 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
         self.radio_buttons = []
         JupyterHtmlWidget.__init__(self, *args)
         self._options = ()
+        self._correct = None
         self.times_rendered = 0
         self.vertical = False
 
@@ -691,6 +709,16 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
                 '<span style="display: inline-block; width: 20px;"></span>'
                 .join([str(btn) for btn in self.radio_buttons])
             )
+
+    @property
+    def correct(self):
+        return self._correct
+
+    @correct.setter
+    def correct(self, value):
+        self._correct = value
+        for btn in self.radio_buttons:
+            btn.correct = value
 
     @property
     def disabled(self):
@@ -733,6 +761,10 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
     def change_hover_text(self, text):
         for btn in self.radio_buttons:
             btn.change_hover_text(text)
+
+    def display_correct(self, show=True):
+        for btn in self.radio_buttons:
+            btn.display_correct()
 
 
 class JupyterHtmlSlider(JupyterHtmlWidget):

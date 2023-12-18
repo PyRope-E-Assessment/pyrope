@@ -49,6 +49,7 @@ if args.subcommand == 'run':
                 f'{pexercise.total_score}/{pexercise.max_total_score}'
             )
             print('score weights:', pexercise.score_weights)
+            print('correct:', pexercise.correct)
 
     if args.frontend == 'jupyter':
         nb = nbformat.v4.new_notebook()

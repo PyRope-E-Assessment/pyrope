@@ -117,6 +117,18 @@ class Node:
             self.ifields[name].displayed_score = None
         self.ifields[last].displayed_score = value
 
+    @property
+    def correct(self):
+        correct = [ifield.correct for ifield in self.ifields.values()]
+        if None in correct:
+            return None
+        return all(correct)
+
+    @correct.setter
+    def correct(self, value):
+        for ifield in self.ifields.values():
+            ifield.correct = value
+
     def assemble(self, **ifields):
         if len(self.ifields) != 1:
             raise NotImplementedError(
