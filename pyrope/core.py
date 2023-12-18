@@ -311,7 +311,7 @@ class ParametrizedExercise:
         fill_values = {
             name: self.dummy_input[name]
             for name, answer in answers.items()
-            if answer is None
+            if answer is None and not self.ifields[name].treat_none_manually
         }
         if isinstance(output, dict)\
                 or (output is not None and len(self.ifields) == 1):

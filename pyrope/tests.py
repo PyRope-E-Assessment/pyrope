@@ -185,9 +185,15 @@ class TestParametrizedExercise(unittest.TestCase):
     @with_all_pexercises
     def test_no_score_for_empty_inputs(self, pexercise):
         '''
-        If all input fields are empty, the total score should be zero.
+        If all input fields are empty and treat None automatically, the total
+        score should be zero.
         '''
         if pexercise.ifields == {}:
+            return
+        if any([
+            ifield.treat_none_manually
+            for ifield in pexercise.ifields.values()
+        ]):
             return
         pexercise.answers = {
             name: None
@@ -232,6 +238,32 @@ class TestParametrizedExercise(unittest.TestCase):
             pexercise.total_score, pexercise.max_total_score,
             'The sample solution does not get maximal total score.'
         )
+
+    @with_all_pexercises
+    def test_treat_none_manually_keyword(self, pexercise):
+        '''
+        If score returns a scalar or a tuple and the exercise has more than two
+        input fields then None cannot be treated automatically. In these cases
+        'treat_none_manually' should be set to True to make it explicit.
+        '''
+        exercise = pexercise.exercise
+
+        output = pexercise.apply(
+            exercise.score,
+            pexercise.parameters | pexercise.dummy_input
+        )
+
+        if (
+            isinstance(output, core.score_types + (tuple,)) and
+            len(pexercise.ifields) >= 2
+        ):
+            for name, ifield in pexercise.ifields.items():
+                self.assertTrue(
+                    ifield.treat_none_manually,
+                    f"'treat_none_manually' of input field {name} should be "
+                    f"set to True because in this scoring case it cannot be "
+                    f"handled automatically."
+                )
 
     @staticmethod
     def with_all_pexercises_and_all_inputs(test):

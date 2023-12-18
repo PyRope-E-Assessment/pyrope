@@ -44,7 +44,7 @@ def logo(figsize=(2, 2), R=1/np.sqrt(2), seed=42):
             triangles[i+1:i+16:2].copy()
         )
 
-    # trinagulation with reordered triangles
+    # triangulation with reordered triangles
     T = matplotlib.tri.Triangulation(x, y, triangles)
 
     # triangle colours
@@ -53,7 +53,7 @@ def logo(figsize=(2, 2), R=1/np.sqrt(2), seed=42):
     # inner octogon
     TC[0] = 1/3
 
-    # equal colours for tringles forming a quadrilateral
+    # equal colours for triangles forming a quadrilateral
     TC[[3, 6, 7]] = TC[[2, 4, 5]]
 
     TC = TC.flatten()

@@ -9,9 +9,6 @@ from pyrope.core import IllPosedError, ValidationError
 
 class NotifyingAttribute:
 
-    def __init__(self, dtype=str):
-        self.dtype = dtype
-
     def __set_name__(self, owner, name):
         self.name = name
         self._name = '_' + name
@@ -20,8 +17,6 @@ class NotifyingAttribute:
         return getattr(obj, self._name)
 
     def __set__(self, obj, value):
-        if not isinstance(value, self.dtype):
-            raise TypeError(f'{self.name} has to be of type {self.dtype}.')
         setattr(obj, self._name, value)
         self.notify(obj)
 
@@ -35,6 +30,8 @@ class Widget(nodes.Node):
     description = NotifyingAttribute()
 
     def __init__(self, description=''):
+        if not isinstance(description, str):
+            raise ValueError("'description' has to be a string.")
         nodes.Node.__init__(self, None)
         self.observers = []
         self.description = description
@@ -279,30 +276,34 @@ class Widget(nodes.Node):
 
 class Checkbox(Widget):
 
-    checked = NotifyingAttribute(dtype=bool)
+    checked = NotifyingAttribute()
 
-    def __init__(self, checked=False, description=''):
-        Widget.__init__(self, description=description)
-        self._value = checked
+    def __init__(self, checked=False, **kwargs):
+        Widget.__init__(self, **kwargs)
+        if not isinstance(checked, bool):
+            raise ValueError("'checked' has to be a boolean.")
         self.checked = checked
+        self._value = checked
 
 
 class Dropdown(Widget):
 
-    options = NotifyingAttribute(dtype=tuple)
+    options = NotifyingAttribute()
 
-    def __init__(self, *args, description=''):
-        Widget.__init__(self, description=description)
+    def __init__(self, *args, **kwargs):
+        Widget.__init__(self, **kwargs)
         self.options = args
 
 
 class RadioButtons(Widget):
 
-    options = NotifyingAttribute(dtype=tuple)
-    vertical = NotifyingAttribute(dtype=bool)
+    options = NotifyingAttribute()
+    vertical = NotifyingAttribute()
 
-    def __init__(self, *args, description='', vertical=True):
-        Widget.__init__(self, description=description)
+    def __init__(self, *args, vertical=True, **kwargs):
+        Widget.__init__(self, **kwargs)
+        if not isinstance(vertical, bool):
+            raise ValueError("'vertical' has to be a boolean.")
         self.options = args
         self.vertical = vertical
 
@@ -310,19 +311,35 @@ class RadioButtons(Widget):
 class Slider(Widget):
 
     label_position = NotifyingAttribute()
-    maximum = NotifyingAttribute(dtype=numbers.Real)
-    minimum = NotifyingAttribute(dtype=numbers.Real)
-    step = NotifyingAttribute(dtype=numbers.Real)
-    width = NotifyingAttribute(dtype=int)
+    maximum = NotifyingAttribute()
+    minimum = NotifyingAttribute()
+    step = NotifyingAttribute()
+    width = NotifyingAttribute()
 
     def __init__(
-            self, minimum, maximum, description='', label_position='right',
-            step=1, width=25
+            self, minimum, maximum, label_position='right', step=1, width=25,
+            **kwargs
     ):
-        Widget.__init__(self, description=description)
+        Widget.__init__(self, **kwargs)
         if label_position not in ('left', 'right', 'neither'):
             raise ValueError(
                 "'label_position' has to be either left, right or neither."
+            )
+        if (
+            not isinstance(minimum, numbers.Real) or
+            not isinstance(maximum, numbers.Real) or
+            not minimum <= maximum
+        ):
+            raise ValueError(
+                "'minimum' and 'maximum' have to be real numbers where "
+                "'maximum' is greater than or equal to 'minimum'."
+            )
+        if not isinstance(step, numbers.Real) or step <= 0:
+            raise ValueError("'step' has to be a positive real number.")
+        if not isinstance(width, int) or not 0 <= width <= 100:
+            raise ValueError(
+                "'width' has to be an integer greater than or equal to 0 and "
+                "less than or equal to 100."
             )
         self.label_position = label_position
         self.maximum = maximum
@@ -334,22 +351,31 @@ class Slider(Widget):
 class Text(Widget):
 
     placeholder = NotifyingAttribute()
-    width = NotifyingAttribute(dtype=int)
+    width = NotifyingAttribute()
 
-    def __init__(self, description='', placeholder='', width=20):
-        Widget.__init__(self, description=description)
+    def __init__(self, placeholder='', width=20, **kwargs):
+        Widget.__init__(self, **kwargs)
+        if not isinstance(placeholder, str):
+            raise ValueError("'placeholder' has to be a string.")
+        if not isinstance(width, int) or width < 0:
+            raise ValueError(
+                "'width' has to be an integer greater than or equal to 0."
+            )
         self.placeholder = placeholder
         self.width = width
 
 
 class Textarea(Text):
 
-    height = NotifyingAttribute(dtype=int)
+    height = NotifyingAttribute()
 
-    def __init__(self, description='', height=4, placeholder='', width=50):
-        Text.__init__(
-            self, description=description, placeholder=placeholder, width=width
-        )
+    def __init__(self, height=4, width=50, **kwargs):
+        kwargs['width'] = width
+        Text.__init__(self, **kwargs)
+        if not isinstance(height, int) or height < 0:
+            raise ValueError(
+                "'height' has to be an integer greater than or equal to 0."
+            )
         self.height = height
 
 
