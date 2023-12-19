@@ -343,7 +343,7 @@ class Expression(Node):
 
     def __init__(
             self, symbols=None, widget=None, treat_none_manually=False,
-            **kwargs
+            transformations=None
     ):
         if widget is None:
             widget = widgets.Text()
@@ -351,18 +351,18 @@ class Expression(Node):
         Node.__init__(
             self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
         )
-        if 'transformations' not in kwargs:
-            kwargs['transformations'] = tuple(
+        if transformations is None:
+            transformations = tuple(
                 getattr(sympy.parsing.sympy_parser, transformation)
                 for transformation in config.transformations
             )
-        self.kwargs = kwargs
+        self.transformations = transformations
 
     def assemble(self, _):
         if _ == '':
             return None
         try:
-            expr = sympy.parse_expr(_, **self.kwargs)
+            expr = sympy.parse_expr(_, transformations=self.transformations)
         except (SyntaxError, TypeError, tokenize.TokenError) as e:
             raise ValidationError(e)
         return expr
