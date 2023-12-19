@@ -32,7 +32,7 @@ class Widget(nodes.Node):
     def __init__(self, description=''):
         if not isinstance(description, str):
             raise ValueError("'description' has to be a string.")
-        nodes.Node.__init__(self, None)
+        nodes.Node.__init__(self, '')
         self.observers = []
         self.description = description
         self._value = None
@@ -51,6 +51,10 @@ class Widget(nodes.Node):
     @property
     def template(self):
         return f'<<#{self.ID}>>'
+
+    @template.setter
+    def template(self, value):
+        pass
 
     def register_observer(self, observer):
         self.observers.append(observer)

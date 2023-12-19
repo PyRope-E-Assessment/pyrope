@@ -46,7 +46,7 @@ class Node:
                 )
         names = tuple(
             name
-            for _, name, _ in TemplateFormatter.parse(template or '')
+            for _, name, _ in TemplateFormatter.parse(template)
             if name is not None
         )
         for name in ifields:
@@ -55,8 +55,7 @@ class Node:
             else:
                 raise KeyError(f"Missing input field '{name}' in template.")
 
-        if template is not None:
-            self.template = template
+        self.template = template
         # order dict entries according to input field order in template
         self.ifields = {
             name: ifields[name] for name in names if name in ifields
