@@ -283,8 +283,8 @@ class Bool(Node):
 class Complex(Node):
 
     def __init__(
-            self, elementwise=True, i_on_the='right', widget=None,
-            treat_none_manually=False
+        self, elementwise=True, i_on_the='right', widget=None,
+        treat_none_manually=False
     ):
         if widget is None:
             widget = widgets.Text()
@@ -304,7 +304,7 @@ class Complex(Node):
 class ElementwiseComplex(Node):
 
     def __init__(
-            self, i_on_the='right', widget=None, treat_none_manually=False
+        self, i_on_the='right', widget=None, treat_none_manually=False
     ):
         if widget is None:
             widget = widgets.Text()
@@ -342,8 +342,8 @@ class Dict(Node):
 class Expression(Node):
 
     def __init__(
-            self, symbols=None, widget=None, treat_none_manually=False,
-            transformations=None
+        self, symbols=None, widget=None, treat_none_manually=False,
+        transformations=None
     ):
         if widget is None:
             widget = widgets.Text()
@@ -394,8 +394,8 @@ class Equation(Expression):
 class Int(Node):
 
     def __init__(
-            self, minimum=None, maximum=None, widget=None,
-            treat_none_manually=False
+        self, minimum=None, maximum=None, widget=None,
+        treat_none_manually=False
     ):
         self.dtype = IntType(minimum, maximum)
         if widget is None:
@@ -473,7 +473,7 @@ class OneOf(Node):
 class Rational(Node):
 
     def __init__(
-            self, elementwise=True, widget=None, treat_none_manually=False
+        self, elementwise=True, widget=None, treat_none_manually=False
     ):
         if widget is None:
             widget = widgets.Text()
@@ -536,8 +536,8 @@ class Real(Node):
 class Set(Node):
 
     def __init__(
-            self, count=None, compare='equality', widget=None,
-            treat_none_manually=False
+        self, count=None, compare='equality', widget=None,
+        treat_none_manually=False
     ):
         if widget is None:
             widget = widgets.Text()
