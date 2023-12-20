@@ -2,9 +2,9 @@
 import inspect
 import numbers
 
-from pyrope import nodes
 from pyrope.config import process_score
 from pyrope.core import IllPosedError, ValidationError
+from pyrope.nodes import Node
 
 
 class NotifyingAttribute:
@@ -25,14 +25,14 @@ class NotifyingAttribute:
         obj.notify(obj.__class__, 'attribute', {self.name: value})
 
 
-class Widget(nodes.Node):
+class Widget(Node):
 
     description = NotifyingAttribute()
 
     def __init__(self, description=''):
         if not isinstance(description, str):
             raise ValueError("'description' has to be a string.")
-        nodes.Node.__init__(self, '')
+        Node.__init__(self, '')
         self.observers = []
         self.description = description
         self._value = None

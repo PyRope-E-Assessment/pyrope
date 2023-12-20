@@ -1,6 +1,6 @@
 
 from pyrope.formatters import TemplateFormatter
-from pyrope.widgets import Widget
+from pyrope.nodes import Widget
 
 
 class ConsoleFrontend:

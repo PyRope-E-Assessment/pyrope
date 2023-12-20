@@ -1,198 +1,18 @@
 
 import ast
-from copy import deepcopy
 from fractions import Fraction
-from functools import cached_property
+import numpy as np
 import sympy
 import tokenize
-from uuid import uuid4
 
-import numpy as np
-
-from pyrope import config, widgets
+from pyrope import config
 from pyrope.core import ValidationError
 from pyrope.dtypes import (
      BoolType, ComplexType, DictType, EquationType, ExpressionType, IntType,
      ListType, MatrixType, OneOfType, RationalType, RealType, SetType,
-     StringType, TupleType, TypeChecked, VectorType
+     StringType, TupleType, VectorType
 )
-from pyrope.formatters import TemplateFormatter
-
-
-class Node:
-
-    dtype = None
-    value = TypeChecked()
-
-    a_solution = TypeChecked()
-    the_solution = TypeChecked()
-    solution = TypeChecked()
-
-    def __init__(self, template, treat_none_manually=False, **ifields):
-        self.ID = uuid4()
-        self.parent = None
-        ifields = {
-            name: ifield.clone() for name, ifield in ifields.items()
-        }
-
-        if not isinstance(treat_none_manually, bool):
-            raise ValueError("'treat_none_manually' has to be a boolean.")
-        self.treat_none_manually = treat_none_manually
-
-        for name, ifield in ifields.items():
-            if not isinstance(ifield, Node):
-                raise TypeError(
-                    f'Input field {name} must be a Node subclass instance.'
-                )
-        names = tuple(
-            name
-            for _, name, _ in TemplateFormatter.parse(template)
-            if name is not None
-        )
-        for name in ifields:
-            if name in names:
-                ifields[name].parent = self
-            else:
-                raise KeyError(f"Missing input field '{name}' in template.")
-
-        self.template = template
-        # order dict entries according to input field order in template
-        self.ifields = {
-            name: ifields[name] for name in names if name in ifields
-        }
-        self.ofields = names - ifields.keys()
-        self._displayed_score = None
-
-    def __str__(self):
-        return TemplateFormatter.format(self.template, **self.ifields)
-
-    def __repr__(self):
-        cls = self.__class__
-        return f'<{cls.__module__}.{cls.__name__} ID="{self.ID}">'
-
-    @cached_property
-    def name(self):
-        if self.parent is None:
-            return ''
-        keys = list(self.parent.ifields.keys())
-        values = list(self.parent.ifields.values())
-        return keys[values.index(self)]
-
-    @property
-    def auto_max_score(self):
-        return sum([
-            ifield.auto_max_score
-            for ifield in self.ifields.values()
-        ])
-
-    @property
-    def displayed_max_score(self):
-        return None
-
-    @displayed_max_score.setter
-    def displayed_max_score(self, value):
-        # TODO: configure the max score distribution
-        *all_but_last, last = self.ifields.keys()
-        for name in all_but_last:
-            self.ifields[name].displayed_max_score = None
-        self.ifields[last].displayed_max_score = value
-
-    @property
-    def auto_score(self):
-        return sum([
-            ifield.auto_score
-            for ifield in self.ifields.values()
-        ])
-
-    @property
-    def displayed_score(self):
-        return None
-
-    @displayed_score.setter
-    def displayed_score(self, value):
-        # TODO: configure the score distribution
-        *all_but_last, last = self.ifields.keys()
-        for name in all_but_last:
-            self.ifields[name].displayed_score = None
-        self.ifields[last].displayed_score = value
-
-    @property
-    def correct(self):
-        correct = [ifield.correct for ifield in self.ifields.values()]
-        if None in correct:
-            return None
-        return all(correct)
-
-    @correct.setter
-    def correct(self, value):
-        for ifield in self.ifields.values():
-            ifield.correct = value
-
-    def assemble(self, **ifields):
-        if len(self.ifields) != 1:
-            raise NotImplementedError(
-                f'No way how to assemble value of class '
-                f'{self.__class__.__name__} from subfield values.'
-            )
-        return list(ifields.values())[0]
-
-    def disassemble(self, value):
-        if len(self.ifields) != 1:
-            raise NotImplementedError(
-                f'No way how to disassemble value '
-                f'of class {self.__class__.__name__} into subfield values.'
-            )
-        return {list(self.ifields.keys())[0]: value}
-
-    def cast(self, value):
-        if self.dtype is None:
-            return value
-        return self.dtype.cast(value)
-
-    def check_type(self, value):
-        if self.dtype is None:
-            return
-        try:
-            self.dtype.check_type(value)
-        except ValidationError as e:
-            e.ifield = self
-            raise e
-
-    def normalize(self, value):
-        if self.dtype is None:
-            return value
-        return self.dtype.normalize(value)
-
-    def compare(self, LHS, RHS):
-        if self.dtype is None:
-            return LHS == RHS
-        return self.dtype.compare(LHS, RHS)
-
-    def clone(self):
-        clone = deepcopy(self)
-        self.reset_IDs()
-        return clone
-
-    def reset_IDs(self):
-        self.ID = uuid4()
-        for ifield in self.ifields.values():
-            ifield.reset_IDs()
-
-    @cached_property
-    def widgets(self):
-        if self.ifields == {} and self.parent is not None:
-            return (self,)
-        widgets = tuple(self.ifields[name].widgets for name in self.ifields)
-        return sum(widgets, ())
-
-    @cached_property
-    def info(self):
-        ifield = self
-        while ifield.parent is not None \
-                and ifield.parent.parent is not None \
-                and len(ifield.parent.ifields) == 1:
-            ifield = ifield.parent
-        return ifield.dtype.info
+from pyrope.nodes import Checkbox, Dropdown, Node, RadioButtons, Slider, Text
 
 
 class Problem(Node):
@@ -266,9 +86,7 @@ class Parser(Node):
 
 class Bool(Node):
 
-    def __init__(self, widget=None, treat_none_manually=False):
-        if widget is None:
-            widget = widgets.Checkbox()
+    def __init__(self, widget=Checkbox(), treat_none_manually=False):
         self.dtype = BoolType()
         Node.__init__(
             self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
@@ -283,11 +101,9 @@ class Bool(Node):
 class Complex(Node):
 
     def __init__(
-        self, elementwise=True, i_on_the='right', widget=None,
+        self, elementwise=True, i_on_the='right', widget=Text(),
         treat_none_manually=False
     ):
-        if widget is None:
-            widget = widgets.Text()
         self.dtype = ComplexType()
         if elementwise is True:
             _ = ElementwiseComplex(
@@ -304,10 +120,8 @@ class Complex(Node):
 class ElementwiseComplex(Node):
 
     def __init__(
-        self, i_on_the='right', widget=None, treat_none_manually=False
+        self, i_on_the='right', widget=Text(), treat_none_manually=False
     ):
-        if widget is None:
-            widget = widgets.Text()
         self.dtype = ComplexType()
         if i_on_the == 'right':
             template = '<<a>> + <<b>> i'
@@ -329,9 +143,7 @@ class ElementwiseComplex(Node):
 
 class Dict(Node):
 
-    def __init__(self, count=None, widget=None, treat_none_manually=False):
-        if widget is None:
-            widget = widgets.Text()
+    def __init__(self, count=None, widget=Text(), treat_none_manually=False):
         self.dtype = DictType(count=count)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
@@ -342,11 +154,9 @@ class Dict(Node):
 class Expression(Node):
 
     def __init__(
-        self, symbols=None, widget=None, treat_none_manually=False,
+        self, symbols=None, widget=Text(), treat_none_manually=False,
         transformations=None
     ):
-        if widget is None:
-            widget = widgets.Text()
         self.dtype = ExpressionType(symbols=symbols)
         Node.__init__(
             self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
@@ -373,7 +183,7 @@ class Expression(Node):
 
 class Equation(Expression):
 
-    def __init__(self, symbols=None, widget=None, **kwargs):
+    def __init__(self, symbols=None, widget=Text(), **kwargs):
         Expression.__init__(self, symbols=symbols, widget=widget, **kwargs)
         self.dtype = EquationType(symbols=symbols)
 
@@ -400,9 +210,9 @@ class Int(Node):
         self.dtype = IntType(minimum, maximum)
         if widget is None:
             if minimum is not None and maximum is not None:
-                widget = widgets.Slider(minimum, maximum)
+                widget = Slider(minimum, maximum)
             else:
-                widget = widgets.Text()
+                widget = Text()
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
             treat_none_manually=treat_none_manually
@@ -411,10 +221,8 @@ class Int(Node):
 
 class Matrix(Node):
 
-    def __init__(self, widget=None, treat_none_manually=False, **kwargs):
+    def __init__(self, widget=Text(), treat_none_manually=False, **kwargs):
         self.dtype = MatrixType(**kwargs)
-        if widget is None:
-            widget = widgets.Text()
         Node.__init__(
             self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
         )
@@ -435,10 +243,8 @@ class Matrix(Node):
 
 class Vector(Matrix):
 
-    def __init__(self, widget=None, treat_none_manually=False, **kwargs):
+    def __init__(self, widget=Text(), treat_none_manually=False, **kwargs):
         self.dtype = VectorType(**kwargs)
-        if widget is None:
-            widget = widgets.Text()
         Node.__init__(
             self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
         )
@@ -461,9 +267,9 @@ class OneOf(Node):
         self.dtype = OneOfType(options=args)
         if widget is None:
             if len(args) <= config.one_of_maximum_radio_buttons:
-                widget = widgets.RadioButtons(*args)
+                widget = RadioButtons(*args)
             else:
-                widget = widgets.Dropdown(*args)
+                widget = Dropdown(*args)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
             treat_none_manually=treat_none_manually
@@ -473,10 +279,8 @@ class OneOf(Node):
 class Rational(Node):
 
     def __init__(
-        self, elementwise=True, widget=None, treat_none_manually=False
+        self, elementwise=True, widget=Text(), treat_none_manually=False
     ):
-        if widget is None:
-            widget = widgets.Text()
         self.elementwise = elementwise
         self.dtype = RationalType()
         if self.elementwise is True:
@@ -506,9 +310,7 @@ class Rational(Node):
 
 class ElementwiseRational(Node):
 
-    def __init__(self, widget=None, treat_none_manually=False):
-        if widget is None:
-            widget = widgets.Text()
+    def __init__(self, widget=Text(), treat_none_manually=False):
         Node.__init__(
             self, '<<a>> / <<b>>', a=Int(widget=widget), b=Int(widget=widget),
             treat_none_manually=treat_none_manually
@@ -523,9 +325,7 @@ class ElementwiseRational(Node):
 
 class Real(Node):
 
-    def __init__(self, widget=None, treat_none_manually=False):
-        if widget is None:
-            widget = widgets.Text()
+    def __init__(self, widget=Text(), treat_none_manually=False):
         self.dtype = RealType()
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
@@ -536,11 +336,9 @@ class Real(Node):
 class Set(Node):
 
     def __init__(
-        self, count=None, compare='equality', widget=None,
+        self, count=None, compare='equality', widget=Text(),
         treat_none_manually=False
     ):
-        if widget is None:
-            widget = widgets.Text()
         self.dtype = SetType(count=count, compare=compare)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),
@@ -550,9 +348,7 @@ class Set(Node):
 
 class String(Node):
 
-    def __init__(self, strip=False, widget=None, treat_none_manually=False):
-        if widget is None:
-            widget = widgets.Text()
+    def __init__(self, strip=False, widget=Text(), treat_none_manually=False):
         self.dtype = StringType(strip)
         Node.__init__(
             self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
@@ -563,9 +359,7 @@ class Tuple(Node):
 
     dtype = TupleType
 
-    def __init__(self, count=None, widget=None, treat_none_manually=False):
-        if widget is None:
-            widget = widgets.Text()
+    def __init__(self, count=None, widget=Text(), treat_none_manually=False):
         self.dtype = self.dtype(count=count)
         Node.__init__(
             self, '<<_>>', _=Parser(widget, dtype=self.dtype),

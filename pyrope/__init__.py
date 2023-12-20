@@ -1,7 +1,7 @@
 
 from IPython import get_ipython
 
-from pyrope import config, frontends, nodes, tests, widgets
+from pyrope import config, frontends, nodes, tests
 from pyrope.core import (
     Exercise, ExercisePool, ExerciseRunner, ParametrizedExercise,
     IllPosedError, ValidationError,
@@ -11,7 +11,7 @@ from pyrope.logo import logo
 
 
 __all__ = [
-    'config', 'frontends', 'nodes', 'tests', 'widgets',
+    'config', 'frontends', 'nodes', 'tests',
     'Exercise', 'ExercisePool', 'ExerciseRunner', 'ParametrizedExercise',
     'IllPosedError', 'ValidationError',
     'logo',

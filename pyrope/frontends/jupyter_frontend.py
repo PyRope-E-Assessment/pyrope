@@ -15,7 +15,7 @@ from nbconvert.filters.pandoc import convert_pandoc
 
 from pyrope import config
 from pyrope.formatters import TemplateFormatter
-from pyrope.widgets import (
+from pyrope.nodes import (
     Checkbox, Dropdown, RadioButtons, Slider, Text, Textarea, Widget,
     WidgetFactory
 )
