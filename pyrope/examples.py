@@ -6,7 +6,7 @@ from math import prod
 
 from pyrope.core import Exercise
 from pyrope.nodes import (
-    Problem, String, Int, Rational, Set, Expression, Equation
+    Equation, Expression, Int, Problem, Rational, Set, String
 )
 
 
