@@ -6,12 +6,12 @@ import sympy
 import tokenize
 
 from pyrope import config
-from pyrope.core import ValidationError
 from pyrope.dtypes import (
      BoolType, ComplexType, DictType, EquationType, ExpressionType, IntType,
      ListType, MatrixType, OneOfType, RationalType, RealType, SetType,
      StringType, TupleType, VectorType
 )
+from pyrope.errors import ValidationError
 from pyrope.nodes import Checkbox, Dropdown, Node, RadioButtons, Slider, Text
 
 

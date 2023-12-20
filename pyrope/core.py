@@ -18,6 +18,7 @@ import numpy
 
 from pyrope import frontends, tests
 from pyrope.config import process_total_score
+from pyrope.errors import IllPosedError
 
 
 float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
@@ -533,21 +534,6 @@ class ExerciseRunner:
     @property
     def invalid_widgets(self):
         return [widget for widget in self.widgets if widget.valid is False]
-
-
-class PyRopeError(Exception):
-    pass
-
-
-class IllPosedError(PyRopeError):
-    pass
-
-
-class ValidationError(PyRopeError):
-
-    def __init__(self, message, ifield=None):
-        self.ifield = ifield
-        super().__init__(message)
 
 
 class ExercisePool(collections.UserList):

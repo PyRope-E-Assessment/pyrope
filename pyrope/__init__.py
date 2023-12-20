@@ -1,20 +1,34 @@
 
 from IPython import get_ipython
 
-from pyrope import config, frontends, nodes, tests
-from pyrope.core import (
-    Exercise, ExercisePool, ExerciseRunner, ParametrizedExercise,
-    IllPosedError, ValidationError,
+from pyrope import (
+    config, dtypes, errors, examples, formatters, frontends, nodes, tests
 )
-from pyrope.ipython_extension.magics import PyRopeMagics
+from pyrope.core import (
+    CLIParser, Exercise, ExercisePool, ExerciseRunner, float_types,
+    ParametrizedExercise
+)
+from pyrope.ipython_extension import PyRopeMagics
 from pyrope.logo import logo
 
 
 __all__ = [
-    'config', 'frontends', 'nodes', 'tests',
-    'Exercise', 'ExercisePool', 'ExerciseRunner', 'ParametrizedExercise',
-    'IllPosedError', 'ValidationError',
+    'CLIParser',
+    'config',
+    'dtypes',
+    'errors',
+    'examples',
+    'Exercise',
+    'ExercisePool',
+    'ExerciseRunner',
+    'float_types',
+    'formatters',
+    'frontends',
     'logo',
+    'nodes',
+    'ParametrizedExercise',
+    'PyRopeMagics',
+    'tests'
 ]
 
 

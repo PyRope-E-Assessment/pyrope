@@ -3,8 +3,8 @@ from copy import deepcopy
 from functools import cached_property
 from uuid import uuid4
 
-from pyrope.core import ValidationError
 from pyrope.dtypes import TypeChecked
+from pyrope.errors import ValidationError
 from pyrope.formatters import TemplateFormatter
 
 

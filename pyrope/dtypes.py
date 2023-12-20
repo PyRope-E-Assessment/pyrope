@@ -9,7 +9,7 @@ import sympy
 from sympy.core.numbers import Zero, One
 
 from pyrope import config
-from pyrope.core import ValidationError
+from pyrope.errors import ValidationError
 
 
 class TypeChecked:

@@ -3,7 +3,7 @@ import inspect
 import numbers
 
 from pyrope.config import process_score
-from pyrope.core import IllPosedError, ValidationError
+from pyrope.errors import IllPosedError, ValidationError
 from pyrope.nodes import Node
 
 
