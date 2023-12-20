@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import nbformat
 
-from pyrope import ExercisePool, ExerciseRunner, examples
+from pyrope import examples, ExercisePool, ExerciseRunner
 from pyrope.core import CLIParser
 from pyrope.frontends import ConsoleFrontend
 
