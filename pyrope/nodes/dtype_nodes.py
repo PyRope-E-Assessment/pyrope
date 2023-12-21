@@ -20,7 +20,7 @@ class Problem(Node):
     dtype = DictType()
 
     def __init__(self, template, **ifields):
-        Node.__init__(self, template, **ifields)
+        Node.__init__(self, template, ifields)
 
     def assemble(self, **ifields):
         return ifields
@@ -50,8 +50,8 @@ class Parser(Node):
     # c.f. https://docs.python.org/3/library/ast.html#ast.literal_eval
     dtypes = (str, int, float, complex, tuple, list, dict, set, bool)
 
-    def __init__(self, ifield, dtype):
-        Node.__init__(self, '<<_>>', _=ifield)
+    def __init__(self, ifield, dtype, **kwargs):
+        Node.__init__(self, '<<_>>', {'_': ifield}, **kwargs)
         if dtype.dtype not in self.dtypes:
             raise TypeError(f'Unable to parse data type {dtype.dtype}.')
         self.dtype = dtype
@@ -86,11 +86,9 @@ class Parser(Node):
 
 class Bool(Node):
 
-    def __init__(self, widget=Checkbox(), treat_none_manually=False):
-        self.dtype = BoolType()
-        Node.__init__(
-            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
-        )
+    def __init__(self, widget=Checkbox(), **kwargs):
+        self.dtype = BoolType(**kwargs)
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
     def assemble(self, _):
         if _ == '':
@@ -101,28 +99,24 @@ class Bool(Node):
 class Complex(Node):
 
     def __init__(
-        self, elementwise=True, i_on_the='right', widget=Text(),
-        treat_none_manually=False
+        self, elementwise=True, i_on_the='right', widget=Text(), **kwargs
     ):
-        self.dtype = ComplexType()
+        self.dtype = ComplexType(**kwargs)
         if elementwise is True:
             _ = ElementwiseComplex(
-                i_on_the=i_on_the, widget=widget,
-                treat_none_manually=treat_none_manually
+                i_on_the=i_on_the, widget=widget, **kwargs
             )
         else:
-            _ = Parser(widget, dtype=self.dtype)
-        Node.__init__(
-            self, '<<_>>', _=_, treat_none_manually=treat_none_manually
-        )
+            _ = Parser(widget, self.dtype, **kwargs)
+        Node.__init__(self, '<<_>>', {'_': _}, **kwargs)
 
 
 class ElementwiseComplex(Node):
 
     def __init__(
-        self, i_on_the='right', widget=Text(), treat_none_manually=False
+        self, i_on_the='right', widget=Text(), **kwargs
     ):
-        self.dtype = ComplexType()
+        self.dtype = ComplexType(**kwargs)
         if i_on_the == 'right':
             template = '<<a>> + <<b>> i'
         elif i_on_the == 'left':
@@ -130,8 +124,10 @@ class ElementwiseComplex(Node):
         else:
             raise ValueError("Parameter 'i_on_the' must be 'left' or 'right'.")
         Node.__init__(
-            self, template, a=Real(widget=widget), b=Real(widget=widget),
-            treat_none_manually=treat_none_manually
+            self, template, {
+                'a': Real(widget=widget, **kwargs),
+                'b': Real(widget=widget, **kwargs)
+            }, **kwargs
         )
 
     def assemble(self, **ifields):
@@ -143,24 +139,19 @@ class ElementwiseComplex(Node):
 
 class Dict(Node):
 
-    def __init__(self, count=None, widget=Text(), treat_none_manually=False):
-        self.dtype = DictType(count=count)
+    def __init__(self, widget=Text(), **kwargs):
+        self.dtype = DictType(**kwargs)
         Node.__init__(
-            self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            treat_none_manually=treat_none_manually
+            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
+            **kwargs
         )
 
 
 class Expression(Node):
 
-    def __init__(
-        self, symbols=None, widget=Text(), treat_none_manually=False,
-        transformations=None
-    ):
-        self.dtype = ExpressionType(symbols=symbols)
-        Node.__init__(
-            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
-        )
+    def __init__(self, widget=Text(), transformations=None, **kwargs):
+        self.dtype = ExpressionType(**kwargs)
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
         if transformations is None:
             transformations = tuple(
                 getattr(sympy.parsing.sympy_parser, transformation)
@@ -183,9 +174,9 @@ class Expression(Node):
 
 class Equation(Expression):
 
-    def __init__(self, symbols=None, widget=Text(), **kwargs):
-        Expression.__init__(self, symbols=symbols, widget=widget, **kwargs)
-        self.dtype = EquationType(symbols=symbols)
+    def __init__(self, widget=Text(), **kwargs):
+        Expression.__init__(self, widget=widget, **kwargs)
+        self.dtype = EquationType(**kwargs)
 
     def assemble(self, _):
         if _ == '':
@@ -203,29 +194,27 @@ class Equation(Expression):
 
 class Int(Node):
 
-    def __init__(
-        self, minimum=None, maximum=None, widget=None,
-        treat_none_manually=False
-    ):
-        self.dtype = IntType(minimum, maximum)
+    def __init__(self, widget=None, **kwargs):
+        self.dtype = IntType(**kwargs)
         if widget is None:
-            if minimum is not None and maximum is not None:
-                widget = Slider(minimum, maximum)
+            if (
+                self.dtype.minimum is not None and
+                self.dtype.maximum is not None
+            ):
+                widget = Slider(self.dtype.minimum, self.dtype.maximum)
             else:
                 widget = Text()
         Node.__init__(
-            self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            treat_none_manually=treat_none_manually
+            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
+            **kwargs
         )
 
 
 class Matrix(Node):
 
-    def __init__(self, widget=Text(), treat_none_manually=False, **kwargs):
+    def __init__(self, widget=Text(), **kwargs):
         self.dtype = MatrixType(**kwargs)
-        Node.__init__(
-            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
     def assemble(self, _):
         if _ == '':
@@ -243,11 +232,9 @@ class Matrix(Node):
 
 class Vector(Matrix):
 
-    def __init__(self, widget=Text(), treat_none_manually=False, **kwargs):
+    def __init__(self, widget=Text(), **kwargs):
         self.dtype = VectorType(**kwargs)
-        Node.__init__(
-            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class Natural(Int):
@@ -263,7 +250,7 @@ class Natural(Int):
 
 class OneOf(Node):
 
-    def __init__(self, *args, widget=None, treat_none_manually=False):
+    def __init__(self, *args, widget=None, **kwargs):
         self.dtype = OneOfType(options=args)
         if widget is None:
             if len(args) <= config.one_of_maximum_radio_buttons:
@@ -271,27 +258,21 @@ class OneOf(Node):
             else:
                 widget = Dropdown(*args)
         Node.__init__(
-            self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            treat_none_manually=treat_none_manually
+            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
+            **kwargs
         )
 
 
 class Rational(Node):
 
-    def __init__(
-        self, elementwise=True, widget=Text(), treat_none_manually=False
-    ):
+    def __init__(self, elementwise=True, widget=Text(), **kwargs):
         self.elementwise = elementwise
-        self.dtype = RationalType()
+        self.dtype = RationalType(**kwargs)
         if self.elementwise is True:
-            _ = ElementwiseRational(
-                widget=widget, treat_none_manually=treat_none_manually
-            )
+            _ = ElementwiseRational(widget=widget, **kwargs)
         else:
             _ = widget
-        Node.__init__(
-            self, '<<_>>', _=_, treat_none_manually=treat_none_manually
-        )
+        Node.__init__(self, '<<_>>', {'_': _}, **kwargs)
 
     def assemble(self, _):
         if _ == '':
@@ -310,10 +291,12 @@ class Rational(Node):
 
 class ElementwiseRational(Node):
 
-    def __init__(self, widget=Text(), treat_none_manually=False):
+    def __init__(self, widget=Text(), **kwargs):
         Node.__init__(
-            self, '<<a>> / <<b>>', a=Int(widget=widget), b=Int(widget=widget),
-            treat_none_manually=treat_none_manually
+            self, '<<a>> / <<b>>', {
+                'a': Int(widget=widget, **kwargs),
+                'b': Int(widget=widget, **kwargs)
+            }, **kwargs
         )
 
     def assemble(self, **ifields):
@@ -325,45 +308,40 @@ class ElementwiseRational(Node):
 
 class Real(Node):
 
-    def __init__(self, widget=Text(), treat_none_manually=False):
-        self.dtype = RealType()
+    def __init__(self, widget=Text(), **kwargs):
+        self.dtype = RealType(**kwargs)
         Node.__init__(
-            self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            treat_none_manually=treat_none_manually
+            self, '<<_>>', {'_': Parser(widget, dtype=self.dtype, **kwargs)},
+            **kwargs
         )
 
 
 class Set(Node):
 
-    def __init__(
-        self, count=None, compare='equality', widget=Text(),
-        treat_none_manually=False
-    ):
-        self.dtype = SetType(count=count, compare=compare)
+    def __init__(self, widget=Text(), **kwargs):
+        self.dtype = SetType(**kwargs)
         Node.__init__(
-            self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            treat_none_manually=treat_none_manually
+            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
+            **kwargs
         )
 
 
 class String(Node):
 
-    def __init__(self, strip=False, widget=Text(), treat_none_manually=False):
-        self.dtype = StringType(strip)
-        Node.__init__(
-            self, '<<_>>', _=widget, treat_none_manually=treat_none_manually
-        )
+    def __init__(self, widget=Text(), **kwargs):
+        self.dtype = StringType(**kwargs)
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class Tuple(Node):
 
     dtype = TupleType
 
-    def __init__(self, count=None, widget=Text(), treat_none_manually=False):
-        self.dtype = self.dtype(count=count)
+    def __init__(self, widget=Text(), **kwargs):
+        self.dtype = self.dtype(**kwargs)
         Node.__init__(
-            self, '<<_>>', _=Parser(widget, dtype=self.dtype),
-            treat_none_manually=treat_none_manually
+            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
+            **kwargs
         )
 
 

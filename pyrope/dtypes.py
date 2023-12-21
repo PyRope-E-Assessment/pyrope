@@ -47,6 +47,9 @@ class TypeChecked:
 
 class DType(abc.ABC):
 
+    def __init__(self, **kwargs):
+        pass
+
     def __init_subclass__(cls):
         def validate_trivial_value(f):
             def wrapper(self):
@@ -146,7 +149,8 @@ class DictType(DType):
 
     dtype = dict
 
-    def __init__(self, count=None):
+    def __init__(self, count=None, **kwargs):
+        DType.__init__(self, **kwargs)
         if count is not None:
             if not isinstance(count, int) or count < 0:
                 raise ValueError(
@@ -186,7 +190,8 @@ class ExpressionType(DType):
 
     dtype = sympy.Expr
 
-    def __init__(self, symbols=None):
+    def __init__(self, symbols=None, **kwargs):
+        DType.__init__(self, **kwargs)
         if symbols is None:
             self.symbols = set()
         else:
@@ -266,7 +271,8 @@ class IntType(DType):
 
     dtype = int
 
-    def __init__(self, minimum=None, maximum=None):
+    def __init__(self, minimum=None, maximum=None, **kwargs):
+        DType.__init__(self, **kwargs)
         if not (minimum is None or isinstance(minimum, int)):
             raise ValueError('Minimum must be integer or None.')
         if not (maximum is None or isinstance(maximum, int)):
@@ -332,8 +338,9 @@ class MatrixType(DType):
 
     def __init__(
         self, nrows=None, ncols=None, sub_dtype=numbers.Number,
-        compare_elementwise=True, rtol=0, atol=0,
+        compare_elementwise=True, rtol=0, atol=0, **kwargs
     ):
+        DType.__init__(self, **kwargs)
         for dim, n in (('row', nrows), ('column', ncols)):
             if n is None:
                 continue
@@ -432,7 +439,8 @@ class OneOfType(DType):
 
     dtype = None
 
-    def __init__(self, options):
+    def __init__(self, options, **kwargs):
+        DType.__init__(self, **kwargs)
         try:
             options = tuple(options)
         except TypeError:
@@ -516,7 +524,8 @@ class SetType(DType):
 
     dtype = set
 
-    def __init__(self, count=None, compare='equality'):
+    def __init__(self, count=None, compare='equality', **kwargs):
+        DType.__init__(self, **kwargs)
         if count is not None:
             if not isinstance(count, int) or count < 0:
                 raise ValueError(
@@ -572,7 +581,8 @@ class StringType(DType):
 
     dtype = str
 
-    def __init__(self, strip=False):
+    def __init__(self, strip=False, **kwargs):
+        DType.__init__(self, **kwargs)
         self.strip = strip
 
     @property
@@ -600,7 +610,8 @@ class TupleType(DType):
 
     dtype = tuple
 
-    def __init__(self, count=None):
+    def __init__(self, count=None, **kwargs):
+        DType.__init__(self, **kwargs)
         if count is not None:
             if not isinstance(count, int) or count < 0:
                 raise ValueError(

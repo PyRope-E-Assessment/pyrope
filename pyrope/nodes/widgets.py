@@ -32,7 +32,7 @@ class Widget(Node):
     def __init__(self, description=''):
         if not isinstance(description, str):
             raise ValueError("'description' has to be a string.")
-        Node.__init__(self, '')
+        Node.__init__(self, '', {})
         self.observers = []
         self.description = description
         self._value = None

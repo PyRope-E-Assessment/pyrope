@@ -17,7 +17,7 @@ class Node:
     the_solution = TypeChecked()
     solution = TypeChecked()
 
-    def __init__(self, template, treat_none_manually=False, **ifields):
+    def __init__(self, template, ifields, treat_none_manually=False, **kwargs):
         self.ID = uuid4()
         self.parent = None
         ifields = {
