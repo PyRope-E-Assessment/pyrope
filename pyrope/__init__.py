@@ -10,6 +10,7 @@ from pyrope.core import (
 )
 from pyrope.ipython_extension import PyRopeMagics
 from pyrope.logo import logo
+from pyrope.nodes import widgets
 
 
 __all__ = [
@@ -28,7 +29,8 @@ __all__ = [
     'nodes',
     'ParametrizedExercise',
     'PyRopeMagics',
-    'tests'
+    'tests',
+    'widgets'
 ]
 
 
