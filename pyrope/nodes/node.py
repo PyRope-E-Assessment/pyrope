@@ -20,9 +20,6 @@ class Node:
     def __init__(self, template, ifields, treat_none_manually=False, **kwargs):
         self.ID = uuid4()
         self.parent = None
-        ifields = {
-            name: ifield.clone() for name, ifield in ifields.items()
-        }
 
         if not isinstance(treat_none_manually, bool):
             raise ValueError("'treat_none_manually' has to be a boolean.")
@@ -33,6 +30,9 @@ class Node:
                 raise TypeError(
                     f'Input field {name} must be a Node subclass instance.'
                 )
+        ifields = {
+            name: ifield.clone() for name, ifield in ifields.items()
+        }
         names = tuple(
             name
             for _, name, _ in TemplateFormatter.parse(template)
