@@ -189,7 +189,7 @@ class Equation(Expression):
         return Expression.assemble(self, f'Eq({LHS}, {RHS}, evaluate=False)')
 
     def disassemble(self, value):
-        return {'_': f'{value.lhs}={value.rhs}'}
+        return {'_': f'{sympy.srepr(value.lhs)}={sympy.srepr(value.rhs)}'}
 
 
 class Int(Node):
