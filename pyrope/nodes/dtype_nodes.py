@@ -290,6 +290,7 @@ class Rational(Node):
 class ElementwiseRational(Node):
 
     def __init__(self, *, widget=Text(), **kwargs):
+        self.dtype = RationalType(**kwargs)
         Node.__init__(
             self, '<<a>> / <<b>>', {
                 'a': Int(widget=widget, **kwargs),
