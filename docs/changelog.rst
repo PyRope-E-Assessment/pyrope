@@ -17,7 +17,7 @@ New
 * :code:`ExpressionType` interprets :code:`e` and :code:`i` as euler's number and the imaginary unit if they are not specified as symbols.
 * Input fields have a :code:`correct` flag. Jupyter frontends use this flag to highlight input fields after submission.
 * Weight scores with :code:`weights` when instantiating an exercise and test :code:`weights`.
-* Implement :code:`atol` and :code:`rtol` for :code:`Real` nodes.
+* Implement :code:`atol` and :code:`rtol` for :code:`Complex` and :code:`Real` nodes.
 
 Changes
 -------
