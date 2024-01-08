@@ -1,7 +1,6 @@
 
 import abc
 from fractions import Fraction
-import math
 import numbers
 
 import numpy as np
@@ -501,13 +500,13 @@ class RealType(DType):
 
     dtype = float
 
-    def __init__(self, rtol=1e-09, atol=0, **kwargs):
+    def __init__(self, rtol=0, atol=0, **kwargs):
         DType.__init__(self, **kwargs)
         if not isinstance(rtol, numbers.Real):
             raise ValueError("'rtol' must be real.")
         if not isinstance(atol, numbers.Real):
             raise ValueError("'atol' must be real.")
-        self.tols = dict(rel_tol=rtol, abs_tol=atol)
+        self.tols = dict(rtol=rtol, atol=atol)
 
     @property
     def info(self):
@@ -529,7 +528,7 @@ class RealType(DType):
         return value
 
     def compare(self, LHS, RHS):
-        return math.isclose(LHS, RHS, **self.tols)
+        return np.isclose(LHS, RHS, **self.tols)
 
 
 class SetType(DType):
