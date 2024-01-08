@@ -127,6 +127,14 @@ class ComplexType(DType):
 
     dtype = complex
 
+    def __init__(self, rtol=0, atol=0, **kwargs):
+        DType.__init__(self, **kwargs)
+        if not isinstance(rtol, numbers.Real):
+            raise ValueError("'rtol' must be real.")
+        if not isinstance(atol, numbers.Real):
+            raise ValueError("'atol' must be real.")
+        self.tols = dict(rtol=rtol, atol=atol)
+
     @property
     def info(self):
         return 'a complex number'
@@ -143,6 +151,9 @@ class ComplexType(DType):
         if isinstance(value, (int, float)):
             return complex(value)
         return value
+
+    def compare(self, LHS, RHS):
+        return np.isclose(LHS, RHS, **self.tols)
 
 
 class DictType(DType):
