@@ -1,10 +1,8 @@
 
+# flake8: noqa F401
 from pyrope.nodes.node import Node
-from pyrope.nodes import widgets
-from pyrope.nodes.widgets import (
-    Checkbox, Dropdown, NotifyingAttribute, RadioButtons, Slider, Text,
-    Textarea, Widget, WidgetFactory
-)
+from pyrope.nodes import widgets, _widgets
+from pyrope.nodes._widgets import *
 from pyrope.nodes.dtype_nodes import (
     Bool, Complex, Dict, ElementwiseComplex, ElementwiseRational, Equation,
     Expression, Int, List, Matrix, Natural, OneOf, Parser, Problem, Rational,
@@ -13,10 +11,8 @@ from pyrope.nodes.dtype_nodes import (
 
 __all__ = [
     'Bool',
-    'Checkbox',
     'Complex',
     'Dict',
-    'Dropdown',
     'ElementwiseComplex',
     'ElementwiseRational',
     'Equation',
@@ -26,21 +22,14 @@ __all__ = [
     'Matrix',
     'Natural',
     'Node',
-    'NotifyingAttribute',
     'OneOf',
     'Parser',
     'Problem',
-    'RadioButtons',
     'Rational',
     'Real',
     'Set',
-    'Slider',
     'String',
-    'Text',
-    'Textarea',
     'Tuple',
     'Vector',
-    'Widget',
-    'WidgetFactory',
     'widgets'
-]
+] + _widgets.__all__
