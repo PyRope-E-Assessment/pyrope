@@ -49,11 +49,11 @@ class Exercise(abc.ABC):
         return Path(file).parent
 
     def run(self, debug=False):
-        runner = ExerciseRunner(self)
+        runner = ExerciseRunner(self, debug=debug)
         if get_ipython() is not None:
-            frontend = frontends.JupyterFrontend(debug=debug)
+            frontend = frontends.JupyterFrontend()
         else:
-            frontend = frontends.ConsoleFrontend(debug=debug)
+            frontend = frontends.ConsoleFrontend()
         runner.set_frontend(frontend)
         frontend.set_runner(runner)
         runner.run()
@@ -468,7 +468,8 @@ class ParametrizedExercise:
 
 class ExerciseRunner:
 
-    def __init__(self, exercise, global_parameters={}):
+    def __init__(self, exercise, debug=False, global_parameters={}):
+        self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
         self.widget_id_mapping = {
@@ -477,6 +478,9 @@ class ExerciseRunner:
 
     # TODO: enforce order of steps
     def run(self):
+        self.notify(ExerciseAttribute(
+            self.pexercise.exercise.__class__, 'debug', self.debug
+        ))
         self.notify(ExerciseAttribute(
             self.pexercise.exercise.__class__, 'parameters',
             self.pexercise.parameters
@@ -494,10 +498,13 @@ class ExerciseRunner:
             self.pexercise.exercise.__class__, 'problem',
             self.pexercise.template
         ))
+        if self.debug:
+            self.publish_solutions()
         self.notify(WaitingForSubmission(self.pexercise.exercise.__class__))
 
     def finish(self):
-        self.publish_solutions()
+        if not self.debug:
+            self.publish_solutions()
         self.notify(ExerciseAttribute(
             self.pexercise.exercise.__class__, 'answers',
             self.pexercise.answers

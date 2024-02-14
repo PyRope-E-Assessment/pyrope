@@ -34,11 +34,11 @@ class PyRopeMagics(Magics):
 
         if args.subcommand == 'run':
             for exercise in pool:
-                runner = ExerciseRunner(exercise)
+                runner = ExerciseRunner(exercise, debug=args.debug)
                 if args.frontend == 'console':
-                    frontend = ConsoleFrontend(debug=args.debug)
+                    frontend = ConsoleFrontend()
                 else:
-                    frontend = JupyterFrontend(debug=args.debug)
+                    frontend = JupyterFrontend()
                 runner.set_frontend(frontend)
                 frontend.set_runner(runner)
                 runner.run()

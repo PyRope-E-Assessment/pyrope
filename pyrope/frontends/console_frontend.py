@@ -22,9 +22,9 @@ class ConsoleWidget:
 
 class ConsoleFrontend:
 
-    def __init__(self, debug=False):
+    def __init__(self):
         self.answers = {}
-        self.debug = debug
+        self.debug = False
         self.parameters = {}
         self.runner = None
         self.total_score, self.max_total_score = None, None
@@ -111,6 +111,10 @@ class ConsoleFrontend:
                 self.total_score = msg.attribute_value
             elif msg.attribute_name == 'max_total_score':
                 self.max_total_score = msg.attribute_value
+            elif msg.attribute_name == 'debug':
+                self.debug = msg.attribute_value
+                if self.debug:
+                    print(msg)
         elif isinstance(msg, ChangeWidgetAttribute):
             if msg.attribute_name == 'value':
                 self.widgets[msg.widget_id].value = msg.attribute_value
