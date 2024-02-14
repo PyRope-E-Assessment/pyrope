@@ -2,7 +2,7 @@
 import abc
 import argparse
 import collections
-from functools import cache, cached_property
+from functools import cached_property
 import glob
 import importlib
 import inspect
@@ -19,6 +19,10 @@ import numpy
 from pyrope import frontends, tests
 from pyrope.config import process_total_score
 from pyrope.errors import IllPosedError
+from pyrope.messages import (
+    ChangeWidgetAttribute, CreateWidget, ExerciseAttribute, RenderTemplate,
+    Submit, WaitingForSubmission
+)
 
 
 float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
@@ -467,31 +471,56 @@ class ExerciseRunner:
     def __init__(self, exercise, global_parameters={}):
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
+        self.widget_id_mapping = {
+            widget.ID: widget for widget in self.pexercise.widgets
+        }
 
     # TODO: enforce order of steps
     def run(self):
-        self.frontend.render_preamble(self.pexercise.preamble)
-        self.frontend.render_problem(self.pexercise.template)
-        self.frontend.get_answers()
+        self.notify(ExerciseAttribute(
+            self.pexercise.exercise.__class__, 'parameters',
+            self.pexercise.parameters
+        ))
+        self.notify(RenderTemplate(
+            self.pexercise.exercise.__class__, 'preamble',
+            self.pexercise.preamble
+        ))
+        for widget in self.pexercise.widgets:
+            self.notify(CreateWidget(
+                self.pexercise.exercise.__class__, widget.ID,
+                widget.__class__.__name__, widget.info
+            ))
+        self.notify(RenderTemplate(
+            self.pexercise.exercise.__class__, 'problem',
+            self.pexercise.template
+        ))
+        self.notify(WaitingForSubmission(self.pexercise.exercise.__class__))
 
     def finish(self):
-        self.get_solutions()
-        self.notify(
-            self.pexercise.__class__, 'total_max_score',
+        self.publish_solutions()
+        self.notify(ExerciseAttribute(
+            self.pexercise.exercise.__class__, 'answers',
+            self.pexercise.answers
+        ))
+        self.notify(ExerciseAttribute(
+            self.pexercise.exercise.__class__, 'max_total_score',
             process_total_score(self.pexercise.max_total_score)
-        )
-        self.notify(
-            self.pexercise.__class__, 'total_score',
+        ))
+        self.notify(ExerciseAttribute(
+            self.pexercise.exercise.__class__, 'total_score',
             process_total_score(self.pexercise.total_score)
-        )
+        ))
         self.pexercise.correct
         for widget in self.pexercise.model.widgets:
             widget.show_max_score = True
             widget.show_score = True
             widget.show_correct = True
-        self.frontend.render_feedback(self.pexercise.feedback)
+        self.notify(RenderTemplate(
+            self.pexercise.exercise.__class__, 'feedback',
+            self.pexercise.feedback
+        ))
 
-    def get_solutions(self):
+    def publish_solutions(self):
         self.pexercise.solution
         for widget in self.pexercise.model.widgets:
             widget.show_solution = True
@@ -505,35 +534,21 @@ class ExerciseRunner:
             widget.register_observer(observer)
             widget.observe_attributes()
 
-    def notify(self, owner, name, value):
+    def notify(self, msg):
         for observer in self.observers:
-            observer(self, owner, name, value)
+            observer(msg)
 
-    @cache
-    def get_parameters(self):
-        return self.pexercise.parameters
-
-    def get_answers(self):
-        return self.pexercise.answers
-
-    @property
-    def widgets(self):
-        return self.pexercise.widgets
+    def observer(self, msg):
+        if isinstance(msg, ChangeWidgetAttribute):
+            if msg.attribute_name == 'value':
+                widget = self.widget_id_mapping[msg.widget_id]
+                widget.value = msg.attribute_value
+        elif isinstance(msg, Submit):
+            self.finish()
 
     @property
     def exercise_dir(self):
         return self.pexercise.exercise.dir
-
-    def set_widget_value(self, widget, value):
-        widget.value = value
-
-    @property
-    def empty_widgets(self):
-        return [widget for widget in self.widgets if widget.value is None]
-
-    @property
-    def invalid_widgets(self):
-        return [widget for widget in self.widgets if widget.valid is False]
 
 
 class ExercisePool(collections.UserList):
