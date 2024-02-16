@@ -92,34 +92,37 @@ class ConsoleFrontend:
             print(msg)
 
         if isinstance(msg, RenderTemplate):
-            if msg.template_type == 'preamble':
-                self.render_preamble(msg.template)
-            elif msg.template_type == 'problem':
-                self.render_problem(msg.template)
-            elif msg.template_type == 'feedback':
-                self.render_feedback(msg.template)
+            match msg.template_type:
+                case 'preamble':
+                    self.render_preamble(msg.template)
+                case 'problem':
+                    self.render_problem(msg.template)
+                case 'feedback':
+                    self.render_feedback(msg.template)
         elif isinstance(msg, CreateWidget):
             self.widgets[msg.widget_id] = ConsoleWidget(
                 msg.widget_id, len(self.widgets), msg.widget_info
             )
         elif isinstance(msg, ExerciseAttribute):
-            if msg.attribute_name == 'parameters':
-                self.parameters = msg.attribute_value
-            elif msg.attribute_name == 'answers':
-                self.answers = msg.attribute_value
-            elif msg.attribute_name == 'total_score':
-                self.total_score = msg.attribute_value
-            elif msg.attribute_name == 'max_total_score':
-                self.max_total_score = msg.attribute_value
-            elif msg.attribute_name == 'debug':
-                self.debug = msg.attribute_value
-                if self.debug:
-                    print(msg)
+            match msg.attribute_name:
+                case 'parameters':
+                    self.parameters = msg.attribute_value
+                case 'answers':
+                    self.answers = msg.attribute_value
+                case 'total_score':
+                    self.total_score = msg.attribute_value
+                case 'max_total_score':
+                    self.max_total_score = msg.attribute_value
+                case 'debug':
+                    self.debug = msg.attribute_value
+                    if self.debug:
+                        print(msg)
         elif isinstance(msg, ChangeWidgetAttribute):
-            if msg.attribute_name == 'value':
-                self.widgets[msg.widget_id].value = msg.attribute_value
-            elif msg.attribute_name == 'valid':
-                self.widgets[msg.widget_id].valid = msg.attribute_value
+            match msg.attribute_name:
+                case 'value':
+                    self.widgets[msg.widget_id].value = msg.attribute_value
+                case 'valid':
+                    self.widgets[msg.widget_id].valid = msg.attribute_value
         elif isinstance(msg, WaitingForSubmission):
             self.get_answers()
         elif isinstance(msg, Error) and not self.debug:
