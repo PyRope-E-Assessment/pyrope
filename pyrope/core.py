@@ -472,54 +472,47 @@ class ExerciseRunner:
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
+        self.sender = exercise.__class__
         self.widget_id_mapping = {
             widget.ID: widget for widget in self.pexercise.widgets
         }
 
     # TODO: enforce order of steps
     def run(self):
+        self.notify(ExerciseAttribute(self.sender, 'debug', self.debug))
         self.notify(ExerciseAttribute(
-            self.pexercise.exercise.__class__, 'debug', self.debug
-        ))
-        self.notify(ExerciseAttribute(
-            self.pexercise.exercise.__class__, 'parameters',
-            self.pexercise.parameters
+            self.sender, 'parameters', self.pexercise.parameters
         ))
         self.notify(RenderTemplate(
-            self.pexercise.exercise.__class__, 'preamble',
-            self.pexercise.preamble
+            self.sender, 'preamble', self.pexercise.preamble
         ))
         for widget in self.pexercise.widgets:
             self.notify(CreateWidget(
-                self.pexercise.exercise.__class__, widget.ID,
-                widget.__class__.__name__
+                self.sender, widget.ID, widget.__class__.__name__
             ))
             widget.observe_attributes()
             self.notify(ChangeWidgetAttribute(
-                self.pexercise.exercise.__class__, widget.ID, 'info',
-                widget.info
+                self.sender, widget.ID, 'info', widget.info
             ))
         self.notify(RenderTemplate(
-            self.pexercise.exercise.__class__, 'problem',
-            self.pexercise.template
+            self.sender, 'problem', self.pexercise.template
         ))
         if self.debug:
             self.publish_solutions()
-        self.notify(WaitingForSubmission(self.pexercise.exercise.__class__))
+        self.notify(WaitingForSubmission(self.sender))
 
     def finish(self):
         if not self.debug:
             self.publish_solutions()
         self.notify(ExerciseAttribute(
-            self.pexercise.exercise.__class__, 'answers',
-            self.pexercise.answers
+            self.sender, 'answers', self.pexercise.answers
         ))
         self.notify(ExerciseAttribute(
-            self.pexercise.exercise.__class__, 'max_total_score',
+            self.sender, 'max_total_score',
             process_total_score(self.pexercise.max_total_score)
         ))
         self.notify(ExerciseAttribute(
-            self.pexercise.exercise.__class__, 'total_score',
+            self.sender, 'total_score',
             process_total_score(self.pexercise.total_score)
         ))
         self.pexercise.correct
@@ -528,8 +521,7 @@ class ExerciseRunner:
             widget.show_score = True
             widget.show_correct = True
         self.notify(RenderTemplate(
-            self.pexercise.exercise.__class__, 'feedback',
-            self.pexercise.feedback
+            self.sender, 'feedback', self.pexercise.feedback
         ))
 
     def publish_solutions(self):
