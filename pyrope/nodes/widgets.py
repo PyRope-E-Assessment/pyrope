@@ -436,14 +436,3 @@ class Textarea(Text):
                 "'height' has to be an integer greater than or equal to 0."
             )
         self.height = height
-
-
-class WidgetFactory:
-
-    mapping = {}
-
-    def __call__(self, abstract_widget, *args):
-        if self.mapping == {}:
-            return abstract_widget
-        widget = self.mapping[type(abstract_widget)]
-        return widget(abstract_widget, *args)

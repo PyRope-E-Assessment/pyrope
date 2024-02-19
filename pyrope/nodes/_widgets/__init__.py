@@ -1,7 +1,7 @@
 
 from pyrope.nodes.widgets import (
     Checkbox, Dropdown, NotifyingAttribute, RadioButtons, Slider, Text,
-    Textarea, Widget, WidgetFactory
+    Textarea, Widget
 )
 
 __all__ = [
@@ -12,6 +12,5 @@ __all__ = [
     'Slider',
     'Text',
     'Textarea',
-    'Widget',
-    'WidgetFactory'
+    'Widget'
 ]

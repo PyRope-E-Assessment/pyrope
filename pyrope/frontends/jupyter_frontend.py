@@ -15,9 +15,9 @@ from nbconvert.filters.pandoc import convert_pandoc
 
 from pyrope import config
 from pyrope.formatters import TemplateFormatter
-from pyrope.nodes import (
-    Checkbox, Dropdown, RadioButtons, Slider, Text, Textarea, Widget,
-    WidgetFactory
+from pyrope.messages import (
+    ChangeWidgetAttribute, CreateWidget, ExerciseAttribute, RenderTemplate,
+    Submit, WaitingForSubmission, WidgetValidationError
 )
 
 
@@ -30,14 +30,18 @@ def base64(obj):
 
 class JupyterFrontend:
 
-    def __init__(self, widget_factory=None, debug=False):
+    def __init__(self, widget_factory=None):
         if widget_factory is None:
             self.widget_factory = JupyterHtmlWidgetFactory()
-        self.debug = debug
+        self.debug = False
         self.format = TemplateFormatter.format
 
-        self.total_max_score = None
+        self.answers = {}
+        self.parameters = {}
+        self.max_total_score = None
         self.total_score = None
+        self.runner = None
+        self.widgets = {}
 
         # Get the IPython instance.
         self.ipy = get_ipython()
@@ -57,15 +61,10 @@ class JupyterFrontend:
 
     def set_runner(self, runner):
         self.runner = runner
-        self.submit_section = JupyterSubmitSection(frontend=self)
-        self.widgets = {
-            f'#{widget.ID}': self.widget_factory(widget, self.runner)
-            for widget in self.runner.widgets
-        }
         self.runner.register_observer(self.observer)
 
     def formatter(self, template, allow_widgets=False, **kwargs):
-        parameters = self.runner.get_parameters()
+        parameters = self.parameters
         template = self.format_ofields(template, **(parameters | kwargs))
         if allow_widgets:
             template = self.format(template, **self.widgets)
@@ -172,25 +171,25 @@ class JupyterFrontend:
         plt.close(fig='all')
 
     def render_feedback(self, feedback):
-        feedback = self.formatter(feedback, **self.runner.get_answers())
+        feedback = self.formatter(feedback, **self.answers)
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.submit_section.feedback_div_ID}\','
             f' \'{base64(feedback)}\')'
         ))
         score_string = ''
-        if self.total_score is not None and self.total_max_score is not None:
+        if self.total_score is not None and self.max_total_score is not None:
             percentage = round(
-                (self.total_score / self.total_max_score) * 100, 2
+                (self.total_score / self.max_total_score) * 100, 2
             )
             score_string = (
-                f'Total Score: {self.total_score}/{self.total_max_score} '
+                f'Total Score: {self.total_score}/{self.max_total_score} '
                 f'({percentage}%)'
             )
         elif self.total_score is not None:
             score_string = f'Total Score: {self.total_score}'
-        elif self.total_max_score is not None:
+        elif self.max_total_score is not None:
             score_string = (
-                f'Total Maximal Score: {self.total_max_score}'
+                f'Total Maximal Score: {self.max_total_score}'
             )
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.submit_section.score_div_ID}\', '
@@ -206,42 +205,54 @@ class JupyterFrontend:
     def get_answers(self):
         self.submit, self.submit_anyway = True, False
         display(self.submit_section)
-        if self.debug:
-            self.runner.get_solutions()
 
-    def observer(self, obj, owner, name, value):
-        if isinstance(obj, Widget):
-            widget = self.widgets[f'#{obj.ID}']
-            if name == 'attribute':
-                attr_name, attr_value = list(value.items())[0]
-                if attr_name == 'value':
-                    self.submit_anyway = False
-                    self.submit_section.submit_btn.description = 'Submit'
-                elif attr_name == 'valid' and attr_value is True:
-                    widget.change_hover_text(widget.description)
-                setattr(widget, attr_name, attr_value)
-            elif name == 'error':
-                widget.change_hover_text(value)
-        elif name == 'total_max_score':
-            self.total_max_score = value
-        elif name == 'total_score':
-            self.total_score = value
+    def observer(self, msg):
+        if isinstance(msg, ExerciseAttribute):
+            if msg.attribute_name == 'debug':
+                self.debug = msg.attribute_value
+                self.submit_section = JupyterSubmitSection(frontend=self)
 
         with self.submit_section.debug:
-            if name == 'error':
-                print(f'{owner} {value}')
-            elif name == 'attribute':
-                attr_name, attr_value = list(value.items())[0]
-                print(f'{repr(obj)} {attr_name} set to {attr_value}.')
-            else:
-                print(f'{repr(obj)} {name} set to {value}.')
+            print(msg)
 
-    def display_error(self, e):
-        try:
-            with self.submit_section:
-                print(e)
-        except AttributeError:
-            display(e)
+        if isinstance(msg, ExerciseAttribute):
+            match msg.attribute_name:
+                case 'parameters':
+                    self.parameters = msg.attribute_value
+                case 'answers':
+                    self.answers = msg.attribute_value
+                case 'max_total_score':
+                    self.max_total_score = msg.attribute_value
+                case 'total_score':
+                    self.total_score = msg.attribute_value
+        elif isinstance(msg, RenderTemplate):
+            match msg.template_type:
+                case 'preamble':
+                    self.render_preamble(msg.template)
+                case 'problem':
+                    self.render_problem(msg.template)
+                case 'feedback':
+                    self.render_feedback(msg.template)
+        elif isinstance(msg, CreateWidget):
+            self.widgets[f'#{msg.widget_id}'] = self.widget_factory(
+                msg.widget_type, self, msg.widget_id
+            )
+        elif isinstance(msg, WaitingForSubmission):
+            self.get_answers()
+        elif isinstance(msg, ChangeWidgetAttribute):
+            widget = self.widgets[f'#{msg.widget_id}']
+            if msg.attribute_name == 'value':
+                self.submit_anyway = False
+                self.submit_section.submit_btn.description = 'Submit'
+            elif msg.attribute_name == 'valid' and msg.attribute_value is True:
+                widget.change_hover_text(widget.description)
+            setattr(widget, msg.attribute_name, msg.attribute_value)
+        elif isinstance(msg, WidgetValidationError):
+            widget = self.widgets[f'#{msg.widget_id}']
+            widget.change_hover_text(msg.error)
+
+    def notify(self, msg):
+        self.runner.observer(msg)
 
     def disable_widgets(self):
         for widget in self.widgets.values():
@@ -275,7 +286,6 @@ class JupyterSubmitSection(ipy_widgets.VBox):
 
     def __init__(self, frontend):
         self.frontend = frontend
-        self.runner = frontend.runner
         self.debug = JupyterDebugOutput()
         self.submit_output = ipy_widgets.Output()
         self.show_solutions = False
@@ -338,7 +348,7 @@ class JupyterSubmitSection(ipy_widgets.VBox):
         btn = ipy_widgets.Button(description='Submit')
 
         def finish_exercise():
-            self.runner.finish()
+            self.frontend.notify(Submit(self.frontend.__class__))
             self.frontend.disable_widgets()
             if not self.show_solutions:
                 self.solution_btn.click()
@@ -347,13 +357,21 @@ class JupyterSubmitSection(ipy_widgets.VBox):
 
         def f(btn):
             self.submit_output.clear_output()
+            invalid_widgets = [
+                widget for widget in self.frontend.widgets.values()
+                if widget.valid == 'invalid'
+            ]
+            empty_widgets = [
+                widget for widget in self.frontend.widgets.values()
+                if widget.value is None or widget.value == ''
+            ]
 
-            if self.runner.invalid_widgets or self.runner.empty_widgets:
+            if invalid_widgets or empty_widgets:
                 self.submit, self.submit_anyway = False, True
                 with self:
-                    if self.runner.invalid_widgets:
+                    if invalid_widgets:
                         print('There are invalid input fields.')
-                    if self.runner.empty_widgets:
+                    if empty_widgets:
                         print('There are empty input fields.')
             else:
                 self.submit = True
@@ -470,24 +488,25 @@ class JupyterWidgetResultSpan:
 
 class JupyterHtmlWidget:
 
-    def __init__(self, widget, runner):
+    def __init__(self, frontend, widget_id=None):
         self.ipy = get_ipython()
-        self.runner = runner
-        self.widget = widget
+        self.frontend = frontend
         self.result_span = JupyterWidgetResultSpan()
-        self.description = ''
         self.displayed_max_score = None
         self.displayed_score = None
+        self.info = ''
         self.solution = ''
         self.correct = None
+        self._description = ''
         self._disabled = False
         self._valid = 'valid'
         self._value = None
 
-        if widget is not None:
-            self.ID = f'id_{widget.ID.hex}'
+        if widget_id is not None:
+            self.ID = f'id_{widget_id.hex}'
         else:
             self.ID = f'id_{uuid4().hex}'
+        self.widget_id = widget_id
 
         display(Javascript(
             f'PyRope.create_widget_comm("{self.ID}");'
@@ -519,6 +538,17 @@ class JupyterHtmlWidget:
                 f'the method "{getattr(self, name)}".'
             )
         object.__setattr__(self, name, value)
+
+    @property
+    def description(self):
+        if self._description == '':
+            return self.info
+        else:
+            return self._description
+
+    @description.setter
+    def description(self, value):
+        self._description = value
 
     @property
     def disabled(self):
@@ -555,7 +585,9 @@ class JupyterHtmlWidget:
         if self._value != value:
             self._value = value
             self.comm.send({'value': self._value}, {'sync': True})
-            self.runner.set_widget_value(self.widget, self._value)
+            self.frontend.notify(ChangeWidgetAttribute(
+                self.__class__, self.widget_id, 'value', self._value
+            ))
 
     def change_hover_text(self, text):
         self.comm.send({'title': str(text)})
@@ -621,7 +653,9 @@ class JupyterHtmlCheckbox(JupyterHtmlWidget):
         if self._value != value:
             self._value = value
             self.comm.send({'checked': self._value}, {'sync': True})
-            self.runner.set_widget_value(self.widget, self._value)
+            self.frontend.notify(ChangeWidgetAttribute(
+                self.__class__, self.widget_id, 'value', self._value
+            ))
 
     def display_solution(self, show=True):
         pass
@@ -834,13 +868,18 @@ class JupyterHtmlTextarea(JupyterHtmlText):
         )
 
 
-class JupyterHtmlWidgetFactory(WidgetFactory):
+class JupyterHtmlWidgetFactory:
 
     mapping = {
-        Checkbox: JupyterHtmlCheckbox,
-        Dropdown: JupyterHtmlDropdown,
-        RadioButtons: JupyterHtmlRadioButtons,
-        Slider: JupyterHtmlSlider,
-        Text: JupyterHtmlText,
-        Textarea: JupyterHtmlTextarea,
+        'Checkbox': JupyterHtmlCheckbox,
+        'Dropdown': JupyterHtmlDropdown,
+        'RadioButtons': JupyterHtmlRadioButtons,
+        'Slider': JupyterHtmlSlider,
+        'Text': JupyterHtmlText,
+        'Textarea': JupyterHtmlTextarea,
     }
+
+    def __call__(self, widget_type, frontend, widget_id=None):
+        return self.mapping.get(widget_type, JupyterHtmlText)(
+            frontend, widget_id
+        )
