@@ -4,7 +4,7 @@ import numbers
 
 from pyrope.config import process_score
 from pyrope.errors import IllPosedError, ValidationError
-from pyrope.messages import ChangeWidgetAttribute, Error
+from pyrope.messages import ChangeWidgetAttribute, WidgetValidationError
 from pyrope.nodes import Node
 
 
@@ -97,7 +97,9 @@ class Widget(Node):
                 self.validate()
             except ValidationError as e:
                 self.valid = False
-                self.notify(Error(e.ifield.__class__, e))
+                self.notify(WidgetValidationError(
+                    e.ifield.__class__, e, self.ID
+                ))
             else:
                 self.valid = None if value is None else True
 

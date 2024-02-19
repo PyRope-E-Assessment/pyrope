@@ -5,8 +5,8 @@ from uuid import UUID
 
 from pyrope.formatters import TemplateFormatter
 from pyrope.messages import (
-    ChangeWidgetAttribute, CreateWidget, Error, ExerciseAttribute,
-    RenderTemplate, Submit, WaitingForSubmission
+    ChangeWidgetAttribute, CreateWidget, ExerciseAttribute, RenderTemplate,
+    Submit, WaitingForSubmission, WidgetValidationError
 )
 
 
@@ -125,7 +125,7 @@ class ConsoleFrontend:
                     self.widgets[msg.widget_id].valid = msg.attribute_value
         elif isinstance(msg, WaitingForSubmission):
             self.get_answers()
-        elif isinstance(msg, Error) and not self.debug:
+        elif isinstance(msg, WidgetValidationError) and not self.debug:
             print(msg)
 
     def notify(self, msg):

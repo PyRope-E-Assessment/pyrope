@@ -35,16 +35,6 @@ class CreateWidget(Message):
         )
 
 
-class Error(Message):
-
-    def __init__(self, sender, error):
-        Message.__init__(self, sender)
-        self.error = error
-
-    def __str__(self):
-        return f'{self.sender}: {self.error}'
-
-
 class ExerciseAttribute(Message):
 
     def __init__(self, sender, attribute_name, attribute_value):
@@ -80,3 +70,14 @@ class WaitingForSubmission(Message):
 
     def __str__(self):
         return f'{self.sender} is waiting for submission.'
+
+
+class WidgetValidationError(Message):
+
+    def __init__(self, sender, error, widget_id):
+        Message.__init__(self, sender)
+        self.error = error
+        self.widget_id = widget_id
+
+    def __str__(self):
+        return f'{self.sender}: {self.error}'
