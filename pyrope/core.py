@@ -8,7 +8,6 @@ import importlib
 import inspect
 import itertools
 import os
-from pathlib import Path
 import sys
 import textwrap
 import unittest
@@ -38,15 +37,6 @@ class Exercise(abc.ABC):
             weights = 1.0
         self.weights = weights
         self.kwargs = kwargs
-
-    @property
-    def dir(self):
-        module = sys.modules[self.__module__]
-        try:
-            file = module.__file__
-        except AttributeError:
-            return Path.cwd()
-        return Path(file).parent
 
     def run(self, debug=False):
         runner = ExerciseRunner(self, debug=debug)
@@ -548,10 +538,6 @@ class ExerciseRunner:
                 widget.value = msg.attribute_value
         elif isinstance(msg, Submit):
             self.finish()
-
-    @property
-    def exercise_dir(self):
-        return self.pexercise.exercise.dir
 
 
 class ExercisePool(collections.UserList):

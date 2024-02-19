@@ -1,8 +1,6 @@
 
 from base64 import b64encode
 from functools import cached_property
-import os
-from pathlib import Path
 from uuid import uuid4
 import warnings
 
@@ -72,13 +70,8 @@ class JupyterFrontend:
         return template
 
     def format_ofields(self, template, **kwargs):
-        relative_path = os.path.relpath(self.runner.exercise_dir, Path.cwd())
         ofields = {}
         for name, ofield in kwargs.items():
-
-            # Set paths relative to the exercise directory.
-            if isinstance(ofield, Path):
-                ofield = str(relative_path / ofield)
 
             # Otherwise strings are rendered with '' or "".
             if not isinstance(ofield, str):
