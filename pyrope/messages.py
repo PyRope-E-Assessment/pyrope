@@ -22,11 +22,10 @@ class ChangeWidgetAttribute(Message):
 
 class CreateWidget(Message):
 
-    def __init__(self, sender, widget_id, widget_type, widget_info):
+    def __init__(self, sender, widget_id, widget_type):
         Message.__init__(self, sender)
         self.widget_id = widget_id
         self.widget_type = widget_type
-        self.widget_info = widget_info
 
     def __str__(self):
         return (

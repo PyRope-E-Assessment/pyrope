@@ -492,7 +492,12 @@ class ExerciseRunner:
         for widget in self.pexercise.widgets:
             self.notify(CreateWidget(
                 self.pexercise.exercise.__class__, widget.ID,
-                widget.__class__.__name__, widget.info
+                widget.__class__.__name__
+            ))
+            widget.observe_attributes()
+            self.notify(ChangeWidgetAttribute(
+                self.pexercise.exercise.__class__, widget.ID, 'info',
+                widget.info
             ))
         self.notify(RenderTemplate(
             self.pexercise.exercise.__class__, 'problem',
@@ -539,7 +544,6 @@ class ExerciseRunner:
         self.observers.append(observer)
         for widget in self.pexercise.widgets:
             widget.register_observer(observer)
-            widget.observe_attributes()
 
     def notify(self, msg):
         for observer in self.observers:

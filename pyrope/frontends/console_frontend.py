@@ -15,7 +15,7 @@ class ConsoleWidget:
 
     ID: UUID
     index: int
-    info: str
+    info: str = ''
     valid: bool = None
     value: Any = None
 
@@ -101,7 +101,7 @@ class ConsoleFrontend:
                     self.render_feedback(msg.template)
         elif isinstance(msg, CreateWidget):
             self.widgets[msg.widget_id] = ConsoleWidget(
-                msg.widget_id, len(self.widgets), msg.widget_info
+                msg.widget_id, len(self.widgets)
             )
         elif isinstance(msg, ExerciseAttribute):
             match msg.attribute_name:
@@ -123,6 +123,8 @@ class ConsoleFrontend:
                     self.widgets[msg.widget_id].value = msg.attribute_value
                 case 'valid':
                     self.widgets[msg.widget_id].valid = msg.attribute_value
+                case 'info':
+                    self.widgets[msg.widget_id].info = msg.attribute_value
         elif isinstance(msg, WaitingForSubmission):
             self.get_answers()
         elif isinstance(msg, WidgetValidationError) and not self.debug:
