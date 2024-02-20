@@ -14,9 +14,12 @@ class ChangeWidgetAttribute(Message):
         self.attribute_value = attribute_value
 
     def __str__(self):
+        value = self.attribute_value
+        if isinstance(self.attribute_value, str):
+            value = f"'{self.attribute_value}'"
         return (
-            f'{self.sender}: {self.attribute_name} set to '
-            f'{self.attribute_value}.'
+            f"{self.sender}: '{self.attribute_name}' set to "
+            f"{value}."
         )
 
 
@@ -62,13 +65,13 @@ class RenderTemplate(Message):
 class Submit(Message):
 
     def __str__(self):
-        return f'{self.sender} submits an exercise.'
+        return f'{self.sender}: Submit an exercise.'
 
 
 class WaitingForSubmission(Message):
 
     def __str__(self):
-        return f'{self.sender} is waiting for submission.'
+        return f'{self.sender}: Wait for submission.'
 
 
 class WidgetValidationError(Message):

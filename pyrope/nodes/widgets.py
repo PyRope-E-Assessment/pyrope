@@ -24,7 +24,7 @@ class NotifyingAttribute:
     def notify(self, obj):
         value = getattr(obj, self._name)
         obj.notify(ChangeWidgetAttribute(
-            obj.__class__, obj.ID, self.name, value
+            repr(obj), obj.ID, self.name, value
         ))
 
 
@@ -91,14 +91,14 @@ class Widget(Node):
         if self._value != value:
             self._value = value
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'value', value
+                repr(self), self.ID, 'value', value
             ))
             try:
                 self.validate()
             except ValidationError as e:
                 self.valid = False
                 self.notify(WidgetValidationError(
-                    e.ifield.__class__, e, self.ID
+                    repr(e.ifield), e, self.ID
                 ))
             else:
                 self.valid = None if value is None else True
@@ -111,7 +111,7 @@ class Widget(Node):
     def valid(self, value):
         self._valid = value
         self.notify(ChangeWidgetAttribute(
-            self.__class__, self.ID, 'valid', value
+            repr(self), self.ID, 'valid', value
         ))
 
     @property
@@ -163,7 +163,7 @@ class Widget(Node):
         self._solution = value
         if self.show_solution is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'solution', value
+                repr(self), self.ID, 'solution', value
             ))
 
     @property
@@ -174,11 +174,11 @@ class Widget(Node):
     def show_solution(self, value):
         self._show_solution = value
         self.notify(ChangeWidgetAttribute(
-            self.__class__, self.ID, 'show_solution', value
+            repr(self), self.ID, 'show_solution', value
         ))
         if value is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'solution', self.solution
+                repr(self), self.ID, 'solution', self.solution
             ))
 
     @property
@@ -214,7 +214,7 @@ class Widget(Node):
         self._displayed_max_score = value
         if self.show_max_score is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'displayed_max_score',
+                repr(self), self.ID, 'displayed_max_score',
                 self.displayed_score
             ))
 
@@ -226,11 +226,11 @@ class Widget(Node):
     def show_max_score(self, value):
         self._show_max_score = value
         self.notify(ChangeWidgetAttribute(
-            self.__class__, self.ID, 'show_max_score', value
+            repr(self), self.ID, 'show_max_score', value
         ))
         if value is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'displayed_max_score',
+                repr(self), self.ID, 'displayed_max_score',
                 self.displayed_max_score
             ))
 
@@ -285,7 +285,7 @@ class Widget(Node):
         self._displayed_score = value
         if self.show_score is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'displayed_score',
+                repr(self), self.ID, 'displayed_score',
                 self.displayed_score
             ))
 
@@ -297,11 +297,11 @@ class Widget(Node):
     def show_score(self, value):
         self._show_score = value
         self.notify(ChangeWidgetAttribute(
-            self.__class__, self.ID, 'show_score', value
+            repr(self), self.ID, 'show_score', value
         ))
         if value is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'displayed_score',
+                repr(self), self.ID, 'displayed_score',
                 self.displayed_score
             ))
 
@@ -314,7 +314,7 @@ class Widget(Node):
         self._correct = value
         if self.show_correct is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'correct', self.correct
+                repr(self), self.ID, 'correct', self.correct
             ))
 
     @property
@@ -325,11 +325,11 @@ class Widget(Node):
     def show_correct(self, value):
         self._show_correct = value
         self.notify(ChangeWidgetAttribute(
-            self.__class__, self.ID, 'show_correct', value
+            repr(self), self.ID, 'show_correct', value
         ))
         if value is True:
             self.notify(ChangeWidgetAttribute(
-                self.__class__, self.ID, 'correct', self.correct
+                repr(self), self.ID, 'correct', self.correct
             ))
 
 
