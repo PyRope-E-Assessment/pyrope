@@ -1,8 +1,12 @@
 
+from datetime import datetime
+
+
 class Message:
 
     def __init__(self, sender):
         self.sender = sender
+        self.timestamp = datetime.now().astimezone()
 
 
 class ChangeWidgetAttribute(Message):
