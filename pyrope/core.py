@@ -544,32 +544,40 @@ class ExercisePool(collections.UserList):
     def add_exercises_from_pool(self, pool):
         self.data.extend(pool)
 
-    def add_exercises_from_module(self, module):
+    def add_exercises_from_module(self, module, exercise_names=None):
         # Calling the '__dir__' method instead of the 'dir' built-in
         # avoids alphabetical sorting of the exercises added to the pool.
-        for name in module.__dir__():
+        if exercise_names is None:
+            exercise_names = module.__dir__()
+        for name in exercise_names:
             obj = getattr(module, name)
             if isinstance(obj, type) and issubclass(obj, Exercise):
                 if not inspect.isabstract(obj):
                     self.data.append(obj())
 
-    def add_exercises_from_file(self, filepattern):
+    def add_exercises_from_file(self, filepath):
+        dirname, filename = os.path.split(filepath)
+        filename, exercises, *_ = *filename.split(':'), None
+        if exercises is not None:
+            exercises = [name.strip() for name in exercises.split(',')]
+        modulename, ext = os.path.splitext(filename)
+        if ext != '.py':
+            raise TypeError(
+                f'File "{filepath}" does not seem to be a python script.'
+            )
+        sys.path.insert(0, dirname)
+        importlib.invalidate_caches()
+        if modulename in sys.modules:
+            module = sys.modules[modulename]
+            importlib.reload(module)
+        else:
+            module = importlib.import_module(modulename)
+        self.add_exercises_from_module(module, exercise_names=exercises)
+
+    def add_exercises_from_files(self, filepattern):
         filepaths = glob.glob(filepattern, recursive=True)
         for filepath in filepaths:
-            dirname, filename = os.path.split(filepath)
-            modulename, ext = os.path.splitext(filename)
-            if ext != '.py':
-                raise TypeError(
-                    f'File "{filepath}" does not seem to be a python script.'
-                )
-            sys.path.insert(0, dirname)
-            importlib.invalidate_caches()
-            if modulename in sys.modules:
-                module = sys.modules[modulename]
-                importlib.reload(module)
-            else:
-                module = importlib.import_module(modulename)
-            self.add_exercises_from_module(module)
+            self.add_exercises_from_file(filepath)
 
 
 class CLIParser:
