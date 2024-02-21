@@ -595,11 +595,11 @@ class CLIParser:
             help='start an interactive exercise session'
         )
         run_parser.add_argument(
-            'patterns',
+            'filepaths',
             nargs='*',
             type=str,
-            help='pattern for python scripts with exercise definitions',
-            metavar='pattern',
+            help='paths to python scripts with exercise definitions',
+            metavar='filepath',
         )
         run_parser.add_argument(
             '--frontend',
@@ -624,11 +624,11 @@ class CLIParser:
             help='run automated unit tests on exercises'
         )
         test_parser.add_argument(
-            'patterns',
+            'filepaths',
             nargs='*',
             type=str,
-            help='pattern for python scripts with exercise definitions',
-            metavar='pattern',
+            help='paths to python scripts with exercise definitions',
+            metavar='filepath',
         )
 
     def parse_args(self, args=None, namespace=None):

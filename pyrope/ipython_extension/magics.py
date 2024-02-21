@@ -22,9 +22,9 @@ class PyRopeMagics(Magics):
     def cli(self, line, local_ns):
         args = self.parser.parse_args(shlex.split(line))
         pool = ExercisePool()
-        if args.patterns:
-            for pattern in args.patterns:
-                pool.add_exercises_from_file(pattern)
+        if args.filepaths:
+            for path in args.filepaths:
+                pool.add_exercises_from_file(path)
         else:
             notebook = types.ModuleType('notebook')
             notebook.__dict__.update(**local_ns)
