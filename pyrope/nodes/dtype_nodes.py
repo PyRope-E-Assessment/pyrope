@@ -179,7 +179,7 @@ class ElementwiseRational(Node):
         Node.__init__(
             self, '<<a>> / <<b>>', {
                 'a': Int(widget=widget, **kwargs),
-                'b': Int(widget=widget, **kwargs)
+                'b': Natural(widget=widget, with_zero=False, **kwargs)
             }, **kwargs
         )
 
