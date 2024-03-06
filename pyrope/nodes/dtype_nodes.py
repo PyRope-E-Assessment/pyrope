@@ -1,9 +1,5 @@
 
-import ast
 from fractions import Fraction
-import numpy as np
-import sympy
-import tokenize
 
 from pyrope import config
 from pyrope.dtypes import (
@@ -45,55 +41,11 @@ class Problem(Node):
         ) / len(self.ifields)
 
 
-class Parser(Node):
-
-    # c.f. https://docs.python.org/3/library/ast.html#ast.literal_eval
-    dtypes = (str, int, float, complex, tuple, list, dict, set, bool)
-
-    def __init__(self, ifield, dtype, **kwargs):
-        Node.__init__(self, '<<_>>', {'_': ifield}, **kwargs)
-        if dtype.dtype not in self.dtypes:
-            raise TypeError(f'Unable to parse data type {dtype.dtype}.')
-        self.dtype = dtype
-
-    # c.f. https://bugs.python.org/issue39159
-    @staticmethod
-    def safe_eval(s):
-        if len(s) > config.maximum_input_length:
-            raise ValidationError(
-                f'Input size {len(s)} '
-                f'exceeds limit {config.maximum_input_length}.'
-            )
-        try:
-            expr = ast.literal_eval(s)
-        except (MemoryError, SyntaxError, TypeError, ValueError) as e:
-            raise ValidationError(e)
-        return expr
-
-    def assemble(self, _):
-        if not isinstance(_, str) or self.dtype.dtype == str:
-            return _
-        if _ == '':
-            return None
-        value = self.safe_eval(_)
-        if value is None:
-            return _
-        return value
-
-    def disassemble(self, value):
-        return {'_': str(value)}
-
-
 class Bool(Node):
 
     def __init__(self, *, widget=Checkbox(), **kwargs):
         self.dtype = BoolType(**kwargs)
         Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
-
-    def assemble(self, _):
-        if _ == '':
-            return None
-        return _
 
 
 class Complex(Node):
@@ -107,7 +59,7 @@ class Complex(Node):
                 i_on_the=i_on_the, widget=widget, **kwargs
             )
         else:
-            _ = Parser(widget, self.dtype, **kwargs)
+            _ = widget
         Node.__init__(self, '<<_>>', {'_': _}, **kwargs)
 
 
@@ -139,55 +91,21 @@ class Dict(Node):
 
     def __init__(self, *, widget=Text(), **kwargs):
         self.dtype = DictType(**kwargs)
-        Node.__init__(
-            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
-            **kwargs
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class Expression(Node):
 
-    def __init__(self, *, widget=Text(), transformations=None, **kwargs):
+    def __init__(self, *, widget=Text(), **kwargs):
         self.dtype = ExpressionType(**kwargs)
         Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
-        if transformations is None:
-            transformations = tuple(
-                getattr(sympy.parsing.sympy_parser, transformation)
-                for transformation in config.transformations
-            )
-        self.transformations = transformations
-
-    def assemble(self, _):
-        if _ == '':
-            return None
-        try:
-            expr = sympy.parse_expr(_, transformations=self.transformations)
-        except (SyntaxError, TypeError, tokenize.TokenError) as e:
-            raise ValidationError(e)
-        return expr
-
-    def disassemble(self, value):
-        return {'_': sympy.srepr(value)}
 
 
-class Equation(Expression):
+class Equation(Node):
 
     def __init__(self, *, widget=Text(), **kwargs):
-        Expression.__init__(self, widget=widget, **kwargs)
         self.dtype = EquationType(**kwargs)
-
-    def assemble(self, _):
-        if _ == '':
-            return None
-        if '=' not in _:
-            raise ValidationError('An equation needs an equal sign.')
-        if _.count('=') != 1:
-            raise ValidationError('Equation contains multiple equal signs.')
-        LHS, RHS = _.split('=')
-        return Expression.assemble(self, f'Eq({LHS}, {RHS}, evaluate=False)')
-
-    def disassemble(self, value):
-        return {'_': f'{sympy.srepr(value.lhs)}={sympy.srepr(value.rhs)}'}
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class Int(Node):
@@ -202,10 +120,7 @@ class Int(Node):
                 widget = Slider(self.dtype.minimum, self.dtype.maximum)
             else:
                 widget = Text()
-        Node.__init__(
-            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
-            **kwargs
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class Matrix(Node):
@@ -213,19 +128,6 @@ class Matrix(Node):
     def __init__(self, *, widget=Text(), **kwargs):
         self.dtype = MatrixType(**kwargs)
         Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
-
-    def assemble(self, _):
-        if _ == '':
-            return None
-        value = Parser.safe_eval(_)
-        try:
-            value = np.array(value)
-        except ValueError as e:
-            raise ValidationError(e)
-        return value
-
-    def disassemble(self, value):
-        return {'_': str(value.tolist())}
 
 
 class Vector(Matrix):
@@ -255,10 +157,7 @@ class OneOf(Node):
                 widget = RadioButtons(*args)
             else:
                 widget = Dropdown(*args)
-        Node.__init__(
-            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
-            **kwargs
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class Rational(Node):
@@ -271,20 +170,6 @@ class Rational(Node):
         else:
             _ = widget
         Node.__init__(self, '<<_>>', {'_': _}, **kwargs)
-
-    def assemble(self, _):
-        if _ == '':
-            return None
-        try:
-            fraction = Fraction(_)
-        except (ValueError, TypeError, ZeroDivisionError) as e:
-            raise ValidationError(e)
-        return fraction
-
-    def disassemble(self, value):
-        if self.elementwise:
-            return Node.disassemble(self, value)
-        return {'_': str(value)}
 
 
 class ElementwiseRational(Node):
@@ -309,20 +194,14 @@ class Real(Node):
 
     def __init__(self, *, widget=Text(), **kwargs):
         self.dtype = RealType(**kwargs)
-        Node.__init__(
-            self, '<<_>>', {'_': Parser(widget, dtype=self.dtype, **kwargs)},
-            **kwargs
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class Set(Node):
 
     def __init__(self, *, widget=Text(), **kwargs):
         self.dtype = SetType(**kwargs)
-        Node.__init__(
-            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
-            **kwargs
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class String(Node):
@@ -338,10 +217,7 @@ class Tuple(Node):
 
     def __init__(self, widget=Text(), **kwargs):
         self.dtype = self.dtype(**kwargs)
-        Node.__init__(
-            self, '<<_>>', {'_': Parser(widget, self.dtype, **kwargs)},
-            **kwargs
-        )
+        Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
 class List(Tuple):

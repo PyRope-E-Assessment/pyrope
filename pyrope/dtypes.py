@@ -1,7 +1,9 @@
 
 import abc
+import ast
 from fractions import Fraction
 import numbers
+import tokenize
 
 import numpy as np
 import sympy
@@ -26,9 +28,9 @@ class TypeChecked:
             if value is None:
                 return None
         value = obj.assemble(**ifields)
+        value = obj.cast(value)
         if value is None:
             return None
-        value = obj.cast(value)
         value = obj.normalize(value)
         obj.check_type(value)
         return value
@@ -39,6 +41,8 @@ class TypeChecked:
                 setattr(ifield, self.name, None)
             return
         value = obj.cast(value)
+        if value is None:
+            return None
         value = obj.normalize(value)
         obj.check_type(value)
         for name, value in obj.disassemble(value).items():
@@ -62,6 +66,14 @@ class DType(abc.ABC):
                     return trivial_value
             return wrapper
         cls.trivial_value = validate_trivial_value(cls.trivial_value)
+
+        def cast_empty_string(f):
+            def wrapper(self, value):
+                if isinstance(value, str) and value == '':
+                    return None
+                return f(self, value)
+            return wrapper
+        cls.cast = cast_empty_string(cls.cast)
 
     @property
     @abc.abstractmethod
@@ -96,6 +108,21 @@ class DType(abc.ABC):
 
     def normalize(self, value):
         return value
+
+
+# c.f. https://bugs.python.org/issue39159
+def safe_eval_string(s):
+    if len(s) > config.maximum_input_length:
+        raise ValidationError(
+            f'Input size {len(s)} exceeds limit {config.maximum_input_length}.'
+        )
+    try:
+        expr = ast.literal_eval(s)
+    except (MemoryError, SyntaxError, TypeError, ValueError) as e:
+        raise ValidationError(e)
+    if expr is None:
+        return s
+    return expr
 
 
 class BoolType(DType):
@@ -146,6 +173,11 @@ class ComplexType(DType):
         return 1j
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = safe_eval_string(value)
+            except ValidationError:
+                pass
         if isinstance(value, (np.int_, np.float_, np.complex_)):
             value = value.item()
         if isinstance(value, (int, float)):
@@ -186,6 +218,14 @@ class DictType(DType):
             return {0: True}
         return {i: True for i in range(self.count)}
 
+    def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = safe_eval_string(value)
+            except ValidationError:
+                pass
+        return value
+
     def check_type(self, value):
         DType.check_type(self, value)
         if self.count is None:
@@ -201,7 +241,7 @@ class ExpressionType(DType):
 
     dtype = sympy.Expr
 
-    def __init__(self, symbols=None, **kwargs):
+    def __init__(self, symbols=None, transformations=None, **kwargs):
         DType.__init__(self, **kwargs)
         if symbols is None:
             self.symbols = set()
@@ -211,6 +251,12 @@ class ExpressionType(DType):
                 self.symbols = set(symbols)
             except TypeError:
                 self.symbols = {symbols}
+        if transformations is None:
+            transformations = tuple(
+                getattr(sympy.parsing.sympy_parser, transformation)
+                for transformation in config.transformations
+            )
+        self.transformations = transformations
 
     @property
     def info(self):
@@ -225,6 +271,14 @@ class ExpressionType(DType):
         return One()
 
     def cast(self, value):
+        if not isinstance(value, str):
+            return value
+        try:
+            value = sympy.parse_expr(
+                value, transformations=self.transformations
+            )
+        except (SyntaxError, TypeError, tokenize.TokenError) as e:
+            raise ValidationError(e)
         e, i = sympy.symbols('e, i')
         if e not in self.symbols:
             value = value.subs(e, sympy.E)
@@ -265,6 +319,18 @@ class EquationType(ExpressionType):
 
     def dummy_value(self):
         return sympy.Equality(One(), Zero(), evaluate=False)
+
+    def cast(self, value):
+        if isinstance(value, str):
+            if '=' not in value:
+                raise ValidationError('An equation needs an equal sign.')
+            if value.count('=') != 1:
+                raise ValidationError(
+                    'Equation contains multiple equal signs.'
+                )
+            LHS, RHS = value.split('=')
+            value = f'Eq({LHS}, {RHS}, evaluate=False)'
+        return ExpressionType.cast(self, value)
 
     def check_type(self, value):
         DType.check_type(self, value)
@@ -315,6 +381,13 @@ class IntType(DType):
         return 1
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = int(value)
+            except ValueError:
+                raise ValidationError(
+                    f"Cannot convert '{value}' to an integer."
+                )
         if isinstance(value, (np.int_, np.float_, np.complex_)):
             value = value.item()
         if isinstance(value, float) and int(value) == value:
@@ -404,6 +477,13 @@ class MatrixType(DType):
         return np.array(np.zeros((nrows, ncols)))
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = safe_eval_string(value)
+            except ValidationError:
+                raise ValidationError(
+                    f"Cannot convert '{value}' to a matrix."
+                )
         try:
             value = np.array(value)
         except ValueError:
@@ -479,6 +559,14 @@ class OneOfType(DType):
     def dummy_value(self):
         return self.options[-1]
 
+    def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = safe_eval_string(value)
+            except ValidationError:
+                pass
+        return value
+
     def check_type(self, value):
         DType.check_type(self, value)
         if value not in self.options:
@@ -502,6 +590,11 @@ class RationalType(DType):
         return Fraction(1, 2)
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                return Fraction(value)
+            except (ValueError, TypeError, ZeroDivisionError) as e:
+                raise ValidationError(e)
         if isinstance(value, (int, float)):
             return Fraction(str(value))
         return value
@@ -530,6 +623,11 @@ class RealType(DType):
         return 0.5
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = float(value)
+            except ValueError:
+                raise ValidationError(f"Cannot convert '{value}' to a float.")
         if isinstance(value, (np.int_, np.float_, np.complex_)):
             value = value.item()
         if isinstance(value, int):
@@ -575,6 +673,11 @@ class SetType(DType):
         return set(range(self.count))
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = safe_eval_string(value)
+            except ValidationError:
+                pass
         if value == {}:
             return set()
         return value
@@ -625,7 +728,7 @@ class StringType(DType):
     def cast(self, value):
         if isinstance(value, np.str_):
             return value.item()
-        return str(value)
+        return value
 
 
 class TupleType(DType):
@@ -659,6 +762,11 @@ class TupleType(DType):
         return self.count * (0,)
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = safe_eval_string(value)
+            except ValidationError:
+                pass
         if isinstance(value, list):
             return tuple(value)
         return value
@@ -687,6 +795,11 @@ class ListType(TupleType):
         return self.count * [0]
 
     def cast(self, value):
+        if isinstance(value, str):
+            try:
+                value = safe_eval_string(value)
+            except ValidationError:
+                pass
         if isinstance(value, tuple):
             return list(value)
         return value
