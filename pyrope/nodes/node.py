@@ -133,6 +133,11 @@ class Node:
             )
         return {list(self.ifields.keys())[0]: value}
 
+    def parse(self, value):
+        if self.dtype is None:
+            return value
+        return self.dtype.parse(value)
+
     def cast(self, value):
         if self.dtype is None:
             return value
