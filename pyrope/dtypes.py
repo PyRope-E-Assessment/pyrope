@@ -413,6 +413,36 @@ class PolynomialType(ExpressionType):
                     )
 
 
+class LinearExpressionType(PolynomialType):
+
+    def __init__(self, **kwargs):
+        kwargs.pop('degree', None)
+        PolynomialType.__init__(self, degree=1, **kwargs)
+
+    @property
+    def info(self):
+        if not self.symbols:
+            return 'a constant linear expression'
+        return f'a linear expression in {self.symbols}'
+
+    def check_type(self, value):
+        ExpressionType.check_type(self, value)
+        for gen in value.gens:
+            if not gen.is_symbol:
+                raise ValidationError('Expected a linear expression.')
+        if value.degree() > self.degree:
+            raise ValidationError(
+                f'Expected a linear expression, got a polynomial of degree '
+                f'{value.degree()}.'
+            )
+        if self.elementwise is True:
+            for coeff in value.all_coeffs():
+                if not isinstance(coeff, sympy.Number):
+                    raise NotImplementedError(
+                        f'All coefficients have to be rational, got {coeff}.'
+                    )
+
+
 class IntType(DType):
 
     dtype = int

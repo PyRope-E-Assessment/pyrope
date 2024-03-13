@@ -6,8 +6,8 @@ import sympy
 from pyrope import config
 from pyrope.dtypes import (
      BoolType, ComplexType, DictType, EquationType, ExpressionType, IntType,
-     ListType, MatrixType, OneOfType, PolynomialType, RationalType, RealType,
-     SetType, StringType, TupleType, VectorType
+     LinearExpressionType, ListType, MatrixType, OneOfType, PolynomialType,
+     RationalType, RealType, SetType, StringType, TupleType, VectorType
 )
 from pyrope.errors import ValidationError
 from pyrope.nodes import Checkbox, Dropdown, Node, RadioButtons, Slider, Text
@@ -213,6 +213,32 @@ class ElementwisePolynomial(Node):
 
     def disassemble(self, value):
         coeffs = value.all_coeffs()[::-1]
+        return {
+            f'x_{i}': coeffs[i] for i in range(0, self.degree + 1)
+        }
+
+
+class LinearExpression(Node):
+
+    def __init__(self, *, elementwise=False, widget=Text(), **kwargs):
+        self.dtype = LinearExpressionType(elementwise=elementwise, **kwargs)
+        if elementwise is True:
+            _ = ElementwiseLinearExpression(widget=widget, **kwargs)
+            Node.__init__(self, '<<_>>', {'_': _}, **kwargs)
+        else:
+            Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
+
+
+class ElementwiseLinearExpression(ElementwisePolynomial):
+
+    def __init__(self, **kwargs):
+        ElementwisePolynomial.__init__(self, 1, **kwargs)
+        self.dtype = LinearExpressionType(elementwise=True, **kwargs)
+
+    def disassemble(self, value):
+        coeffs = value.all_coeffs()[::-1]
+        if value.degree() == 0:
+            coeffs.append(0)
         return {
             f'x_{i}': coeffs[i] for i in range(0, self.degree + 1)
         }
