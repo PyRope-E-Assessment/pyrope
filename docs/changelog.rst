@@ -18,6 +18,7 @@ New
 * Input fields have a :code:`correct` flag. Jupyter frontends use this flag to highlight input fields after submission.
 * Weight scores with :code:`weights` when instantiating an exercise and test :code:`weights`.
 * Implement :code:`atol` and :code:`rtol` for :code:`Complex` and :code:`Real` nodes.
+* New nodes: :code:`Polynomial` and :code:`ElementwisePolynomial`.
 
 Changes
 -------

@@ -1,11 +1,13 @@
 
 from fractions import Fraction
 
+import sympy
+
 from pyrope import config
 from pyrope.dtypes import (
      BoolType, ComplexType, DictType, EquationType, ExpressionType, IntType,
-     ListType, MatrixType, OneOfType, RationalType, RealType, SetType,
-     StringType, TupleType, VectorType
+     ListType, MatrixType, OneOfType, PolynomialType, RationalType, RealType,
+     SetType, StringType, TupleType, VectorType
 )
 from pyrope.errors import ValidationError
 from pyrope.nodes import Checkbox, Dropdown, Node, RadioButtons, Slider, Text
@@ -158,6 +160,62 @@ class OneOf(Node):
             else:
                 widget = Dropdown(*args)
         Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
+
+
+class Polynomial(Node):
+
+    def __init__(
+            self, *, degree=None, elementwise=False, widget=Text(), **kwargs
+    ):
+        self.dtype = PolynomialType(degree=degree, **kwargs)
+        if elementwise is True:
+            _ = ElementwisePolynomial(degree, widget=widget, **kwargs)
+            Node.__init__(self, '<<_>>', {'_': _}, **kwargs)
+        else:
+            Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
+
+
+class ElementwisePolynomial(Node):
+
+    def __init__(self, degree, *, widget=Text(), **kwargs):
+        self.dtype = PolynomialType(degree=degree, elementwise=True, **kwargs)
+        self.degree = degree
+        if self.degree is None:
+            raise ValueError(
+                'Cannot render polynomials with an arbitrary degree '
+                'elementwise.'
+            )
+        if len(self.dtype.symbols) >= 2:
+            raise NotImplementedError(
+                'Cannot render polynomials with more than one symbol '
+                'elementwise.'
+            )
+        self.symbol = next(iter(self.dtype.symbols))
+        tokens = [
+            f'<<x_{i}>>${self.symbol}^{"{"}{i}{"}"}$'
+            for i in range(self.degree, 1, -1)
+        ]
+        if self.degree >= 1:
+            tokens.append(f'<<x_1>>${self.symbol}$')
+        tokens.append('<<x_0>>')
+        template = ' + '.join(tokens)
+        Node.__init__(
+            self, template, {
+                f'x_{i}': Rational(elementwise=False, widget=widget, **kwargs)
+                for i in range(0, self.degree + 1)
+            }
+        )
+
+    def assemble(self, **ifields):
+        return sympy.Poly.from_dict({
+            i: ifields[f'x_{i}'] for i in range(0, self.degree + 1)
+        }, self.symbol)
+
+    def disassemble(self, value):
+        coeffs = value.all_coeffs()[::-1]
+        return {
+            f'x_{i}': coeffs[i] for i in range(0, self.degree + 1)
+        }
 
 
 class Rational(Node):

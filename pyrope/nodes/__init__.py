@@ -4,9 +4,9 @@ from pyrope.nodes.node import Node
 from pyrope.nodes import widgets, _widgets
 from pyrope.nodes._widgets import *
 from pyrope.nodes.dtype_nodes import (
-    Bool, Complex, Dict, ElementwiseComplex, ElementwiseRational, Equation,
-    Expression, Int, List, Matrix, Natural, OneOf, Problem, Rational,
-    Real, Set, String, Tuple, Vector
+    Bool, Complex, Dict, ElementwiseComplex, ElementwisePolynomial,
+    ElementwiseRational, Equation, Expression, Int, List, Matrix, Natural,
+    OneOf, Polynomial, Problem, Rational, Real, Set, String, Tuple, Vector
 )
 
 __all__ = [
@@ -14,6 +14,7 @@ __all__ = [
     'Complex',
     'Dict',
     'ElementwiseComplex',
+    'ElementwisePolynomial',
     'ElementwiseRational',
     'Equation',
     'Expression',
@@ -23,6 +24,7 @@ __all__ = [
     'Natural',
     'Node',
     'OneOf',
+    'Polynomial',
     'Problem',
     'Rational',
     'Real',

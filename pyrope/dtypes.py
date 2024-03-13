@@ -281,13 +281,11 @@ class ExpressionType(DType):
 
     def parse(self, value):
         try:
-            return sympy.parse_expr(
+            value = sympy.parse_expr(
                 value, transformations=self.transformations
             )
         except (SyntaxError, TypeError, tokenize.TokenError) as e:
             raise ValidationError(e)
-
-    def normalize(self, value):
         e, i = sympy.symbols('e, i')
         if e not in self.symbols:
             value = value.subs(e, sympy.E)
@@ -350,6 +348,69 @@ class EquationType(ExpressionType):
                     f'Expected an equation in {self.symbols}, '
                     f'not in {value.free_symbols}.'
                 )
+
+
+class PolynomialType(ExpressionType):
+
+    dtype = sympy.Poly
+
+    def __init__(self, degree=None, elementwise=False, **kwargs):
+        ExpressionType.__init__(self, **kwargs)
+        if degree is not None:
+            if not isinstance(degree, int) or degree < 0:
+                raise ValueError(
+                    'Degree of a polynomial must be a non-negative integer.'
+                )
+        self.degree = degree
+        self.elementwise = elementwise
+
+    @property
+    def info(self):
+        if not self.symbols:
+            return 'a constant polynomial'
+        else:
+            info = f'a polynomial in {self.symbols}'
+            if self.degree is not None:
+                info = f'{info} of degree {self.degree}'
+            return info
+
+    def dummy_value(self):
+        value = One()
+        if self.degree is None:
+            return value
+        for i in range(1, self.degree + 1):
+            summand = Zero()
+            for symbol in self.symbols:
+                summand += symbol ** i
+            value += summand
+        return value
+
+    def cast(self, value):
+        if isinstance(value, sympy.Expr):
+            if not self.symbols:
+                value = value.as_poly(sympy.Symbol('_'))
+            value = value.as_poly(*self.symbols)
+        return value
+
+    def compare(self, LHS, RHS):
+        return ExpressionType.compare(self, LHS.as_expr(), RHS.as_expr())
+
+    def check_type(self, value):
+        ExpressionType.check_type(self, value)
+        for gen in value.gens:
+            if not gen.is_symbol:
+                raise ValidationError('Expected a polynomial.')
+        if self.degree is not None and value.degree() != self.degree:
+            raise ValidationError(
+                f'Expected a polynomial of degree {self.degree}, got a '
+                f'polynomial of degree {value.degree()}.'
+            )
+        if self.elementwise is True:
+            for coeff in value.all_coeffs():
+                if not isinstance(coeff, sympy.Number):
+                    raise NotImplementedError(
+                        f'All coefficients have to be rational, got {coeff}.'
+                    )
 
 
 class IntType(DType):
@@ -590,7 +651,7 @@ class RationalType(DType):
             raise ValidationError(e)
 
     def cast(self, value):
-        if isinstance(value, (int, float)):
+        if isinstance(value, (int, float, sympy.Number)):
             return Fraction(str(value))
         return value
 
