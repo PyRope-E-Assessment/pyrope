@@ -30,6 +30,7 @@ Changes
 * Validate arguments of widgets.
 * Rename :code:`score_types` to :code:`float_types`.
 * Create a :code:`nodes` package and outsource errors into a separate module to avoid circular imports.
+* Messages sent between frontends and runners are now encapsulated by the class :code:`Message`.
 
 Fixes
 -----
