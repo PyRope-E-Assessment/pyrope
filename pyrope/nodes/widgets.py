@@ -70,14 +70,27 @@ class Widget(Node):
 
     def validate(self):
         ifield = self
-        while ifield.parent is not None and len(ifield.parent.ifields) == 1:
-            ifield = ifield.parent
-        try:
-            # trigger type checking via get mechanism
-            ifield.value
-        except ValidationError as e:
-            e.ifield = ifield
-            raise e
+        while ifield.parent is not None:
+            try:
+                ifield.value
+            except ValidationError as e:
+                ifield.valid = False
+                e.ifield = ifield
+                ifield.notify(ifield.__class__, 'error', e)
+                break
+            else:
+                invalid_siblings = False
+                for ifield in ifield.parent.ifields.values():
+                    try:
+                        ifield.value
+                    except ValidationError:
+                        invalid_siblings = True
+                    else:
+                        if ifield.valid is False:
+                            ifield.valid = None if self.value is None else True
+                if invalid_siblings:
+                    break
+                ifield = ifield.parent
 
     @property
     def value(self):
@@ -88,13 +101,7 @@ class Widget(Node):
         if self._value != value:
             self._value = value
             self.notify(self.__class__, 'attribute', {'value': value})
-            try:
-                self.validate()
-            except ValidationError as e:
-                self.valid = False
-                self.notify(e.ifield.__class__, 'error', e)
-            else:
-                self.valid = None if value is None else True
+            self.validate()
 
     @property
     def valid(self):

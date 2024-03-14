@@ -68,6 +68,18 @@ class Node:
         return keys[values.index(self)]
 
     @property
+    def valid(self):
+        values = [widget.valid for widget in self.widgets]
+        if None in values:
+            return None
+        return all(values)
+
+    @valid.setter
+    def valid(self, value):
+        for widget in self.widgets:
+            widget.valid = value
+
+    @property
     def auto_max_score(self):
         return sum([
             ifield.auto_max_score
@@ -171,6 +183,10 @@ class Node:
         self.ID = uuid4()
         for ifield in self.ifields.values():
             ifield.reset_IDs()
+
+    def notify(self, owner, name, value):
+        for widget in self.widgets:
+            widget.notify(owner, name, value)
 
     @cached_property
     def widgets(self):
