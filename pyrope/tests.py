@@ -159,6 +159,21 @@ class TestParametrizedExercise(unittest.TestCase):
             )
 
     @with_all_pexercises
+    def test_solution_values(self, pexercise):
+        '''
+        None is an invalid value as a solution for input fields because in
+        that case a maximal score cannot be deviated. Empty strings are also
+        invalid because they get cast to None automatically.
+        '''
+        for ifield, solution in pexercise.solution.items():
+            self.assertIsNotNone(
+                solution,
+                f"None and empty strings are invalid solutions for input "
+                f"fields. Found None or '' as a/the solution for input field "
+                f"{ifield}."
+            )
+
+    @with_all_pexercises
     def test_score_weights(self, pexercise):
         '''
         Scores can be weighted via the key word argument 'weights' of the
