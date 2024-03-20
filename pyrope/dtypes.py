@@ -3,6 +3,7 @@ import abc
 import ast
 from fractions import Fraction
 import numbers
+import re
 import tokenize
 
 import numpy as np
@@ -186,13 +187,21 @@ class ComplexType(DType):
         return 1j
 
     def parse(self, value):
+        z = re.sub(r'\s*([+,-])\s*', r'\1', value)
+        z = re.sub(r'i([+,-]|$)', r'j\1', z, flags=re.IGNORECASE)
         try:
-            value = complex(value)
+            z = complex(z)
         except ValueError:
-            raise ValidationError(
-                f"Cannot convert '{value}' to a complex number."
-            )
-        return value
+            last_operator = z[max(z.rfind('+'), z.rfind('-'))]
+            start, end = z.rsplit(last_operator, maxsplit=1)
+            start = start if start and start[0] in ('+', '-') else f'+{start}'
+            try:
+                z = complex(f'{last_operator}{end}{start}')
+            except ValueError:
+                raise ValidationError(
+                    f"Cannot convert '{value}' to a complex number."
+                )
+        return z
 
     def cast(self, value):
         if isinstance(value, (np.int_, np.float_, np.complex_)):
