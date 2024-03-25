@@ -438,10 +438,10 @@ class TestParametrizedExercise(unittest.TestCase):
             )
         except BaseException as e:
             if None in pexercise.answers.values():
-                e.add_note(
+                raise e.__class__(
                     f'It seems empty input fields in exercise '
                     f'{pexercise.exercise} are not properly treated.'
-                )
+                ) from e
             raise e
 
         if scores is None:
