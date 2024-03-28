@@ -748,7 +748,7 @@ class SetType(DType):
                     'Number of set elements must be a non-negative integer.'
                 )
         if compare not in {'equality', 'IoU'}:
-            raise ValueError("'Compare' must be 'equality' or 'IoU'.")
+            raise ValueError("'compare' must be 'equality' or 'IoU'.")
         self.comparison = compare
         self.count = count
 
