@@ -19,6 +19,7 @@ New
 * Weight scores with :code:`weights` when instantiating an exercise and test :code:`weights`.
 * Implement :code:`atol` and :code:`rtol` for :code:`Complex` and :code:`Real` nodes.
 * New nodes: :code:`Polynomial`, :code:`ElementwisePolynomial`, :code:`LinearExpression` and :code:`ElementwiseLinearExpression`.
+* New compare option :code:`consider_linear_dependency` for :code:`Vector`. With this option linear dependent input vectors will also get the maximal score.
 
 Changes
 -------

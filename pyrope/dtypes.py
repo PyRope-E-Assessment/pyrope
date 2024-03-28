@@ -7,6 +7,7 @@ import re
 import tokenize
 
 import numpy as np
+import numpy.linalg
 import sympy
 
 from sympy.core.numbers import Zero, One
@@ -907,7 +908,12 @@ class VectorType(MatrixType):
                     f"{self.__class__.__name__}.__init__() got an unexpected "
                     f"keyword argument '{kw}'."
                 )
-        MatrixType.__init__(self, **kwargs)
+        compare = kwargs.pop('compare', 'elementwise')
+        if compare == 'consider_linear_dependency':
+            MatrixType.__init__(self, **kwargs)
+        else:
+            MatrixType.__init__(self, compare=compare, **kwargs)
+        self.comparison = compare
         self.count = count
         self.orientation = orientation
 
@@ -955,3 +961,17 @@ class VectorType(MatrixType):
                 raise ValidationError(
                     f'Elements must be {self.sub_dtype.__name__}s.'
                 )
+
+    def compare(self, LHS, RHS):
+        if LHS.shape[0] != RHS.shape[0]:
+            return 0.0
+        if self.comparison == 'consider_linear_dependency':
+            if not LHS.any() or not RHS.any():
+                return (LHS == RHS).all()
+            else:
+                if numpy.linalg.matrix_rank([LHS, RHS]) == 1:
+                    return 1.0
+                else:
+                    return 0.0
+        else:
+            return MatrixType.compare(self, LHS, RHS)
