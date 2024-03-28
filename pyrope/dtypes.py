@@ -531,7 +531,7 @@ class MatrixType(DType):
 
     def __init__(
         self, nrows=None, ncols=None, sub_dtype=numbers.Number,
-        compare_elementwise=True, rtol=0, atol=0, **kwargs
+        compare='elementwise', rtol=0, atol=0, **kwargs
     ):
         DType.__init__(self, **kwargs)
         for dim, n in (('row', nrows), ('column', ncols)):
@@ -547,8 +547,8 @@ class MatrixType(DType):
             raise ValueError(
                 f"'sub_dtype' must be one of {self.sub_dtypes}."
             )
-        if not isinstance(compare_elementwise, bool):
-            raise ValueError("'compare_elementwise' must be boolean.")
+        if compare not in ('elementwise', 'equality'):
+            raise ValueError("'compare' must be 'elementwise' or 'equality'.")
         if not isinstance(rtol, numbers.Real):
             raise ValueError("'rtol' must be real.")
         if not isinstance(atol, numbers.Real):
@@ -556,7 +556,7 @@ class MatrixType(DType):
         self.nrows = nrows
         self.ncols = ncols
         self.sub_dtype = sub_dtype
-        self.compare_elementwise = compare_elementwise
+        self.comparison = compare
         self.tols = dict(rtol=rtol, atol=atol)
 
     @property
@@ -622,9 +622,9 @@ class MatrixType(DType):
         if LHS.shape != RHS.shape:
             return 0.0
         comparison_matrix = np.isclose(LHS, RHS, **self.tols)
-        if self.compare_elementwise:
+        if self.comparison == 'elementwise':
             return comparison_matrix.sum() / comparison_matrix.size
-        else:
+        if self.comparison == 'equality':
             return comparison_matrix.all()
 
 
