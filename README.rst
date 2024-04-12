@@ -101,7 +101,7 @@ Download and installation
 Requirements
 ------------
 
-* `Python3 <https://www.python.org/downloads>`_ version 3.11 or higher and pip,
+* `Python3 <https://www.python.org/downloads>`_ version 3.10 or higher and pip,
   which is a built-in package
 * `Git client <https://git-scm.com/downloads>`_
 * `Pandoc <https://pandoc.org/installing.html>`_ (<= 2.19) for converting exercise
