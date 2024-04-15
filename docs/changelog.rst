@@ -22,6 +22,7 @@ New
 Changes
 -------
 
+* Downgrade required Python version to 3.10.
 * While adding exercises to an exercise pool, reload already imported modules so that changes in exercises are considered.
 * In Jupyter frontends, Feedbacks and total scores will now have the same style as problem and preamble templates.
 * Remove :code:`Widget.new_instance()` because :code:`Node.clone()` made it obsolete.
