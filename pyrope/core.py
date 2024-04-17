@@ -3,7 +3,6 @@ import abc
 import argparse
 import collections
 from functools import cache, cached_property
-import glob
 import importlib
 import inspect
 import itertools
@@ -575,11 +574,6 @@ class ExercisePool(collections.UserList):
         else:
             module = importlib.import_module(modulename)
         self.add_exercises_from_module(module, *exercises)
-
-    def add_exercises_from_files(self, filepattern):
-        filepaths = glob.glob(filepattern, recursive=True)
-        for filepath in filepaths:
-            self.add_exercises_from_file(filepath)
 
 
 class CLIParser:
