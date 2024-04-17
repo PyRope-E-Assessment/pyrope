@@ -544,10 +544,10 @@ class ExercisePool(collections.UserList):
     def add_exercises_from_pool(self, pool):
         self.data.extend(pool)
 
-    def add_exercises_from_module(self, module, exercise_names=None):
+    def add_exercises_from_module(self, module, *exercise_names):
         # Calling the '__dir__' method instead of the 'dir' built-in
         # avoids alphabetical sorting of the exercises added to the pool.
-        if exercise_names is None:
+        if len(exercise_names) == 0:
             exercise_names = module.__dir__()
         for name in exercise_names:
             obj = getattr(module, name)
@@ -558,7 +558,9 @@ class ExercisePool(collections.UserList):
     def add_exercises_from_file(self, filepath):
         dirname, filename = os.path.split(filepath)
         filename, exercises, *_ = *filename.split(':'), None
-        if exercises is not None:
+        if exercises is None:
+            exercises = []
+        else:
             exercises = [name.strip() for name in exercises.split(',')]
         modulename, ext = os.path.splitext(filename)
         if ext != '.py':
@@ -572,7 +574,7 @@ class ExercisePool(collections.UserList):
             importlib.reload(module)
         else:
             module = importlib.import_module(modulename)
-        self.add_exercises_from_module(module, exercise_names=exercises)
+        self.add_exercises_from_module(module, *exercises)
 
     def add_exercises_from_files(self, filepattern):
         filepaths = glob.glob(filepattern, recursive=True)
