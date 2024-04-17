@@ -909,10 +909,12 @@ class VectorType(MatrixType):
                     f"keyword argument '{kw}'."
                 )
         compare = kwargs.pop('compare', 'elementwise')
-        if compare == 'consider_linear_dependency':
-            MatrixType.__init__(self, **kwargs)
-        else:
-            MatrixType.__init__(self, compare=compare, **kwargs)
+        if compare not in ('elementwise', 'equality', 'up_to_multiple'):
+            raise ValueError(
+                "'compare' must be 'elementwise', 'equality' or "
+                "'up_to_multiple'."
+            )
+        MatrixType.__init__(self, **kwargs)
         self.comparison = compare
         self.count = count
         self.orientation = orientation
@@ -965,7 +967,7 @@ class VectorType(MatrixType):
     def compare(self, LHS, RHS):
         if LHS.shape[0] != RHS.shape[0]:
             return 0.0
-        if self.comparison == 'consider_linear_dependency':
+        if self.comparison == 'up_to_multiple':
             if not LHS.any() or not RHS.any():
                 return (LHS == RHS).all()
             else:
