@@ -1,24 +1,42 @@
 
+from dataclasses import dataclass
+from typing import Any
+from uuid import UUID
+
 from pyrope.formatters import TemplateFormatter
-from pyrope.nodes import Widget
+from pyrope.messages import (
+    ChangeWidgetAttribute, CreateWidget, ExerciseAttribute, RenderTemplate,
+    Submit, WaitingForSubmission, WidgetValidationError
+)
+
+
+@dataclass
+class ConsoleWidget:
+
+    ID: UUID
+    index: int
+    info: str = ''
+    valid: bool = None
+    value: Any = None
 
 
 class ConsoleFrontend:
 
-    def __init__(self, debug=False):
-        self.debug = debug
+    def __init__(self):
+        self.answers = {}
+        self.debug = False
+        self.parameters = {}
+        self.runner = None
+        self.total_score, self.max_total_score = None, None
+        self.widgets = {}
 
     def set_runner(self, runner):
         self.runner = runner
-        self.widget_index = {
-            widget: f'{index}' for index, widget in enumerate(runner.widgets)
-        }
         runner.register_observer(self.observer)
 
     def formatter(self, template, **kwargs):
-        parameters = self.runner.get_parameters()
         return TemplateFormatter.format(
-            template, **(parameters | kwargs)
+            template, **(self.parameters | kwargs)
         )
 
     def render_preamble(self, preamble):
@@ -28,8 +46,8 @@ class ConsoleFrontend:
 
     def render_problem(self, template):
         fields = {
-            f'#{widget.ID}': f'[{index}:____]'
-            for widget, index in self.widget_index.items()
+            f'#{widget_id}': f'[{widget.index}:____]'
+            for widget_id, widget in self.widgets.items()
         }
         print(self.formatter(template, **fields))
         print(78*'-')
@@ -37,50 +55,80 @@ class ConsoleFrontend:
     def render_feedback(self, feedback):
         print(78 * '-')
         if feedback != '':
-            print(self.formatter(feedback, **self.runner.get_answers()))
+            print(self.formatter(feedback, **self.answers))
+            print(78 * '-')
+            print(f'Total Score: {self.total_score}/{self.max_total_score}')
             print(78 * '-')
 
     def get_answers(self):
-        runner = self.runner
         while True:
-            for widget in runner.widgets:
+            for widget_id, widget in self.widgets.items():
                 value = widget.value
                 if value is None:
                     value = '____'
                 value = input(
-                    f'[{self.widget_index[widget]}:{value}], '
-                    f'{widget.info} >> '
+                    f'[{widget.index}:{value}], {widget.info} >> '
                 )
-                if value == '':
-                    value = None
-                runner.set_widget_value(widget, value)
+                self.notify(ChangeWidgetAttribute(
+                    widget.__class__, widget_id, 'value', value
+                ))
             submit = True
-            if runner.empty_widgets:
-                print('There are empty input fields.')
-                submit = False
-            if runner.invalid_widgets:
+            if [
+                widget for widget in self.widgets.values()
+                if widget.valid is False
+            ]:
                 print('There are invalid input fields.')
                 submit = False
             if submit is False:
                 answer = input('Submit? >> ')
                 if answer.strip().lower() in ('y', 'yes'):
                     submit = True
-            if submit:
-                runner.finish()
+            if submit is True:
+                self.notify(Submit(self.__class__))
                 break
 
-    def observer(self, obj, owner, name, value):
-        if isinstance(obj, Widget):
-            origin = f'{self.widget_index[obj]}: <{owner.__name__}>'
-            if name == 'error':
-                print(f'{origin} {value}')
-            elif self.debug:
-                print(f'{origin} {name} set to {value}.')
-        else:
-            print(obj, owner, name, value)
+    def observer(self, msg):
+        if self.debug:
+            print(msg)
 
-    def display_error(self, e):
-        msg = str(e)
-        if e.ifield in self.widget_index:
-            msg = f'{self.widget_index[e.ifield]}: ' + msg
-        print(msg)
+        if isinstance(msg, RenderTemplate):
+            match msg.template_type:
+                case 'preamble':
+                    self.render_preamble(msg.template)
+                case 'problem':
+                    self.render_problem(msg.template)
+                case 'feedback':
+                    self.render_feedback(msg.template)
+        elif isinstance(msg, CreateWidget):
+            self.widgets[msg.widget_id] = ConsoleWidget(
+                msg.widget_id, len(self.widgets)
+            )
+        elif isinstance(msg, ExerciseAttribute):
+            match msg.attribute_name:
+                case 'parameters':
+                    self.parameters = msg.attribute_value
+                case 'answers':
+                    self.answers = msg.attribute_value
+                case 'total_score':
+                    self.total_score = msg.attribute_value
+                case 'max_total_score':
+                    self.max_total_score = msg.attribute_value
+                case 'debug':
+                    self.debug = msg.attribute_value
+                    if self.debug:
+                        print(msg)
+        elif isinstance(msg, ChangeWidgetAttribute):
+            match msg.attribute_name:
+                case 'value':
+                    self.widgets[msg.widget_id].value = msg.attribute_value
+                case 'valid':
+                    self.widgets[msg.widget_id].valid = msg.attribute_value
+                case 'info':
+                    self.widgets[msg.widget_id].info = msg.attribute_value
+        elif isinstance(msg, WaitingForSubmission):
+            self.get_answers()
+        elif isinstance(msg, WidgetValidationError) and not self.debug:
+            print(msg)
+
+    def notify(self, msg):
+        self.runner.observer(msg)

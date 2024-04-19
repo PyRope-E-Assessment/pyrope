@@ -26,8 +26,8 @@ if args.subcommand == 'run':
 
     if args.frontend == 'console':
         for exercise in pool:
-            runner = ExerciseRunner(exercise)
-            frontend = ConsoleFrontend(debug=args.debug)
+            runner = ExerciseRunner(exercise, debug=args.debug)
+            frontend = ConsoleFrontend()
             runner.set_frontend(frontend)
             frontend.set_runner(runner)
             runner.run()
