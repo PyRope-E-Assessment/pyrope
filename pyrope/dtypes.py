@@ -588,12 +588,12 @@ class MatrixType(DType):
     def cast(self, value):
         try:
             value = np.array(value)
+            if np.all(np.real(value) == value):
+                value = np.real(value)
+            if np.all(value.astype(int) == value):
+                value = value.astype(int)
         except ValueError:
-            return value
-        if np.all(np.real(value) == value):
-            value = np.real(value)
-        if np.all(value.astype(int) == value):
-            value = value.astype(int)
+            pass
         return value
 
     def check_type(self, value):
