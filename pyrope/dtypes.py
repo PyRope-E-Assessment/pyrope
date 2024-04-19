@@ -7,7 +7,6 @@ import re
 import tokenize
 
 import numpy as np
-import numpy.linalg
 import sympy
 
 from sympy.core.numbers import Zero, One
