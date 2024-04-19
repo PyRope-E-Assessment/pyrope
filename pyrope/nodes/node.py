@@ -184,9 +184,9 @@ class Node:
         for ifield in self.ifields.values():
             ifield.reset_IDs()
 
-    def notify(self, owner, name, value):
+    def notify(self, msg):
         for widget in self.widgets:
-            widget.notify(owner, name, value)
+            widget.notify(msg)
 
     @cached_property
     def widgets(self):
