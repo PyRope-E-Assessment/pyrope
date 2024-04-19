@@ -920,7 +920,10 @@ class VectorType(MatrixType):
 
     @property
     def info(self):
-        info = f'a {self.count}-dimensional {self.orientation} vector'
+        if self.count is None:
+            info = f'a {self.orientation} vector'
+        else:
+            info = f'a {self.count}-dimensional {self.orientation} vector'
         if self.sub_dtype == numbers.Number:
             return info
         return f'{info} of {self.sub_dtype.__name__} numbers'
