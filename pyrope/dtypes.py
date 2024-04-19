@@ -933,18 +933,16 @@ class VectorType(MatrixType):
             return np.array([0])
         return np.array([0] * self.count)
 
-    def cast(self, value):
-        value = MatrixType.cast(self, value)
-        if not isinstance(value, self.dtype):
+    def normalize(self, value):
+        if isinstance(value, self.dtype):
+            if (
+                len(value.shape) == 2 and (
+                    (value.shape[1] == 1 and self.orientation == 'column') or
+                    (value.shape[0] == 1 and self.orientation == 'row')
+                )
+            ):
+                value = value.flatten()
             return value
-        if (
-            len(value.shape) == 2 and (
-                (value.shape[1] == 1 and self.orientation == 'column') or
-                (value.shape[0] == 1 and self.orientation == 'row')
-            )
-        ):
-            value = value.flatten()
-        return value
 
     def check_type(self, value):
         DType.check_type(self, value)
