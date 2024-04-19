@@ -19,7 +19,7 @@ New
 * Weight scores with :code:`weights` when instantiating an exercise and test :code:`weights`.
 * Implement :code:`atol` and :code:`rtol` for :code:`Complex` and :code:`Real` nodes.
 * Add specific exercises from a Python script to an exercise pool via the CLI, i.e. :code:`/path/to/exercises/exercises.py:Example1,Example2,...`.
-* New nodes: :code:`Polynomial`, :code:`ElementwisePolynomial`, :code:`LinearExpression` and :code:`ElementwiseLinearExpression`.
+* New nodes: :code:`Polynomial`, :code:`ElementwisePolynomial`, :code:`LinearExpression`, :code:`ElementwiseLinearExpression` and :code:`MultipleChoice`.
 
 Changes
 -------

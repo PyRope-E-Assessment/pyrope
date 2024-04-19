@@ -106,8 +106,9 @@ filename: str = 'static/jupyter_frontend.css'
 jupyter_frontend_css: str = os.path.join(dirname, filename)
 
 
-# Default values for node 'OneOf'.
+# Default value for maximal rendered radio buttons.
 #
-# If there are more than 'one_of_maximum_radio_buttons' options, then these
-# options are rendered as a dropdown instead of radio buttons.
-one_of_maximum_radio_buttons: int = 5
+# If there are more than 'maximal_radio_buttons' options, then these options
+# are rendered as a dropdown instead of radio buttons. This affects 'OneOf' and
+# 'MultipleChoice' nodes.
+maximal_radio_buttons: int = 5

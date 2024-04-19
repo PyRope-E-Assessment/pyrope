@@ -6,8 +6,8 @@ from pyrope.nodes._widgets import *
 from pyrope.nodes.dtype_nodes import (
     Bool, Complex, Dict, ElementwiseComplex, ElementwiseLinearExpression,
     ElementwisePolynomial, ElementwiseRational, Equation, Expression, Int,
-    LinearExpression, List, Matrix, Natural, OneOf, Polynomial, Problem,
-    Rational, Real, Set, String, Tuple, Vector
+    LinearExpression, List, Matrix, MultipleChoice, Natural, OneOf, Polynomial,
+    Problem, Rational, Real, Set, String, Tuple, Vector
 )
 
 __all__ = [
@@ -24,6 +24,7 @@ __all__ = [
     'LinearExpression',
     'List',
     'Matrix',
+    'MultipleChoice',
     'Natural',
     'Node',
     'OneOf',

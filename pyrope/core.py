@@ -9,7 +9,6 @@ import itertools
 import os
 from pathlib import Path
 import sys
-import textwrap
 import unittest
 
 from IPython import get_ipython
@@ -133,14 +132,14 @@ class ParametrizedExercise:
 
     @cached_property
     def template(self):
-        return textwrap.dedent(str(self.model))
+        return str(self.model)
 
     @cached_property
     def preamble(self):
         preamble = self.exercise.preamble
         if callable(preamble):
             preamble = self.apply(preamble, self.parameters)
-        return textwrap.dedent(preamble)
+        return preamble
 
     @cached_property
     def ifields(self):
@@ -428,7 +427,7 @@ class ParametrizedExercise:
     def feedback(self):
         kwargs = self.parameters | self.answers
         feedback = self.apply(self.exercise.feedback, kwargs)
-        return textwrap.dedent(feedback)
+        return feedback
 
     @cached_property
     def input_generator(self):

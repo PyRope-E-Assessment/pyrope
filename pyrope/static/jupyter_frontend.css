@@ -180,7 +180,7 @@ input[type="radio"].pyrope:checked::before {
     height: 7px;
     border-radius: 50%;
     background-color: var(--black);
-    transform: translateX(2px) translateY(2px);
+    transform: translateX(2.3px) translateY(2.3px);
 }
 input[type="radio"].pyrope.invalid {
 	border-color: var(--red);

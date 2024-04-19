@@ -139,6 +139,52 @@ class Vector(Matrix):
         Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
+class MultipleChoice(Node):
+
+    def __init__(self, questions, choices, *, widget=None, **kwargs):
+        self.dtype = DictType(**kwargs)
+        if not isinstance(questions, set) or len(questions) == 0:
+            raise ValueError("'questions' has to be a non-empty set.")
+        if not isinstance(choices, set) or len(choices) <= 1:
+            raise ValueError(
+                "'choices' has to be a set with at least two elements."
+            )
+        if widget is None:
+            if len(choices) <= config.maximal_radio_buttons:
+                widget = RadioButtons(*choices, vertical=False)
+            else:
+                widget = Dropdown(*choices)
+        ifields = {
+            f'question_{i}': OneOf(*choices, widget=widget)
+            for i in range(len(questions))
+        }
+        self.mapping = {
+            question: ifield_name
+            for question, ifield_name in zip(questions, ifields.keys())
+        }
+        template = '\n'.join([
+            f'{question}\n<<{ifield_name}>>'
+            for question, ifield_name in self.mapping.items()
+        ])
+        self.mapping |= {
+            ifield_name: question
+            for question, ifield_name in self.mapping.items()
+        }
+        Node.__init__(self, template, ifields, **kwargs)
+
+    def assemble(self, **ifields):
+        return {
+            self.mapping[name]: value
+            for name, value in ifields.items()
+        }
+
+    def disassemble(self, questions):
+        return {
+            self.mapping[question]: value
+            for question, value in questions.items()
+        }
+
+
 class Natural(Int):
 
     def __init__(self, *, with_zero=True, **kwargs):
@@ -155,7 +201,7 @@ class OneOf(Node):
     def __init__(self, *args, widget=None, **kwargs):
         self.dtype = OneOfType(options=args)
         if widget is None:
-            if len(args) <= config.one_of_maximum_radio_buttons:
+            if len(args) <= config.maximal_radio_buttons:
                 widget = RadioButtons(*args)
             else:
                 widget = Dropdown(*args)
