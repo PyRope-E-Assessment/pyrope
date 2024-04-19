@@ -16,11 +16,11 @@ parser = CLIParser(prog='python3 -m pyrope')
 args = parser.parse_args()
 
 pool = ExercisePool()
-if not args.patterns:
+if not args.filepaths:
     pool.add_exercises_from_module(examples)
 else:
-    for pattern in args.patterns:
-        pool.add_exercises_from_file(pattern)
+    for path in args.filepaths:
+        pool.add_exercises_from_file(path)
 
 if args.subcommand == 'run':
 

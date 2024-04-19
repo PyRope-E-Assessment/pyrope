@@ -3,7 +3,6 @@ import abc
 import argparse
 import collections
 from functools import cache, cached_property
-import glob
 import importlib
 import inspect
 import itertools
@@ -544,32 +543,37 @@ class ExercisePool(collections.UserList):
     def add_exercises_from_pool(self, pool):
         self.data.extend(pool)
 
-    def add_exercises_from_module(self, module):
+    def add_exercises_from_module(self, module, *exercise_names):
         # Calling the '__dir__' method instead of the 'dir' built-in
         # avoids alphabetical sorting of the exercises added to the pool.
-        for name in module.__dir__():
+        if len(exercise_names) == 0:
+            exercise_names = module.__dir__()
+        for name in exercise_names:
             obj = getattr(module, name)
             if isinstance(obj, type) and issubclass(obj, Exercise):
                 if not inspect.isabstract(obj):
                     self.data.append(obj())
 
-    def add_exercises_from_file(self, filepattern):
-        filepaths = glob.glob(filepattern, recursive=True)
-        for filepath in filepaths:
-            dirname, filename = os.path.split(filepath)
-            modulename, ext = os.path.splitext(filename)
-            if ext != '.py':
-                raise TypeError(
-                    f'File "{filepath}" does not seem to be a python script.'
-                )
-            sys.path.insert(0, dirname)
-            importlib.invalidate_caches()
-            if modulename in sys.modules:
-                module = sys.modules[modulename]
-                importlib.reload(module)
-            else:
-                module = importlib.import_module(modulename)
-            self.add_exercises_from_module(module)
+    def add_exercises_from_file(self, filepath):
+        dirname, filename = os.path.split(filepath)
+        filename, exercises, *_ = *filename.split(':'), None
+        if exercises is None:
+            exercises = []
+        else:
+            exercises = [name.strip() for name in exercises.split(',')]
+        modulename, ext = os.path.splitext(filename)
+        if ext != '.py':
+            raise TypeError(
+                f'File "{filepath}" does not seem to be a python script.'
+            )
+        sys.path.insert(0, dirname)
+        importlib.invalidate_caches()
+        if modulename in sys.modules:
+            module = sys.modules[modulename]
+            importlib.reload(module)
+        else:
+            module = importlib.import_module(modulename)
+        self.add_exercises_from_module(module, *exercises)
 
 
 class CLIParser:
@@ -587,11 +591,11 @@ class CLIParser:
             help='start an interactive exercise session'
         )
         run_parser.add_argument(
-            'patterns',
+            'filepaths',
             nargs='*',
             type=str,
-            help='pattern for python scripts with exercise definitions',
-            metavar='pattern',
+            help='paths to python scripts with exercise definitions',
+            metavar='filepath',
         )
         run_parser.add_argument(
             '--frontend',
@@ -616,11 +620,11 @@ class CLIParser:
             help='run automated unit tests on exercises'
         )
         test_parser.add_argument(
-            'patterns',
+            'filepaths',
             nargs='*',
             type=str,
-            help='pattern for python scripts with exercise definitions',
-            metavar='pattern',
+            help='paths to python scripts with exercise definitions',
+            metavar='filepath',
         )
 
     def parse_args(self, args=None, namespace=None):
