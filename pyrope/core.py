@@ -65,9 +65,6 @@ class Exercise(abc.ABC):
     def hint(self):
         return None
 
-    def validate(self):
-        return None
-
     def score(self):
         return None
 
