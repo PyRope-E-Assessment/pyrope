@@ -7,6 +7,7 @@ import re
 import tokenize
 
 import numpy as np
+import numpy.linalg
 import sympy
 
 from sympy.core.numbers import Zero, One
@@ -531,7 +532,7 @@ class MatrixType(DType):
 
     def __init__(
         self, nrows=None, ncols=None, sub_dtype=numbers.Number,
-        compare_elementwise=True, rtol=0, atol=0, **kwargs
+        compare='elementwise', rtol=0, atol=0, **kwargs
     ):
         DType.__init__(self, **kwargs)
         for dim, n in (('row', nrows), ('column', ncols)):
@@ -547,8 +548,8 @@ class MatrixType(DType):
             raise ValueError(
                 f"'sub_dtype' must be one of {self.sub_dtypes}."
             )
-        if not isinstance(compare_elementwise, bool):
-            raise ValueError("'compare_elementwise' must be boolean.")
+        if compare not in ('elementwise', 'equality'):
+            raise ValueError("'compare' must be 'elementwise' or 'equality'.")
         if not isinstance(rtol, numbers.Real):
             raise ValueError("'rtol' must be real.")
         if not isinstance(atol, numbers.Real):
@@ -556,7 +557,7 @@ class MatrixType(DType):
         self.nrows = nrows
         self.ncols = ncols
         self.sub_dtype = sub_dtype
-        self.compare_elementwise = compare_elementwise
+        self.comparison = compare
         self.tols = dict(rtol=rtol, atol=atol)
 
     @property
@@ -622,9 +623,9 @@ class MatrixType(DType):
         if LHS.shape != RHS.shape:
             return 0.0
         comparison_matrix = np.isclose(LHS, RHS, **self.tols)
-        if self.compare_elementwise:
+        if self.comparison == 'elementwise':
             return comparison_matrix.sum() / comparison_matrix.size
-        else:
+        if self.comparison == 'equality':
             return comparison_matrix.all()
 
 
@@ -748,7 +749,7 @@ class SetType(DType):
                     'Number of set elements must be a non-negative integer.'
                 )
         if compare not in {'equality', 'IoU'}:
-            raise ValueError("'Compare' must be 'equality' or 'IoU'.")
+            raise ValueError("'compare' must be 'equality' or 'IoU'.")
         self.comparison = compare
         self.count = count
 
@@ -907,7 +908,14 @@ class VectorType(MatrixType):
                     f"{self.__class__.__name__}.__init__() got an unexpected "
                     f"keyword argument '{kw}'."
                 )
+        compare = kwargs.pop('compare', 'elementwise')
+        if compare not in ('elementwise', 'equality', 'up_to_multiple'):
+            raise ValueError(
+                "'compare' must be 'elementwise', 'equality' or "
+                "'up_to_multiple'."
+            )
         MatrixType.__init__(self, **kwargs)
+        self.comparison = compare
         self.count = count
         self.orientation = orientation
 
@@ -955,3 +963,20 @@ class VectorType(MatrixType):
                 raise ValidationError(
                     f'Elements must be {self.sub_dtype.__name__}s.'
                 )
+
+    def compare(self, LHS, RHS):
+        if LHS.shape[0] != RHS.shape[0]:
+            return 0.0
+        if self.comparison == 'up_to_multiple':
+            if not LHS.any() or not RHS.any():
+                return (LHS == RHS).all()
+            else:
+                matrix = np.array([LHS, RHS])
+                determinants = []
+                n = len(LHS)
+                for i in range(n):
+                    minor = matrix[:, [i, ((i + 1) % n)]]
+                    determinants.append(np.linalg.det(minor))
+                return np.isclose(determinants, np.zeros(n), **self.tols).all()
+        else:
+            return MatrixType.compare(self, LHS, RHS)
