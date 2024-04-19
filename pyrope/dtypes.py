@@ -1,7 +1,10 @@
 
 import abc
+import ast
 from fractions import Fraction
 import numbers
+import re
+import tokenize
 
 import numpy as np
 import sympy
@@ -26,6 +29,7 @@ class TypeChecked:
             if value is None:
                 return None
         value = obj.assemble(**ifields)
+        value = obj.parse(value)
         if value is None:
             return None
         value = obj.cast(value)
@@ -38,11 +42,29 @@ class TypeChecked:
             for ifield in obj.ifields.values():
                 setattr(ifield, self.name, None)
             return
+        value = obj.parse(value)
+        if value is None:
+            return None
         value = obj.cast(value)
         value = obj.normalize(value)
         obj.check_type(value)
         for name, value in obj.disassemble(value).items():
             setattr(obj.ifields[name], self.name, value)
+
+
+# c.f. https://bugs.python.org/issue39159
+def safe_eval_string(s):
+    if len(s) > config.maximum_input_length:
+        raise ValidationError(
+            f'Input size {len(s)} exceeds limit {config.maximum_input_length}.'
+        )
+    try:
+        expr = ast.literal_eval(s)
+    except (MemoryError, SyntaxError, TypeError, ValueError) as e:
+        raise ValidationError(e)
+    if expr is None:
+        return s
+    return expr
 
 
 class DType(abc.ABC):
@@ -63,6 +85,16 @@ class DType(abc.ABC):
             return wrapper
         cls.trivial_value = validate_trivial_value(cls.trivial_value)
 
+        def wrap_parsing(f):
+            def wrapper(self, value):
+                if isinstance(value, str):
+                    if value == '':
+                        return None
+                    return f(self, value)
+                return value
+            return wrapper
+        cls.parse = wrap_parsing(cls.parse)
+
     @property
     @abc.abstractmethod
     def dtype(self):
@@ -80,6 +112,14 @@ class DType(abc.ABC):
     @abc.abstractmethod
     def dummy_value(self):
         ...
+
+    def parse(self, value):
+        try:
+            return safe_eval_string(value)
+        except ValidationError:
+            raise ValidationError(
+                f"Cannot convert '{value}' to {self.dtype.__name__}."
+            )
 
     def cast(self, value):
         return value
@@ -112,14 +152,15 @@ class BoolType(DType):
     def dummy_value(self):
         return True
 
-    def cast(self, value):
-        if isinstance(value, np.bool_):
-            return value.item()
-        if isinstance(value, self.dtype):
-            return value
+    def parse(self, value):
         for bool_repr in config.boolean_representations:
             if value in bool_repr:
                 return [False, True][bool_repr.index(value)]
+        return value
+
+    def cast(self, value):
+        if isinstance(value, np.bool_):
+            return value.item()
         return value
 
 
@@ -144,6 +185,23 @@ class ComplexType(DType):
 
     def dummy_value(self):
         return 1j
+
+    def parse(self, value):
+        z = re.sub(r'\s*([+,-])\s*', r'\1', value)
+        z = re.sub(r'i([+,-]|$)', r'j\1', z, flags=re.IGNORECASE)
+        try:
+            z = complex(z)
+        except ValueError:
+            last_operator = z[max(z.rfind('+'), z.rfind('-'))]
+            start, end = z.rsplit(last_operator, maxsplit=1)
+            start = start if start and start[0] in ('+', '-') else f'+{start}'
+            try:
+                z = complex(f'{last_operator}{end}{start}')
+            except ValueError:
+                raise ValidationError(
+                    f"Cannot convert '{value}' to a complex number."
+                )
+        return z
 
     def cast(self, value):
         if isinstance(value, (np.int_, np.float_, np.complex_)):
@@ -201,7 +259,7 @@ class ExpressionType(DType):
 
     dtype = sympy.Expr
 
-    def __init__(self, symbols=None, **kwargs):
+    def __init__(self, symbols=None, transformations=None, **kwargs):
         DType.__init__(self, **kwargs)
         if symbols is None:
             self.symbols = set()
@@ -211,6 +269,12 @@ class ExpressionType(DType):
                 self.symbols = set(symbols)
             except TypeError:
                 self.symbols = {symbols}
+        if transformations is None:
+            transformations = tuple(
+                getattr(sympy.parsing.sympy_parser, transformation)
+                for transformation in config.transformations
+            )
+        self.transformations = transformations
 
     @property
     def info(self):
@@ -224,7 +288,13 @@ class ExpressionType(DType):
     def dummy_value(self):
         return One()
 
-    def cast(self, value):
+    def parse(self, value):
+        try:
+            value = sympy.parse_expr(
+                value, transformations=self.transformations
+            )
+        except (SyntaxError, TypeError, tokenize.TokenError) as e:
+            raise ValidationError(e)
         e, i = sympy.symbols('e, i')
         if e not in self.symbols:
             value = value.subs(e, sympy.E)
@@ -266,6 +336,17 @@ class EquationType(ExpressionType):
     def dummy_value(self):
         return sympy.Equality(One(), Zero(), evaluate=False)
 
+    def parse(self, value):
+        if '=' not in value:
+            raise ValidationError('An equation needs an equal sign.')
+        if value.count('=') != 1:
+            raise ValidationError(
+                'Equation contains multiple equal signs.'
+            )
+        LHS, RHS = value.split('=')
+        value = f'Eq({LHS}, {RHS}, evaluate=False)'
+        return ExpressionType.parse(self, value)
+
     def check_type(self, value):
         DType.check_type(self, value)
         if not value.free_symbols <= self.symbols:
@@ -276,6 +357,99 @@ class EquationType(ExpressionType):
                     f'Expected an equation in {self.symbols}, '
                     f'not in {value.free_symbols}.'
                 )
+
+
+class PolynomialType(ExpressionType):
+
+    dtype = sympy.Poly
+
+    def __init__(self, degree=None, elementwise=False, **kwargs):
+        ExpressionType.__init__(self, **kwargs)
+        if degree is not None:
+            if not isinstance(degree, int) or degree < 0:
+                raise ValueError(
+                    'Degree of a polynomial must be a non-negative integer.'
+                )
+        self.degree = degree
+        self.elementwise = elementwise
+
+    @property
+    def info(self):
+        if not self.symbols:
+            return 'a constant polynomial'
+        else:
+            info = f'a polynomial in {self.symbols}'
+            if self.degree is not None:
+                info = f'{info} of degree {self.degree}'
+            return info
+
+    def dummy_value(self):
+        value = One()
+        if self.degree is None:
+            return value
+        for i in range(1, self.degree + 1):
+            summand = Zero()
+            for symbol in self.symbols:
+                summand += symbol ** i
+            value += summand
+        return value
+
+    def cast(self, value):
+        if isinstance(value, sympy.Expr):
+            if not self.symbols:
+                value = value.as_poly(sympy.Symbol('_'))
+            value = value.as_poly(*self.symbols)
+        return value
+
+    def compare(self, LHS, RHS):
+        return ExpressionType.compare(self, LHS.as_expr(), RHS.as_expr())
+
+    def check_type(self, value):
+        ExpressionType.check_type(self, value)
+        for gen in value.gens:
+            if not gen.is_symbol:
+                raise ValidationError('Expected a polynomial.')
+        if self.degree is not None and value.degree() != self.degree:
+            raise ValidationError(
+                f'Expected a polynomial of degree {self.degree}, got a '
+                f'polynomial of degree {value.degree()}.'
+            )
+        if self.elementwise is True:
+            for coeff in value.all_coeffs():
+                if not isinstance(coeff, sympy.Number):
+                    raise NotImplementedError(
+                        f'All coefficients have to be rational, got {coeff}.'
+                    )
+
+
+class LinearExpressionType(PolynomialType):
+
+    def __init__(self, **kwargs):
+        kwargs.pop('degree', None)
+        PolynomialType.__init__(self, degree=1, **kwargs)
+
+    @property
+    def info(self):
+        if not self.symbols:
+            return 'a constant linear expression'
+        return f'a linear expression in {self.symbols}'
+
+    def check_type(self, value):
+        ExpressionType.check_type(self, value)
+        for gen in value.gens:
+            if not gen.is_symbol:
+                raise ValidationError('Expected a linear expression.')
+        if value.degree() > self.degree:
+            raise ValidationError(
+                f'Expected a linear expression, got a polynomial of degree '
+                f'{value.degree()}.'
+            )
+        if self.elementwise is True:
+            for coeff in value.all_coeffs():
+                if not isinstance(coeff, sympy.Number):
+                    raise NotImplementedError(
+                        f'All coefficients have to be rational, got {coeff}.'
+                    )
 
 
 class IntType(DType):
@@ -313,6 +487,14 @@ class IntType(DType):
         if self.maximum is not None:
             return self.maximum
         return 1
+
+    def parse(self, value):
+        try:
+            value = int(value)
+        except ValueError:
+            raise ValidationError(
+                f"Cannot convert '{value}' to an integer."
+            )
 
     def cast(self, value):
         if isinstance(value, (np.int_, np.float_, np.complex_)):
@@ -501,8 +683,14 @@ class RationalType(DType):
     def dummy_value(self):
         return Fraction(1, 2)
 
+    def parse(self, value):
+        try:
+            return Fraction(value)
+        except (ValueError, TypeError, ZeroDivisionError) as e:
+            raise ValidationError(e)
+
     def cast(self, value):
-        if isinstance(value, (int, float)):
+        if isinstance(value, (int, float, sympy.Number)):
             return Fraction(str(value))
         return value
 
@@ -528,6 +716,12 @@ class RealType(DType):
 
     def dummy_value(self):
         return 0.5
+
+    def parse(self, value):
+        try:
+            value = float(value)
+        except ValueError:
+            raise ValidationError(f"Cannot convert '{value}' to a float.")
 
     def cast(self, value):
         if isinstance(value, (np.int_, np.float_, np.complex_)):
@@ -617,15 +811,18 @@ class StringType(DType):
     def dummy_value(self):
         return 'PyRope'
 
-    def normalize(self, value):
-        if self.strip is True:
-            value = value.strip()
+    def parse(self, value):
         return value
 
     def cast(self, value):
         if isinstance(value, np.str_):
             return value.item()
-        return str(value)
+        return value
+
+    def normalize(self, value):
+        if self.strip is True:
+            value = value.strip()
+        return value
 
 
 class TupleType(DType):

@@ -509,17 +509,6 @@ class JupyterHtmlWidget:
 
         cls.__str__ = new_str
 
-    def __setattr__(self, name, value):
-        if callable(getattr(self, name, None)):
-            # The frontend could observe an attribute name which is identical
-            # to a method name. This would cause the setter to override the
-            # method with the observed attribute value.
-            raise AttributeError(
-                f'Cannot set attribute "{name}" because this would override '
-                f'the method "{getattr(self, name)}".'
-            )
-        object.__setattr__(self, name, value)
-
     @property
     def disabled(self):
         return self._disabled
