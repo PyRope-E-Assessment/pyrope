@@ -2,6 +2,8 @@
 import inspect
 import numbers
 
+import numpy
+
 from pyrope.config import process_score
 from pyrope.errors import IllPosedError, ValidationError
 from pyrope.nodes import Node
@@ -98,7 +100,11 @@ class Widget(Node):
 
     @value.setter
     def value(self, value):
-        if self._value != value:
+        # TODO: remove this special case
+        equal = self._value == value
+        if isinstance(equal, numpy.ndarray):
+            equal = equal.all()
+        if not equal:
             self._value = value
             self.notify(self.__class__, 'attribute', {'value': value})
             self.validate()
