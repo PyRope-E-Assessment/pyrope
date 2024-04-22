@@ -971,12 +971,9 @@ class VectorType(MatrixType):
             if not LHS.any() or not RHS.any():
                 return (LHS == RHS).all()
             else:
-                matrix = np.array([LHS, RHS])
-                determinants = []
-                n = len(LHS)
-                for i in range(n):
-                    minor = matrix[:, [i, ((i + 1) % n)]]
-                    determinants.append(np.linalg.det(minor))
-                return np.isclose(determinants, np.zeros(n), **self.tols).all()
+                if np.linalg.matrix_rank([LHS, RHS]) == 1:
+                    return 1.0
+                else:
+                    return 0.0
         else:
             return MatrixType.compare(self, LHS, RHS)
