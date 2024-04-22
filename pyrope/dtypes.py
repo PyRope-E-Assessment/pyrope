@@ -302,6 +302,11 @@ class ExpressionType(DType):
             value = value.subs(i, sympy.I)
         return value
 
+    def cast(self, value):
+        if type(value) in (int, Fraction, float, complex):
+            value = sympy.parse_expr(str(value))
+        return value
+
     def compare(self, LHS, RHS):
         result = LHS.equals(RHS)
         if result is None:
