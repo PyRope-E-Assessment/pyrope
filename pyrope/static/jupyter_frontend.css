@@ -86,6 +86,7 @@ div.pyrope.score {
 hr.pyrope {
     border: 1px solid #cccccc;
     border-radius: 3px;
+    margin-left: -5px;
 }
 
 /* JupyterHtmlCheckbox */
