@@ -130,7 +130,7 @@ class ParametrizedExercise:
         preamble = self.exercise.preamble
         if callable(preamble):
             preamble = self.apply(preamble, self.parameters)
-        return preamble
+        return preamble if preamble is not None else ''
 
     @cached_property
     def ifields(self):
@@ -418,7 +418,7 @@ class ParametrizedExercise:
     def feedback(self):
         kwargs = self.parameters | self.answers
         feedback = self.apply(self.exercise.feedback, kwargs)
-        return feedback
+        return feedback if feedback is not None else ''
 
     @cached_property
     def input_generator(self):
