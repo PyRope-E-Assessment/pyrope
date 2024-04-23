@@ -36,6 +36,7 @@ Changes
 * Create a :code:`nodes` package and outsource errors into a separate module to avoid circular imports.
 * Composed input fields can be invalid even if all children nodes are valid. Therefore all children nodes are now invalid if the composed input field is invalid.
 * Messages sent between frontends and runners are now encapsulated by the class :code:`Message`.
+* Line breaks are handled differently in templates: One or more blank lines start a new paragraph and two or more spaces at the end of a line enforce a line break. Furthermore it is possible to begin a new line by escaping the newline character. For multiline strings this means you only have to write a double backslash at the end of a line or a single backslash in case of raw multiline strings.
 
 Fixes
 -----

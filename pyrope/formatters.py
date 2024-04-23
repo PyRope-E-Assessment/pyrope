@@ -6,7 +6,7 @@ class TemplateFormatter:
 
     @classmethod
     def format(cls, template, **kwargs):
-        template = '\n'.join([line.strip() for line in template.split('\n')])
+        template = '\n'.join([line.lstrip() for line in template.split('\n')])
         result = []
         for literal_text, field_name, format_spec in cls.parse(template):
 

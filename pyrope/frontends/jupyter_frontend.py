@@ -134,7 +134,7 @@ class JupyterFrontend:
         markdown_extensions = [
             'markdown_strict',
             'backtick_code_blocks',
-            'hard_line_breaks',  # Preserve linebreaks from the template.
+            'escaped_line_breaks',  # So that escaped line breaks are rendered.
             'pipe_tables',
             'strikeout',
             'task_lists',

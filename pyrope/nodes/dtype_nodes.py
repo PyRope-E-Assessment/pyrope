@@ -162,8 +162,10 @@ class MultipleChoice(Node):
             question: ifield_name
             for question, ifield_name in zip(questions, ifields.keys())
         }
-        template = '\n'.join([
-            f'{question}\n<<{ifield_name}>>'
+        # "\n\n" creates a new paragraph in Markdown.
+        # "  \n" renders a line break in Markdown.
+        template = '\n\n'.join([
+            f'{question}  \n<<{ifield_name}>>'
             for question, ifield_name in self.mapping.items()
         ])
         self.mapping |= {
