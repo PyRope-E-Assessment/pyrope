@@ -56,11 +56,9 @@ Changes
 * Messages sent between frontends and runners are now encapsulated by the class
   :code:`Message`.
 * Line breaks are handled differently in templates: One or more blank lines
-  start a new paragraph and two or more spaces at the end of a line enforce a
-  line break. Furthermore it is possible to begin a new line by escaping the
-  newline character. For multiline strings this means you only have to write a
-  double backslash at the end of a line or a single backslash in case of raw
-  multiline strings.
+  start a new paragraph and escaping a newline character enforces a line break.
+  For multiline this means you only have to write a double backslash at the
+  end of a line or a single backslash in case of raw multiline strings.
 
 Fixes
 -----
