@@ -86,9 +86,9 @@ class Exercise(abc.ABC):
 
 class ParametrizedExercise:
 
-    def __init__(self, exercise, global_parameters={}):
+    def __init__(self, exercise, global_parameters=None):
         self.exercise = exercise
-        self.global_parameters = global_parameters
+        self.global_parameters = global_parameters or {}
         self._total_score = None
         self._max_total_score = None
         self._none_solution_ifields = set()
