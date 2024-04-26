@@ -528,3 +528,11 @@ class TestParametrizedExercise(unittest.TestCase):
                 f"The score ({score[0]}) for input field '{name}' in "
                 f"exercise {exercise} exceeds the maximal score ({score[1]})."
             )
+
+    @with_all_pexercises_and_all_inputs
+    def test_feedback_with_inputs(self, pexercise):
+        '''
+        Test if inputs (especially None values) raise an exception in the
+        feedback method.
+        '''
+        pexercise.feedback
