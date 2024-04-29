@@ -30,9 +30,7 @@ class Exercise(abc.ABC):
     def __init_subclass__(cls):
         cls.__init__ = Exercise.__init__
 
-    def __init__(self, weights=None, **kwargs):
-        if weights is None:
-            weights = 1.0
+    def __init__(self, weights=1, **kwargs):
         self.weights = weights
         self.kwargs = kwargs
 
