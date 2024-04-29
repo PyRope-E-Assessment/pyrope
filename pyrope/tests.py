@@ -311,6 +311,7 @@ class TestParametrizedExercise(unittest.TestCase):
             'The sample solution does not get maximal total score.'
         )
 
+    # TODO: should only raise a warning
     @with_all_pexercises
     def test_treat_none_manually_keyword(self, pexercise):
         '''
