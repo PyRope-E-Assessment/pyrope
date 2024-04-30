@@ -159,6 +159,31 @@ class TestParametrizedExercise(unittest.TestCase):
             )
 
     @with_all_pexercises
+    def test_metadata(self, pexercise):
+        for name, annotation in core.Exercise.__annotations__.items():
+            value = pexercise.metadata[name]
+            if value is None:
+                continue
+            self.assertIsInstance(
+                value, annotation,
+                f"Metadata '{name}' has to be a {annotation}, got "
+                f"{type(value)}."
+            )
+            if issubclass(tuple, annotation):
+                for item in value:
+                    self.assertIsInstance(
+                        item, str,
+                        f"Metadata '{name}' has to be a string or a tuple of "
+                        f"strings."
+                    )
+            if name == 'taxonomy':
+                for item in value:
+                    self.assertIn(
+                        item, core.Exercise.__taxonomy_levels__,
+                        f"{item} is not a valid level in Bloom's taxonomy."
+                    )
+
+    @with_all_pexercises
     def test_solution_values(self, pexercise):
         '''
         None is only a valid solution if 'treat_none_manually' is set to True.
