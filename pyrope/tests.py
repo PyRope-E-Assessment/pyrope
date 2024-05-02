@@ -166,7 +166,7 @@ class TestParametrizedExercise(unittest.TestCase):
         specified in Exercise.__taxonomy_levels__.
         '''
         for name, annotation in core.Exercise.__annotations__.items():
-            value = pexercise.metadata[name]
+            value = getattr(pexercise.exercise, name)
             if value is None:
                 continue
             self.assertIsInstance(
@@ -174,7 +174,7 @@ class TestParametrizedExercise(unittest.TestCase):
                 f"Metadata '{name}' has to be a {annotation}, got "
                 f"{type(value)}."
             )
-            if issubclass(tuple, annotation):
+            if isinstance(value, tuple):
                 for item in value:
                     self.assertIsInstance(
                         item, str,
@@ -182,6 +182,8 @@ class TestParametrizedExercise(unittest.TestCase):
                         f"strings."
                     )
             if name == 'taxonomy':
+                if isinstance(value, str):
+                    value = (value,)
                 for item in value:
                     self.assertIn(
                         item, core.Exercise.__taxonomy_levels__,
