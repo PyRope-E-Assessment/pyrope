@@ -62,7 +62,7 @@ class Exercise(abc.ABC):
     def a_solution(self):
         return None
 
-    def hint(self):
+    def hints(self):
         return None
 
     def score(self):
