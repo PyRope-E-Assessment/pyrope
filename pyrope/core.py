@@ -30,9 +30,7 @@ class Exercise(abc.ABC):
     def __init_subclass__(cls):
         cls.__init__ = Exercise.__init__
 
-    def __init__(self, weights=None, **kwargs):
-        if weights is None:
-            weights = 1.0
+    def __init__(self, weights=1, **kwargs):
         self.weights = weights
         self.kwargs = kwargs
 
@@ -86,11 +84,12 @@ class Exercise(abc.ABC):
 
 class ParametrizedExercise:
 
-    def __init__(self, exercise, global_parameters={}):
+    def __init__(self, exercise, global_parameters=None):
         self.exercise = exercise
-        self.global_parameters = global_parameters
+        self.global_parameters = global_parameters or {}
         self._total_score = None
         self._max_total_score = None
+        self._none_solution_ifields = set()
 
     @staticmethod
     def apply(func, d):
@@ -130,7 +129,7 @@ class ParametrizedExercise:
         preamble = self.exercise.preamble
         if callable(preamble):
             preamble = self.apply(preamble, self.parameters)
-        return preamble
+        return preamble if preamble is not None else ''
 
     @cached_property
     def ifields(self):
@@ -165,6 +164,11 @@ class ParametrizedExercise:
 
         solution = explicit | implicit
 
+        for name, value in solution.items():
+            if value is None or (isinstance(value, str) and value == ''):
+                if self.ifields[name].treat_none_manually is True:
+                    self._none_solution_ifields.add(name)
+
         self.model.the_solution = solution
         return {
             name: ifield.the_solution
@@ -184,6 +188,12 @@ class ParametrizedExercise:
                 )
             names = list(self.ifields.keys())
             solution = {names[0]: solution}
+
+        for name, value in solution.items():
+            if value is None or (isinstance(value, str) and value == ''):
+                if self.ifields[name].treat_none_manually is True:
+                    self._none_solution_ifields.add(name)
+
         self.model.a_solution = solution
         return {
             name: ifield.a_solution
@@ -247,7 +257,10 @@ class ParametrizedExercise:
 
     @cached_property
     def max_scores(self):
-        solution = self.solution
+        solution = {
+            name: value for name, value in self.solution.items()
+            if name not in self._none_solution_ifields
+        }
         scores = self.apply(
             self.exercise.score, self.parameters | self.dummy_input
         )
@@ -261,6 +274,8 @@ class ParametrizedExercise:
         if scores is None:
             max_scores = {
                 name: float(ifield.auto_max_score) * self.score_weights[name]
+                if name not in self._none_solution_ifields
+                else self.score_weights[name] * len(self.ifields[name].widgets)
                 for name, ifield in self.ifields.items()
             }
             self._max_total_score = sum(max_scores.values())
@@ -283,6 +298,7 @@ class ParametrizedExercise:
             if value is None else value
             for name, value in solution.items()
         }
+        answer |= {name: None for name in self._none_solution_ifields}
         max_scores = self.apply(
             self.exercise.score, self.parameters | answer
         )
@@ -379,7 +395,11 @@ class ParametrizedExercise:
             if name not in scores:
                 scores[name] = None
             if scores[name] is None:
-                scores[name] = ifield.auto_score
+                if name in self._none_solution_ifields:
+                    score = float(self.answers[name] is None)
+                    scores[name] = score * len(self.ifields[name].widgets)
+                else:
+                    scores[name] = ifield.auto_score
             if isinstance(scores[name], tuple):
                 scores[name] = scores[name][0]
             scores[name] = float(scores[name]) * self.score_weights[name]
@@ -425,7 +445,7 @@ class ParametrizedExercise:
     def feedback(self):
         kwargs = self.parameters | self.answers
         feedback = self.apply(self.exercise.feedback, kwargs)
-        return feedback
+        return feedback if feedback is not None else ''
 
     @cached_property
     def input_generator(self):

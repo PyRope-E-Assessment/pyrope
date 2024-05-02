@@ -65,7 +65,7 @@ if args.subcommand == 'run':
             file = os.path.join(args.path, file)
         code = (
             'import pyrope\n\n'
-            f'%pyrope run {" ".join(args.patterns)}'
+            f'%pyrope run {" ".join(args.filepaths)}'
             f'{" --debug" if args.debug else ""}'
         )
         nb['cells'] = [nbformat.v4.new_code_cell(code)]

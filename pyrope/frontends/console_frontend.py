@@ -43,6 +43,7 @@ class ConsoleFrontend:
         print(78 * '-')
         if preamble != '':
             print(self.formatter(preamble))
+            print(78 * '-')
 
     def render_problem(self, template):
         fields = {
@@ -56,7 +57,6 @@ class ConsoleFrontend:
         print(78 * '-')
         if feedback != '':
             print(self.formatter(feedback, **self.answers))
-            print(78 * '-')
             print(f'Total Score: {self.total_score}/{self.max_total_score}')
             print(78 * '-')
 

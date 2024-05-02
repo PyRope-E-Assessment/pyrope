@@ -81,11 +81,22 @@ span.pyrope.solution {
 div.pyrope.score {
     margin-top: 1em;
 }
+div.pyrope.score:empty {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+/* Styles for the feedback. */
+div.pyrope.feedback:empty {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
 
 /* Separate exercises with a horizontal rule. */
 hr.pyrope {
     border: 1px solid #cccccc;
     border-radius: 3px;
+    margin-left: -5px;
 }
 
 /* JupyterHtmlCheckbox */

@@ -134,7 +134,7 @@ class JupyterFrontend:
         markdown_extensions = [
             'markdown_strict',
             'backtick_code_blocks',
-            'hard_line_breaks',  # Preserve linebreaks from the template.
+            'escaped_line_breaks',  # So that escaped line breaks are rendered.
             'pipe_tables',
             'strikeout',
             'task_lists',
@@ -153,8 +153,10 @@ class JupyterFrontend:
         return f'<div class="pyrope">{template}</div>'
 
     def render_preamble(self, preamble):
+        display(JupyterSeparator())
         if preamble:
             display(HTML(self.formatter(preamble)))
+            display(JupyterSeparator())
 
     def render_problem(self, template):
         display(HTML(self.formatter(template, allow_widgets=True)))
@@ -275,6 +277,12 @@ def escape_markdown(s):
     return s.translate(translation)
 
 
+class JupyterSeparator(ipy_widgets.HTML):
+
+    def __init__(self):
+        super().__init__('<hr class="pyrope">')
+
+
 class JupyterSubmitSection(ipy_widgets.VBox):
 
     def __init__(self, frontend):
@@ -302,9 +310,9 @@ class JupyterSubmitSection(ipy_widgets.VBox):
         children = (btn_box, vspace, self.submit_output, result)
 
         if self.frontend.debug:
-            children += (vspace, self.debug, vspace)
+            children += (JupyterSeparator(), vspace, self.debug, vspace)
 
-        children += (ipy_widgets.HTML('<hr class="pyrope">'),)
+        children += (JupyterSeparator(),)
 
         super().__init__(children)
 
