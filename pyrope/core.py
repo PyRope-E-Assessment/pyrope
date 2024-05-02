@@ -31,6 +31,7 @@ class Exercise(abc.ABC):
     title: str = None
     subtitle: str = None
     author: str = None
+    language: str = None
     license: str = None
     URL: str = None
     origin: str = None
