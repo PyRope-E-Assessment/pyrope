@@ -119,6 +119,31 @@ class TestParametrizedExercise(unittest.TestCase):
             )
 
     @with_all_pexercises
+    def test_hints_method(self, pexercise):
+        '''
+        The hints method has to return a string or an iterable object yielding
+        only strings.
+        '''
+        hints = pexercise.apply(
+            pexercise.exercise.hints, pexercise.parameters
+        )
+        if isinstance(hints, str):
+            return
+        try:
+            hints = iter(hints)
+        except TypeError:
+            raise TypeError(
+                f"The 'hints' method has to return a string or an iterable "
+                f"object, got {type(hints)}."
+            )
+        for hint in hints:
+            self.assertIsInstance(
+                hint, str,
+                f"If 'hints' returns an iterable object, all elements have to "
+                f"be strings, got {type(hint)}."
+            )
+
+    @with_all_pexercises
     def test_problem_method(self, pexercise):
         '''
         A problem must be an instance of class 'Problem'.
