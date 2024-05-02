@@ -160,6 +160,11 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_metadata(self, pexercise):
+        '''
+        Metadata are either strings, tuples of strings or None. In case of
+        'taxonomy' the strings have to be part of Bloom's taxonomy levels
+        specified in Exercise.__taxonomy_levels__.
+        '''
         for name, annotation in core.Exercise.__annotations__.items():
             value = pexercise.metadata[name]
             if value is None:
