@@ -61,7 +61,7 @@ class Exercise(abc.ABC):
         return None
 
     def hints(self):
-        return ''
+        return []
 
     def score(self):
         return None
@@ -214,8 +214,8 @@ class ParametrizedExercise:
     def hints(self):
         hints = self.apply(self.exercise.hints, self.parameters)
         if isinstance(hints, str):
-            hints = iter([hints])
-        return iter(hints)
+            hints = [hints]
+        return list(hints)
 
     @cached_property
     def trivial_input(self):
