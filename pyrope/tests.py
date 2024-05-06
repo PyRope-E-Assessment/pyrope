@@ -45,6 +45,17 @@ class TestExercise(unittest.TestCase):
             )
 
     @with_all_exercises
+    def test_hints_method_name(self, exercise):
+        '''
+        An exercise must not implement a method called 'hint' to explicitly
+        point out that the method to implement custom hints is called 'hints'.
+        '''
+        self.assertFalse(
+            hasattr(exercise, 'hint'),
+            "Do not implement a 'hint' method. Use 'hints' instead."
+        )
+
+    @with_all_exercises
     def test_solution_method_name(self, exercise):
         '''
         An exercise must not implement a method called 'solution', to avoid
