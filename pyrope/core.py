@@ -63,7 +63,7 @@ class Exercise(abc.ABC):
     def hint(self):
         return None
 
-    def score(self):
+    def scores(self):
         return None
 
     def feedback(self):
@@ -255,7 +255,7 @@ class ParametrizedExercise:
             if name not in self._none_solution_ifields
         }
         scores = self.apply(
-            self.exercise.score, self.parameters | self.dummy_input
+            self.exercise.scores, self.parameters | self.dummy_input
         )
         if scores is None or isinstance(scores, float_types):
             for name, value in solution.items():
@@ -293,7 +293,7 @@ class ParametrizedExercise:
         }
         answer |= {name: None for name in self._none_solution_ifields}
         max_scores = self.apply(
-            self.exercise.score, self.parameters | answer
+            self.exercise.scores, self.parameters | answer
         )
         for name, value in solution.items():
             if value is None and name in max_scores:
@@ -335,7 +335,7 @@ class ParametrizedExercise:
     def scores(self):
         self.solution
         output = self.apply(
-            self.exercise.score, self.parameters | self.dummy_input
+            self.exercise.scores, self.parameters | self.dummy_input
         )
         answers = self.answers
         fill_values = {
@@ -347,7 +347,7 @@ class ParametrizedExercise:
                 or (output is not None and len(self.ifields) == 1):
             answers |= fill_values
         scores = self.apply(
-            self.exercise.score, self.parameters | answers
+            self.exercise.scores, self.parameters | answers
         )
         if isinstance(output, dict):
             for name in fill_values:

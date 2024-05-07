@@ -81,7 +81,7 @@ class SetExample(Exercise):
     def a_solution(self):
         return {1, 2, 3}
 
-    def score(self, numbers):
+    def scores(self, numbers):
         return sum(numbers) == prod(numbers)
 
 
@@ -190,5 +190,5 @@ class TrivialExample(Exercise):
     def problem(self):
         return Problem('Free lunch!')
 
-    def score(self):
+    def scores(self):
         return 100

@@ -60,12 +60,13 @@ class TestExercise(unittest.TestCase):
     @with_all_exercises
     def test_scores_method_name(self, exercise):
         '''
-        An exercise must not implement a method called 'scores' to explicitly
-        point out that the method to implement custom scores is called 'score'.
+        An exercise must not implement a method called 'score' to explicitly
+        point out that the method to implement custom scores is called
+        'scores'.
         '''
         self.assertFalse(
-            hasattr(exercise, 'scores'),
-            "Do not implement a 'scores' method. Use 'score' to implement "
+            hasattr(exercise, 'score'),
+            "Do not implement a 'score' method. Use 'scores' to implement "
             "custom scores."
         )
 
@@ -188,7 +189,7 @@ class TestParametrizedExercise(unittest.TestCase):
         '''
         weights = pexercise.exercise.weights
         score_output = pexercise.apply(
-            pexercise.exercise.score,
+            pexercise.exercise.scores,
             pexercise.parameters | pexercise.dummy_input
         )
 
@@ -322,7 +323,7 @@ class TestParametrizedExercise(unittest.TestCase):
         exercise = pexercise.exercise
 
         output = pexercise.apply(
-            exercise.score,
+            exercise.scores,
             pexercise.parameters | pexercise.dummy_input
         )
 
@@ -411,7 +412,7 @@ class TestParametrizedExercise(unittest.TestCase):
         # TODO: This should be a framework test and not a test for users.
         # Note that either all or none of the input fields are scored.
         score_output = pexercise.apply(
-            pexercise.exercise.score,
+            pexercise.exercise.scores,
             pexercise.parameters | pexercise.dummy_input
         )
         scores = pexercise.scores.values()
@@ -442,7 +443,7 @@ class TestParametrizedExercise(unittest.TestCase):
         exercise = pexercise.exercise
 
         output = pexercise.apply(
-            exercise.score,
+            exercise.scores,
             pexercise.parameters | pexercise.dummy_input
         )
         if isinstance(output, dict) or len(pexercise.ifields) == 1:
@@ -452,7 +453,7 @@ class TestParametrizedExercise(unittest.TestCase):
 
         try:
             scores = pexercise.apply(
-                exercise.score,
+                exercise.scores,
                 pexercise.parameters | pexercise.answers
             )
         except BaseException as e:
