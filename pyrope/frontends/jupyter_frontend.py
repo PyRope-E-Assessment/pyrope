@@ -457,8 +457,8 @@ class JupyterSubmitOutput(ipy_widgets.HTML):
         )
 
     def print_template(self, s):
-        s = self.frontend.formatter(s)
-        child = f'<div class="pyrope">{s}</div>'
+        # frontend.formatter wraps 's' in a div element.
+        child = self.frontend.formatter(s)
         display(Javascript(
             f'PyRope.append_child("{self.div_ID}", "{base64(child)}")'
         ))
