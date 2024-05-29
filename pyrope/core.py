@@ -473,7 +473,7 @@ class ParametrizedExercise:
 
 class ExerciseRunner:
 
-    def __init__(self, exercise, debug=False, global_parameters={}):
+    def __init__(self, exercise, debug=False, global_parameters=None):
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
