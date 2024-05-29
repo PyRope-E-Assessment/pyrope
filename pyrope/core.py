@@ -7,6 +7,7 @@ import importlib
 import inspect
 import itertools
 import os
+import random
 import sys
 import unittest
 
@@ -28,13 +29,72 @@ float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
 class Exercise(abc.ABC):
 
     def __init_subclass__(cls):
-        cls.__init__ = Exercise.__init__
+        old_init = cls.__init__
 
-    def __init__(self, weights=1, **kwargs):
-        self.weights = weights
-        self.kwargs = kwargs
+        def new_init(self, **kwargs):
+            self.difficulty = None
 
-    def run(self, debug=False):
+            min_difficulty = kwargs.get('min_difficulty', None)
+            if min_difficulty is not None:
+                if not (
+                    isinstance(min_difficulty, float_types) and
+                    0.0 <= float(min_difficulty) <= 1.0
+                ):
+                    raise ValueError(
+                        f"'min_difficulty' has to be an instance of "
+                        f"{float_types} and has to be a number in [0, 1], "
+                        f"got {min_difficulty}."
+                    )
+                min_difficulty = float(min_difficulty)
+            self.min_difficulty = min_difficulty
+
+            max_difficulty = kwargs.get('max_difficulty', None)
+            if max_difficulty is not None:
+                if not (
+                    isinstance(max_difficulty, float_types) and
+                    0.0 <= float(max_difficulty) <= 1.0
+                ):
+                    raise ValueError(
+                        f"'max_difficulty' has to be an instance of "
+                        f"{float_types} and has to be a number in [0, 1], "
+                        f"got {max_difficulty}."
+                    )
+                max_difficulty = float(max_difficulty)
+            self.max_difficulty = max_difficulty
+
+            weights = kwargs.get('weights', 1)
+            if not isinstance(weights, float_types + (dict,)):
+                raise ValueError(
+                    f"'weights' has to be an instance of "
+                    f"{float_types + (dict,)}, got {type(weights)}."
+                )
+            if isinstance(weights, dict):
+                for key, value in weights.items():
+                    if not isinstance(key, str):
+                        raise ValueError(
+                            f"All keys of 'weights' have to be strings, "
+                            f"got {type(key)}."
+                        )
+                    if not isinstance(value, float_types):
+                        raise ValueError(
+                            f"All values of 'weights' have to be an instance "
+                            f"of {float_types}, got {type(value)}."
+                        )
+                    weights[key] = float(value)
+            else:
+                weights = float(weights)
+            self.weights = weights
+
+            kwargs = {
+                key: kwargs[key] for key in kwargs
+                if key not in ('weights', 'min_difficulty', 'max_difficulty')
+            }
+            old_init(self, **kwargs)
+
+        cls.__init__ = new_init
+
+    def run(self, debug=False, difficulty=None):
+        self.difficulty = difficulty
         runner = ExerciseRunner(self, debug=debug)
         if get_ipython() is not None:
             frontend = frontends.JupyterFrontend()
@@ -87,6 +147,10 @@ class ParametrizedExercise:
     def __init__(self, exercise, global_parameters=None):
         self.exercise = exercise
         self.global_parameters = global_parameters or {}
+        if 'min_difficulty' not in self.global_parameters:
+            self.global_parameters['min_difficulty'] = 0.0
+        if 'max_difficulty' not in self.global_parameters:
+            self.global_parameters['max_difficulty'] = 1.0
         self._total_score = None
         self._max_total_score = None
         self._none_solution_ifields = set()
@@ -104,7 +168,16 @@ class ParametrizedExercise:
 
     @cached_property
     def parameters(self):
-        kwargs = self.global_parameters | self.exercise.kwargs
+        difficulty = self.exercise.difficulty
+        if difficulty is None:
+            min_ = self.exercise.min_difficulty
+            max_ = self.exercise.max_difficulty
+            if min_ is None:
+                min_ = self.global_parameters['min_difficulty']
+            if max_ is None:
+                max_ = self.global_parameters['max_difficulty']
+            difficulty = random.uniform(min_, max_)
+        kwargs = self.global_parameters | {'difficulty': difficulty}
         pars = self.apply(self.exercise.parameters, kwargs)
         if pars is None:
             pars = {}
@@ -235,17 +308,21 @@ class ParametrizedExercise:
     @cached_property
     def score_weights(self):
         weights = self.exercise.weights
+        if isinstance(weights, dict):
+            for key in weights:
+                if key not in self.ifields:
+                    raise ValueError(
+                        f"All keys of 'weights' have to match an input field. "
+                        f"There is no input field '{key}'."
+                    )
         if isinstance(weights, float_types):
-            weights = float(weights)
             if len(self.ifields) == 0:
                 return {None: weights}
-            return {name: weights for name in self.ifields.keys()}
+            return {name: weights for name in self.ifields}
         weights = weights.copy()
-        for name in self.ifields.keys():
-            if name not in weights.keys():
+        for name in self.ifields:
+            if name not in weights:
                 weights[name] = 1.0
-            else:
-                weights[name] = float(weights[name])
         return weights
 
     @cached_property

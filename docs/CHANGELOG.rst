@@ -31,6 +31,11 @@ New
   :code:`MultipleChoice`.
 * New compare option :code:`up_to_multiple` for :code:`Vector`. With this
   option linear dependent input vectors will also get the maximal score.
+* An exercise's difficulty can be set with :code:`difficulty` on
+  :code:`Exercise.run()`.
+* When an exercise is instantiated, the range from which :code:`difficulty` is
+  randomly chosen from can be specified with keyword arguments
+  :code:`min_difficulty` and :code:`max_difficulty`.
 
 Changes
 -------
