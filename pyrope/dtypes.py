@@ -500,6 +500,7 @@ class IntType(DType):
             raise ValidationError(
                 f"Cannot convert '{value}' to an integer."
             )
+        return value
 
     def cast(self, value):
         if isinstance(value, (np.int_, np.float_, np.complex_)):
@@ -727,6 +728,7 @@ class RealType(DType):
             value = float(value)
         except ValueError:
             raise ValidationError(f"Cannot convert '{value}' to a float.")
+        return value
 
     def cast(self, value):
         if isinstance(value, (np.int_, np.float_, np.complex_)):
