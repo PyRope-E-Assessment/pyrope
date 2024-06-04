@@ -1,4 +1,5 @@
 
+import inspect
 import itertools
 import unittest
 
@@ -28,20 +29,15 @@ class TestExercise(unittest.TestCase):
 
     @with_all_exercises
     def test_parameters_method(self, exercise):
-        '''
-        If implemented, the 'parameters' method of an exercise must return a
-        dictionary. Its keys must be strings, as they name the input fields.
-        '''
-        parameters = exercise.parameters()
-        self.assertIsInstance(
-            parameters, dict,
-            "The 'parameters' method must return a dictionary."
-        )
-        for key in parameters.keys():
-            self.assertIsInstance(
-                key, str,
-                f"The dictionary returned by the 'parameters' method "
-                f"must be keyed with strings (got {type(key)})."
+        """
+        All arguments of the 'parameters' method of an exercise must have
+        default values.
+        """
+        signature = inspect.signature(exercise.parameters)
+        for par in signature.parameters.values():
+            self.assertIsNot(
+                par.default, inspect.Parameter.empty,
+                f"Argument '{par}' of 'parameters' must have a default value."
             )
 
     @with_all_exercises
@@ -117,6 +113,24 @@ class TestParametrizedExercise(unittest.TestCase):
                 ofield, pexercise.parameters,
                 f"There is no parameter for output field '{ofield}' in the "
                 f"preamble string."
+            )
+
+    @with_all_pexercises
+    def test_parameters_method(self, pexercise):
+        '''
+        If implemented, the 'parameters' method of an exercise must return a
+        dictionary. Its keys must be strings, as they name the input fields.
+        '''
+        parameters = pexercise.parameters
+        self.assertIsInstance(
+            parameters, dict,
+            "The 'parameters' method must return a dictionary."
+        )
+        for key in parameters.keys():
+            self.assertIsInstance(
+                key, str,
+                f"The dictionary returned by the 'parameters' method "
+                f"must be keyed with strings (got {type(key)})."
             )
 
     @with_all_pexercises
