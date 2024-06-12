@@ -38,6 +38,7 @@ class Exercise(abc.ABC):
     discipline: str = None
     area: str = None
     topic: str | tuple = None
+    topic_contingent: str | tuple = None
     keywords: str | tuple = None
     taxonomy: str | tuple = None
 
