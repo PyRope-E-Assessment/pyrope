@@ -94,6 +94,16 @@ class Exercise(abc.ABC):
         cls.__init__ = new_init
 
     def run(self, debug=False, difficulty=None):
+        if difficulty is not None:
+            if not (
+                isinstance(difficulty, float_types) and
+                0.0 <= float(difficulty) <= 1.0
+            ):
+                raise ValueError(
+                    f"'difficulty' has to be an instance of {float_types} "
+                    f"and has to be a number in [0, 1], got {difficulty}."
+                )
+            difficulty = float(difficulty)
         self.difficulty = difficulty
         runner = ExerciseRunner(self, debug=debug)
         if get_ipython() is not None:
