@@ -31,6 +31,12 @@ New
   :code:`MultipleChoice`.
 * New compare option :code:`up_to_multiple` for :code:`Vector`. With this
   option linear dependent input vectors will also get the maximal score.
+* The following metadata can be specified as class attributes for an exercise:
+  :code:`title`, :code:`subtitle`, :code:`author`, :code:`language`,
+  :code:`license`, :code:`URL`, :code:`origin`, :code:`discipline`,
+  :code:`area`, :code:`topic`, :code:`topic_contingent`, :code:`keywords` and
+  :code:`taxonomy`. If specified, they get tested via unit tests when
+  :code:`MyExercise().test()` is called.
 
 Changes
 -------

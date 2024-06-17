@@ -160,6 +160,38 @@ class TestParametrizedExercise(unittest.TestCase):
             )
 
     @with_all_pexercises
+    def test_metadata(self, pexercise):
+        '''
+        Metadata are either strings, tuples of strings or None. In case of
+        'taxonomy' the strings have to be part of Bloom's taxonomy levels
+        specified in Exercise.__taxonomy_levels__.
+        '''
+        for name, annotation in core.Exercise.__annotations__.items():
+            value = getattr(pexercise.exercise, name)
+            if value is None:
+                continue
+            self.assertIsInstance(
+                value, annotation,
+                f"Metadata '{name}' has to be a {annotation}, got "
+                f"{type(value)}."
+            )
+            if isinstance(value, tuple):
+                for item in value:
+                    self.assertIsInstance(
+                        item, str,
+                        f"Metadata '{name}' has to be a string or a tuple of "
+                        f"strings."
+                    )
+            if name == 'taxonomy':
+                if isinstance(value, str):
+                    value = (value,)
+                for item in value:
+                    self.assertIn(
+                        item, core.Exercise.__taxonomy_levels__,
+                        f"{item} is not a valid level in Bloom's taxonomy."
+                    )
+
+    @with_all_pexercises
     def test_solution_values(self, pexercise):
         '''
         None is only a valid solution if 'treat_none_manually' is set to True.
