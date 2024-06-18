@@ -2,6 +2,7 @@
 import abc
 import argparse
 import collections
+from datetime import datetime
 from functools import cached_property
 import importlib
 import inspect
@@ -12,9 +13,13 @@ import unittest
 
 from IPython import get_ipython
 import numpy
+from sqlalchemy.sql import select
 
 from pyrope import frontends, tests
 from pyrope.config import process_total_score
+from pyrope.database import (
+    Attempt, Exercise as DBExercise, Session as DBSession, User
+)
 from pyrope.errors import IllPosedError
 from pyrope.messages import (
     ChangeWidgetAttribute, CreateWidget, ExerciseAttribute, RenderTemplate,
@@ -507,7 +512,9 @@ class ParametrizedExercise:
 
 class ExerciseRunner:
 
-    def __init__(self, exercise, debug=False, global_parameters={}):
+    def __init__(
+        self, exercise, debug=False, global_parameters={}, user_name='user'
+    ):
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
@@ -515,6 +522,22 @@ class ExerciseRunner:
         self.widget_id_mapping = {
             widget.ID: widget for widget in self.pexercise.widgets
         }
+        with DBSession() as session:
+            user = session.scalar(select(User.name).where(
+                User.name == user_name
+            ))
+            if user is None:
+                session.add(User(name=user_name))
+            db_exercise = session.scalar(select(DBExercise.name).where(
+                DBExercise.name == exercise.__class__.__name__
+            ))
+            if db_exercise is None:
+                session.add(DBExercise(
+                    name=exercise.__class__.__name__, **self.pexercise.metadata
+                ))
+            session.commit()
+        self.user_name = user_name
+        self.start_time = None
 
     # TODO: enforce order of steps
     def run(self):
@@ -539,6 +562,7 @@ class ExerciseRunner:
         if self.debug:
             self.publish_solutions()
         self.notify(WaitingForSubmission(self.sender))
+        self.start_time = datetime.utcnow()
 
     def finish(self):
         if not self.debug:
@@ -562,6 +586,18 @@ class ExerciseRunner:
         self.notify(RenderTemplate(
             self.sender, 'feedback', self.pexercise.feedback
         ))
+        with DBSession() as session:
+            finish_time = datetime.utcnow()
+            session.add(Attempt(
+                exercise_name=self.pexercise.exercise.__class__.__name__,
+                user_name=self.user_name, timestamp=finish_time,
+                duration=finish_time - self.start_time,
+                total_score=self.pexercise.total_score,
+                parameters=self.pexercise.parameters,
+                scores=self.pexercise.scores,
+                answers=self.pexercise.answers,
+            ))
+            session.commit()
 
     def publish_solutions(self):
         self.pexercise.solution

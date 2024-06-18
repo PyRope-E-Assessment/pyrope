@@ -112,3 +112,12 @@ jupyter_frontend_css: str = os.path.join(dirname, filename)
 # are rendered as a dropdown instead of radio buttons. This affects 'OneOf' and
 # 'MultipleChoice' nodes.
 maximal_radio_buttons: int = 5
+
+
+# Database configuration.
+#
+# If 'db_file' is an empty string, data is stored in-memory and is deleted when
+# the process is shut down. To persist data please specify 'db_file'. Prefix
+# one slash to use relative paths and two slashes for absolute paths.
+dialect: str = 'sqlite://'
+db_file: str = ''
