@@ -667,6 +667,11 @@ class OneOfType(DType):
     def dummy_value(self):
         return self.options[-1]
 
+    def parse(self, value):
+        if self.dtype == str:
+            return value
+        return DType.parse(self, value)
+
     def check_type(self, value):
         DType.check_type(self, value)
         if value not in self.options:
