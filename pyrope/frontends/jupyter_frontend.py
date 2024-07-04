@@ -529,6 +529,11 @@ class JupyterHtmlWidget:
 
         cls.__str__ = new_str
 
+    def send(self, data, metadata=None):
+        if metadata is None:
+            metadata = {}
+        self.comm.send(data, metadata)
+
     @property
     def description(self):
         if self._description == '':
@@ -550,7 +555,7 @@ class JupyterHtmlWidget:
             self._disabled = True
         else:
             self._disabled = False
-        self.comm.send({'disabled': self._disabled})
+        self.send({'disabled': self._disabled})
 
     @property
     def valid(self):
@@ -564,7 +569,7 @@ class JupyterHtmlWidget:
             None: 'valid',
         }
         self._valid = mapping.get(value, '')
-        self.comm.send({'className': f'pyrope {self._valid}'})
+        self.send({'className': f'pyrope {self._valid}'})
 
     @property
     def value(self):
@@ -574,13 +579,13 @@ class JupyterHtmlWidget:
     def value(self, value):
         if self._value != value:
             self._value = value
-            self.comm.send({'value': self._value}, {'sync': True})
+            self.send({'value': self._value}, {'sync': True})
             self.frontend.notify(ChangeWidgetAttribute(
                 self.__class__, self.widget_id, 'value', self._value
             ))
 
     def change_hover_text(self, text):
-        self.comm.send({'title': str(text)})
+        self.send({'title': str(text)})
 
     def display_score(self, show=True):
         if show:
@@ -616,7 +621,7 @@ class JupyterHtmlWidget:
             css_class = mapping.get(self.correct, '')
         else:
             css_class = ''
-        self.comm.send({'className': f'pyrope {css_class}'})
+        self.send({'className': f'pyrope {css_class}'})
 
 
 class JupyterHtmlCheckbox(JupyterHtmlWidget):
@@ -642,7 +647,7 @@ class JupyterHtmlCheckbox(JupyterHtmlWidget):
     def value(self, value):
         if self._value != value:
             self._value = value
-            self.comm.send({'checked': self._value}, {'sync': True})
+            self.send({'checked': self._value}, {'sync': True})
             self.frontend.notify(ChangeWidgetAttribute(
                 self.__class__, self.widget_id, 'value', self._value
             ))
@@ -705,7 +710,7 @@ class _JupyterHtmlRadioButton(JupyterHtmlWidget):
     @value.setter
     def value(self, value):
         self._value = value
-        self.comm.send({'checked': value}, {'sync': True})
+        self.send({'checked': value}, {'sync': True})
 
 
 class JupyterHtmlRadioButtons(JupyterHtmlWidget):
