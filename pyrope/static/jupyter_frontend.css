@@ -3,7 +3,9 @@
 /* Global variables */
 :root {
     --blue: #1476fb;
+    --light-blue: #b8e2f4;
     --red: #ff0000;
+    --light-red: #ffcccb;
     --grey: #8b8b8b;
     --light-grey: #efefef;
     --black: #000000;
@@ -138,9 +140,11 @@ input[type="checkbox"].pyrope.invalid:checked::after {
 }
 input[type="checkbox"].pyrope.invalid {
 	border-color: var(--red);
+    background-color: var(--light-red);
 }
 input[type="checkbox"].pyrope.valid:disabled {
 	border-color: var(--blue);
+    background-color: var(--light-blue);
 }
 input[type="checkbox"].pyrope.valid:disabled::before {
 	background-color: var(--blue);
@@ -157,6 +161,7 @@ select.pyrope {
 select.pyrope.invalid {
 	color: var(--red);
     border-color: var(--red);
+    background-color: var(--light-red);
 }
 select.pyrope.invalid option {
 	color: black;
@@ -167,6 +172,7 @@ select.pyrope.invalid:focus {
 select.pyrope.valid:disabled {
 	color: var(--blue);
     border-color: var(--blue);
+    background-color: var(--light-blue);
 }
 
 /* JupyterHtmlRadiobutton */
@@ -195,6 +201,7 @@ input[type="radio"].pyrope:hover:enabled {
 }
 input[type="radio"].pyrope.invalid {
 	border-color: var(--red);
+    background-color: var(--light-red);
 }
 input[type="radio"].pyrope.invalid:checked {
 	background-image: radial-gradient(
@@ -207,6 +214,7 @@ input[type="radio"].pyrope.invalid:checked {
 }
 input[type="radio"].pyrope.valid:disabled {
 	border-color: var(--blue);
+    background-color: var(--light-blue);
 }
 input[type="radio"].pyrope.valid:disabled:checked {
 	background-image: radial-gradient(
@@ -237,6 +245,9 @@ input[type="text"].pyrope.invalid {
 input[type="text"].pyrope.invalid:focus {
     outline-color: var(--red);
 }
+input[type="text"].pyrope.invalid:disabled {
+	background-color: var(--light-red);
+}
 input[type="text"].pyrope.valid {
     border-color: var(--blue);
 }
@@ -245,6 +256,7 @@ input[type="text"].pyrope.valid:focus {
 }
 input[type="text"].pyrope.valid:disabled {
 	color: var(--blue);
+    background-color: var(--light-blue);
 }
 
 /* JupyterHtmlTextarea */
@@ -266,6 +278,9 @@ textarea.pyrope.invalid {
 textarea.pyrope.invalid:focus {
     outline-color: var(--red);
 }
+textarea.pyrope.invalid:disabled {
+	background-color: var(--light-red);
+}
 textarea.pyrope.valid {
     border-color: var(--blue);
 }
@@ -274,6 +289,7 @@ textarea.pyrope.valid:focus {
 }
 textarea.pyrope.valid:disabled {
 	color: var(--blue);
+    background-color: var(--light-blue);
 }
 
 /* JupyterHtmlSlider */
@@ -292,17 +308,19 @@ input[type="range"].pyrope::-webkit-slider-thumb {
     background: var(--black);
     border-radius: 50%;
     cursor: pointer;
-    height: 15px;
-    width: 15px;
+    height: 14px;
+    width: 14px;
 }
 input[type="range"].pyrope.invalid {
 	border-color: var(--red);
+    background-color: var(--light-red);
 }
 input[type="range"].pyrope.invalid::-webkit-slider-thumb {
 	background: var(--red);
 }
 input[type="range"].pyrope.valid:disabled {
 	border-color: var(--blue);
+    background-color: var(--light-blue);
 }
 input[type="range"].pyrope.valid:disabled::-webkit-slider-thumb {
 	background: var(--blue);
