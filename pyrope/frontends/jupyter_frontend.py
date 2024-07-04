@@ -740,6 +740,24 @@ class JupyterHtmlRadioButtons(JupyterHtmlWidget):
             )
 
     @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if self._value != value:
+            self._value = value
+            self.send({'value': self._value}, {'sync': True})
+            self.frontend.notify(ChangeWidgetAttribute(
+                self.__class__, self.widget_id, 'value', self._value
+            ))
+            for btn in self.radio_buttons:
+                if btn.option == value:
+                    btn.value = True
+                else:
+                    btn.value = False
+
+    @property
     def correct(self):
         return self._correct
 
