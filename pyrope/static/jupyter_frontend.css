@@ -36,6 +36,7 @@ table.pyrope {
 table.pyrope * {
     background: white;
     text-align: left;
+    padding: 0px;
 }
 
 /* All children of span.pyrope are displayed as inline elements and centered
