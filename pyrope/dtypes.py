@@ -676,7 +676,7 @@ class OneOfType(DType):
         DType.check_type(self, value)
         if value not in self.options:
             raise ValidationError(
-                f"'{value}' is not in {self.options}."
+                f"{value} is not in {self.options}."
             )
 
 
