@@ -171,8 +171,8 @@ select.pyrope.valid:disabled {
 /* JupyterHtmlRadiobutton */
 input[type="radio"].pyrope {
 	-webkit-appearance: none;
-    width: 13px;
-    height: 13px;
+    width: 1em;
+    height: 1em;
     border: 1px solid var(--grey);
     border-radius: 50%;
     vertical-align: text-bottom;
@@ -180,30 +180,41 @@ input[type="radio"].pyrope {
 input[type="radio"].pyrope:focus {
     outline: none;
 }
+input[type="radio"].pyrope:checked {
+	background-image: radial-gradient(
+    	circle,
+        var(--black) 0%,
+        var(--black) 40%,
+        transparent 50%,
+        transparent 100%
+	);
+}
 input[type="radio"].pyrope:hover:enabled {
 	box-shadow: 0px 0px 1px var(--black);
-}
-input[type="radio"].pyrope:checked::before {
-	content: "";
-    display: block;
-    position: relative;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: var(--black);
-    transform: translateX(2.3px) translateY(2.3px);
 }
 input[type="radio"].pyrope.invalid {
 	border-color: var(--red);
 }
-input[type="radio"].pyrope.invalid:checked::before {
-	background-color: var(--red);
+input[type="radio"].pyrope.invalid:checked {
+	background-image: radial-gradient(
+    	circle,
+        var(--red) 0%,
+        var(--red) 40%,
+        transparent 50%,
+        transparent 100%
+	);
 }
 input[type="radio"].pyrope.valid:disabled {
 	border-color: var(--blue);
 }
-input[type="radio"].pyrope.valid:disabled:checked::before {
-	background-color: var(--blue);
+input[type="radio"].pyrope.valid:disabled:checked {
+	background-image: radial-gradient(
+    	circle,
+        var(--blue) 0%,
+        var(--blue) 40%,
+        transparent 50%,
+        transparent 100%
+	);
 }
 
 /* JupyterHtmlText */
