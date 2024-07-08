@@ -150,7 +150,7 @@ class JupyterFrontend:
             ]
         )
 
-        return f'<div class="pyrope">{template}</div>'
+        return template
 
     def render_preamble(self, preamble):
         display(JupyterSeparator())
@@ -448,7 +448,8 @@ class JupyterDebugOutput(ipy_widgets.Output):
 
 class JupyterWidgetResultSpan:
 
-    def __init__(self):
+    def __init__(self, frontend):
+        self.frontend = frontend
         self.score_ID = f'id_{uuid4().hex}'
         self.solution_ID = f'id_{uuid4().hex}'
         self._score = ''
@@ -472,10 +473,13 @@ class JupyterWidgetResultSpan:
 
     @solution.setter
     def solution(self, value):
-        self._solution = str(value)
+        self._solution = value
+        formatted_solution = self.frontend.formatter(
+            '<<solution>>', solution=value
+        )
         display(Javascript(
             f'PyRope.set_inner_html(\'{self.solution_ID}\', '
-            f'\'{base64(self._solution)}\')'
+            f'\'{base64(formatted_solution)}\')'
         ))
 
     def __str__(self):
@@ -492,7 +496,7 @@ class JupyterHtmlWidget:
     def __init__(self, frontend, widget_id=None):
         self.ipy = get_ipython()
         self.frontend = frontend
-        self.result_span = JupyterWidgetResultSpan()
+        self.result_span = JupyterWidgetResultSpan(self.frontend)
         self.displayed_max_score = None
         self.displayed_score = None
         self.info = ''

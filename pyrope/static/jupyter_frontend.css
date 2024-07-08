@@ -45,7 +45,6 @@ table.pyrope * {
 vertically. */
 span.pyrope * {
     display: inline;
-    vertical-align: middle;
 }
 
 /* Labels are used to show the values of widgets. */
@@ -67,12 +66,17 @@ span.pyrope.score, span.pyrope.solution {
     border-radius: 3px;
     padding: 1px 2px;
     background-color: var(--light-grey);
+    display: inline-block;
+    height: fit-content;
 }
 span.pyrope.score:empty, span.pyrope.solution:empty {
     margin-left: 0px;
     margin-right: 0px;
     border: none;
     padding: 0px;
+}
+span.pyrope.solution span.math.inline script {
+    display: none;
 }
 
 /* Styles for widget's solution span. */
