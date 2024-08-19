@@ -528,7 +528,7 @@ class ParametrizedExercise:
 class ExerciseRunner:
 
     def __init__(
-        self, exercise, debug=False, global_parameters={}, user_name='user'
+        self, exercise, debug=False, global_parameters={}, user_name='John Doe'
     ):
         self.debug = debug
         self.observers = []
@@ -543,16 +543,22 @@ class ExerciseRunner:
             ))
             if user is None:
                 session.add(User(name=user_name))
-            db_exercise = session.scalar(select(DBExercise.name).where(
-                DBExercise.name == exercise.__class__.__name__
+            db_exercise = session.scalar(select(DBExercise.id).where(
+                DBExercise.id == self.pexercise.id
             ))
             if db_exercise is None:
+                label = self.pexercise.metadata['title']
+                if label is None:
+                    label = self.pexercise.exercise.__class__.__name__
                 session.add(DBExercise(
-                    name=exercise.__class__.__name__, **self.pexercise.metadata
+                    id=self.pexercise.id, source=self.pexercise.source,
+                    label=label, score_maximum=self.pexercise.max_total_score
                 ))
             session.commit()
-        self.user_name = user_name
-        self.start_time = None
+            self.user_id = session.scalar(select(User.id).where(
+                User.name == user_name
+            ))
+        self.started_at = None
 
     # TODO: enforce order of steps
     def run(self):
@@ -577,7 +583,7 @@ class ExerciseRunner:
         if self.debug:
             self.publish_solutions()
         self.notify(WaitingForSubmission(self.sender))
-        self.start_time = datetime.utcnow()
+        self.started_at = datetime.utcnow()
 
     def finish(self):
         if not self.debug:
@@ -602,15 +608,10 @@ class ExerciseRunner:
             self.sender, 'feedback', self.pexercise.feedback
         ))
         with DBSession() as session:
-            finish_time = datetime.utcnow()
-            session.add(Attempt(
-                exercise_name=self.pexercise.exercise.__class__.__name__,
-                user_name=self.user_name, timestamp=finish_time,
-                duration=finish_time - self.start_time,
-                total_score=self.pexercise.total_score,
-                parameters=self.pexercise.parameters,
-                scores=self.pexercise.scores,
-                answers=self.pexercise.answers,
+            session.add(Result(
+                exercise_id=self.pexercise.id, user_id=self.user_id,
+                started_at=self.started_at, submitted_at=datetime.utcnow(),
+                score_given=self.pexercise.total_score
             ))
             session.commit()
 
