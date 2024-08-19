@@ -1,5 +1,6 @@
 
 import os
+import tempfile
 
 import pyrope
 
@@ -112,3 +113,37 @@ jupyter_frontend_css: str = os.path.join(dirname, filename)
 # are rendered as a dropdown instead of radio buttons. This affects 'OneOf' and
 # 'MultipleChoice' nodes.
 maximal_radio_buttons: int = 5
+
+
+# Logging.
+#
+# Configure different logging targets.
+# 'exercise_debug':
+#   Errors and warnings from PyRope external exercise code and all parameters
+#   necessary to fix them.
+# 'history':
+#   Eternal log file storing all information necessary for statistical purposes
+#   and learning analytics, such as score dashboards.
+# 'pyrope':
+#   PyRope's internal system messages for debugging.
+log_dir: str = os.path.join(tempfile.gettempdir(), 'pyrope')
+logging: dict[dict[str: str, ...], ...] = {
+    'exercise_debug': {
+        'filename': os.path.join(log_dir, 'exercise_debug.log'),
+        'level': 'DEBUG',
+        'fmt': '%(name)s:%(levelname)s:%(asctime)s %(message)s',
+        'datefmt': '%Y-%m-%d %H:%M:%S',
+    },
+    'history': {
+        'filename': os.path.join(log_dir, 'history.log'),
+        'level': 'NOTSET',
+        'fmt': '%(name)s:%(asctime)s %(message)s',
+        'datefmt': '%Y-%m-%d %H:%M:%S',
+    },
+    'pyrope': {
+        'filename': os.path.join(log_dir, 'pyrope.log'),
+        'level': 'DEBUG',
+        'fmt': '%(name)s:%(levelname)s:%(asctime)s %(message)s',
+        'datefmt': '%Y-%m-%d %H:%M:%S',
+    },
+}

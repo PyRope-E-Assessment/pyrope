@@ -6,7 +6,9 @@ from functools import cached_property
 import importlib
 import inspect
 import itertools
+import logging
 import os
+import pathlib
 import random
 import sys
 import unittest
@@ -14,7 +16,7 @@ import unittest
 from IPython import get_ipython
 import numpy
 
-from pyrope import frontends, tests
+from pyrope import config, frontends, tests
 from pyrope.config import process_total_score
 from pyrope.errors import IllPosedError
 from pyrope.messages import (
@@ -24,6 +26,19 @@ from pyrope.messages import (
 
 
 float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
+
+
+for name, log_config in config.logging.items():
+    logger = logging.getLogger(name)
+    log_dir = pathlib.Path(log_config['filename']).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
+    handler = logging.FileHandler(log_config['filename'])
+    handler.setLevel(log_config['level'])
+    formatter = logging.Formatter(
+        fmt=log_config['fmt'], datefmt=log_config['datefmt']
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 class Exercise(abc.ABC):
