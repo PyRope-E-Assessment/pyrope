@@ -4,6 +4,7 @@ import argparse
 import collections
 from datetime import datetime
 from functools import cached_property
+from hashlib import sha3_256
 import importlib
 import inspect
 import itertools
@@ -18,7 +19,7 @@ from sqlalchemy.sql import select
 from pyrope import frontends, tests
 from pyrope.config import process_total_score
 from pyrope.database import (
-    Attempt, Exercise as DBExercise, Session as DBSession, User
+    Exercise as DBExercise, Result, Session as DBSession, User
 )
 from pyrope.errors import IllPosedError
 from pyrope.messages import (
@@ -130,6 +131,20 @@ class ParametrizedExercise:
             elif par.default is inspect.Parameter.empty:
                 raise IllPosedError(f'Missing parameter: {par.name}.')
         return func(**kwargs)
+
+    @cached_property
+    def id(self):
+        return sha3_256(self.source.encode()).hexdigest()
+
+    @cached_property
+    def source(self):
+        try:
+            return inspect.getsource(self.exercise.__class__)
+        except OSError:
+            raise OSError(
+                f"Source code not available. Please save exercise "
+                f"{self.exercise.__class__.__name__} in a file."
+            )
 
     @cached_property
     def metadata(self):
