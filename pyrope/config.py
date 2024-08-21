@@ -115,6 +115,26 @@ jupyter_frontend_css: str = os.path.join(dirname, filename)
 maximal_radio_buttons: int = 5
 
 
+# Exercise summary items.
+#
+# Here you can configure what is logged into the history file.
+summary_items = (
+    'answers',
+    'correct',
+    'feedback',
+    # TODO: hash
+    'max_scores',
+    'max_total_score',
+    # TODO: metadata
+    'parameters',
+    'preamble',
+    'scores',
+    'solution',
+    'template',
+    'total_score',
+)
+
+
 # Logging.
 #
 # Configure different logging targets.
@@ -131,19 +151,19 @@ logging: dict[dict[str: str, ...], ...] = {
     'exercise_debug': {
         'filename': os.path.join(log_dir, 'exercise_debug.log'),
         'level': 'DEBUG',
-        'fmt': '%(name)s:%(levelname)s:%(asctime)s %(message)s',
+        'fmt': '%(levelname)s:%(asctime)s %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
     },
     'history': {
         'filename': os.path.join(log_dir, 'history.log'),
         'level': 'INFO',
-        'fmt': '%(name)s:%(asctime)s %(message)s',
+        'fmt': '%(asctime)s %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
     },
     'pyrope': {
         'filename': os.path.join(log_dir, 'pyrope.log'),
         'level': 'DEBUG',
-        'fmt': '%(name)s:%(levelname)s:%(asctime)s %(message)s',
+        'fmt': '%(levelname)s:%(asctime)s %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
     },
 }

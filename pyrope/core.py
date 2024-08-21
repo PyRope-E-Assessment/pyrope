@@ -6,6 +6,7 @@ from functools import cached_property
 import importlib
 import inspect
 import itertools
+import json
 import logging
 import os
 import pathlib
@@ -575,6 +576,15 @@ class ParametrizedExercise:
         for method_name in method_names:
             yield tests.TestParametrizedExercise(self, method_name)
 
+    @property
+    def summary(self):
+        summary = {'name': self.exercise.__class__.__name__}
+        summary |= {
+            property: getattr(self, property)
+            for property in config.summary_items
+        }
+        return summary
+
 
 class ExerciseRunner:
 
@@ -633,6 +643,7 @@ class ExerciseRunner:
         self.notify(RenderTemplate(
             self.sender, 'feedback', self.pexercise.feedback
         ))
+        history_log.info(json.dumps(self.pexercise.summary, default=str))
 
     def publish_solutions(self):
         self.pexercise.solution
