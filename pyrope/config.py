@@ -136,7 +136,7 @@ logging: dict[dict[str: str, ...], ...] = {
     },
     'history': {
         'filename': os.path.join(log_dir, 'history.log'),
-        'level': 'NOTSET',
+        'level': 'INFO',
         'fmt': '%(name)s:%(asctime)s %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
     },

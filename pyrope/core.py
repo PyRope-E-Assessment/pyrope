@@ -30,15 +30,18 @@ float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
 
 for name, log_config in config.logging.items():
     logger = logging.getLogger(name)
+    logger.setLevel(log_config['level'])
     log_dir = pathlib.Path(log_config['filename']).parent
     log_dir.mkdir(parents=True, exist_ok=True)
     handler = logging.FileHandler(log_config['filename'])
-    handler.setLevel(log_config['level'])
     formatter = logging.Formatter(
         fmt=log_config['fmt'], datefmt=log_config['datefmt']
     )
     handler.setFormatter(formatter)
     logger.addHandler(handler)
+
+
+history_log = logging.getLogger('history')
 
 
 class Exercise(abc.ABC):
