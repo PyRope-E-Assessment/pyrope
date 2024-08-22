@@ -37,8 +37,8 @@ class Exercise(abc.ABC):
     origin: str = None
     discipline: str = None
     area: str = None
-    topic: str | tuple = None
-    topic_contingent: str | tuple = None
+    topics: str | tuple = None
+    topic_contingents: str | tuple = None
     keywords: str | tuple = None
     taxonomy: str | tuple = None
 
