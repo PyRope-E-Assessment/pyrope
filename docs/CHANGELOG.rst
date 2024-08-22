@@ -43,6 +43,9 @@ New
   :code:`taxonomy`. If specified, they get tested via unit tests when
   :code:`MyExercise().test()` is called.
 * Rudimentary database functionalities.
+* New exercise method :code:`hints`: This method can be used to return a string
+  or an iterable of strings containing tips for students to solve an exercise.
+  In :code:`JupyterFrontend` these hints can be rendered via a button.
 
 Changes
 -------

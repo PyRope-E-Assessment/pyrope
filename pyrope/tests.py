@@ -41,6 +41,17 @@ class TestExercise(unittest.TestCase):
             )
 
     @with_all_exercises
+    def test_hints_method_name(self, exercise):
+        '''
+        An exercise must not implement a method called 'hint' to explicitly
+        point out that the method to implement custom hints is called 'hints'.
+        '''
+        self.assertFalse(
+            hasattr(exercise, 'hint'),
+            "Do not implement a 'hint' method. Use 'hints' instead."
+        )
+
+    @with_all_exercises
     def test_solution_method_name(self, exercise):
         '''
         An exercise must not implement a method called 'solution', to avoid
@@ -131,6 +142,31 @@ class TestParametrizedExercise(unittest.TestCase):
                 key, str,
                 f"The dictionary returned by the 'parameters' method "
                 f"must be keyed with strings (got {type(key)})."
+            )
+
+    @with_all_pexercises
+    def test_hints_method(self, pexercise):
+        '''
+        The hints method has to return a string or an iterable object yielding
+        only strings.
+        '''
+        hints = pexercise.apply(
+            pexercise.exercise.hints, pexercise.parameters
+        )
+        if isinstance(hints, str):
+            return
+        try:
+            hints = iter(hints)
+        except TypeError:
+            raise TypeError(
+                f"The 'hints' method has to return a string or an iterable "
+                f"object, got {type(hints)}."
+            )
+        for hint in hints:
+            self.assertIsInstance(
+                hint, str,
+                f"If 'hints' returns an iterable object, all elements have to "
+                f"be strings, got {type(hint)}."
             )
 
     @with_all_pexercises

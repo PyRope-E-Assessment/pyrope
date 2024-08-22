@@ -35,6 +35,7 @@ class JupyterFrontend:
         self.format = TemplateFormatter.format
 
         self.answers = {}
+        self.hints = []
         self.parameters = {}
         self.max_total_score = None
         self.total_score = None
@@ -214,6 +215,9 @@ class JupyterFrontend:
             match msg.attribute_name:
                 case 'parameters':
                     self.parameters = msg.attribute_value
+                case 'hints':
+                    self.hints = msg.attribute_value
+                    self.submit_section.update_hint_btn()
                 case 'answers':
                     self.answers = msg.attribute_value
                 case 'max_total_score':
@@ -287,15 +291,16 @@ class JupyterSubmitSection(ipy_widgets.VBox):
 
     def __init__(self, frontend):
         self.frontend = frontend
+        self.submit_output = JupyterSubmitOutput(frontend)
         self.debug = JupyterDebugOutput()
-        self.submit_output = ipy_widgets.Output()
         self.show_solutions = False
         self.feedback_div_ID = f'id_{uuid4().hex}'
         self.score_div_ID = f'id_{uuid4().hex}'
 
         if self.frontend.debug:
             btn_box = ipy_widgets.HBox((
-                self.submit_btn, self.debug.clear_btn, self.solution_btn
+                self.submit_btn, self.hint_btn, self.debug.clear_btn,
+                self.solution_btn
             ))
         else:
             btn_box = ipy_widgets.HBox((self.submit_btn,))
@@ -303,9 +308,9 @@ class JupyterSubmitSection(ipy_widgets.VBox):
         vspace = ipy_widgets.Box(layout={'height': '15px'})
         result = ipy_widgets.HTML(
             f'<div data-pyrope-id="{self.feedback_div_ID}" '
-            f'class="pyrope feedback rendered_html"></div>'
+            f'class="pyrope feedback"></div>'
             f'<div data-pyrope-id="{self.score_div_ID}" '
-            f'class="pyrope score rendered_html"></div>'
+            f'class="pyrope score"></div>'
         )
         children = (btn_box, vspace, self.submit_output, result)
 
@@ -315,12 +320,6 @@ class JupyterSubmitSection(ipy_widgets.VBox):
         children += (JupyterSeparator(),)
 
         super().__init__(children)
-
-    def __enter__(self):
-        return self.submit_output.__enter__()
-
-    def __exit__(self, *args):
-        return self.submit_output.__exit__(*args)
 
     @cached_property
     def solution_btn(self):
@@ -345,6 +344,24 @@ class JupyterSubmitSection(ipy_widgets.VBox):
         return btn
 
     @cached_property
+    def hint_btn(self):
+        btn = ipy_widgets.Button(description='Next Hint')
+
+        def print_hint(_):
+            hint = self.frontend.hints.pop(0)
+            self.submit_output.print_template(hint)
+            self.update_hint_btn()
+
+        btn.on_click(print_hint)
+
+        return btn
+
+    def update_hint_btn(self):
+        if len(self.frontend.hints) == 0:
+            self.hint_btn.description = 'No Hints'
+            self.hint_btn.disabled = True
+
+    @cached_property
     def submit_btn(self):
         btn = ipy_widgets.Button(description='Submit')
 
@@ -357,7 +374,6 @@ class JupyterSubmitSection(ipy_widgets.VBox):
             self.frontend.display_widget_correct()
 
         def f(btn):
-            self.submit_output.clear_output()
             invalid_widgets = [
                 widget for widget in self.frontend.widgets.values()
                 if widget.valid == 'invalid'
@@ -369,11 +385,14 @@ class JupyterSubmitSection(ipy_widgets.VBox):
 
             if invalid_widgets or empty_widgets:
                 self.submit, self.submit_anyway = False, True
-                with self:
-                    if invalid_widgets:
-                        print('There are invalid input fields.')
-                    if empty_widgets:
-                        print('There are empty input fields.')
+                if invalid_widgets:
+                    self.submit_output.print_template(
+                        'There are invalid input fields.'
+                    )
+                if empty_widgets:
+                    self.submit_output.print_template(
+                        'There are empty input fields.'
+                    )
             else:
                 self.submit = True
 
@@ -421,10 +440,28 @@ class JupyterSubmitSection(ipy_widgets.VBox):
 
     def disable_widgets(self):
         for widget in (
-                self.submit_btn, self.solution_btn,
+                self.submit_btn, self.hint_btn, self.solution_btn,
                 self.debug.clear_btn
         ):
             widget.disabled = True
+
+
+class JupyterSubmitOutput(ipy_widgets.HTML):
+
+    def __init__(self, frontend):
+        self.frontend = frontend
+        self.div_ID = f'id_{uuid4().hex}'
+        super().__init__(
+            f'<div data-pyrope-id="{self.div_ID}" '
+            f'class="pyrope submit-output"></div>'
+        )
+
+    def print_template(self, s):
+        # frontend.formatter wraps 's' in a div element.
+        child = self.frontend.formatter(s)
+        display(Javascript(
+            f'PyRope.append_child("{self.div_ID}", "{base64(child)}")'
+        ))
 
 
 class JupyterDebugOutput(ipy_widgets.Output):

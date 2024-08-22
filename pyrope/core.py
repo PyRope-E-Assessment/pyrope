@@ -179,8 +179,8 @@ class Exercise(abc.ABC):
     def a_solution(self):
         return None
 
-    def hint(self):
-        return None
+    def hints(self):
+        return []
 
     def scores(self):
         return None
@@ -365,6 +365,13 @@ class ParametrizedExercise:
             name: ifield.solution
             for name, ifield in self.model.ifields.items()
         }
+
+    @cached_property
+    def hints(self):
+        hints = self.apply(self.exercise.hints, self.parameters)
+        if isinstance(hints, str):
+            hints = [hints]
+        return list(hints)
 
     @cached_property
     def trivial_input(self):
@@ -681,6 +688,9 @@ class ExerciseRunner:
         self.notify(ExerciseAttribute(self.sender, 'debug', self.debug))
         self.notify(ExerciseAttribute(
             self.sender, 'parameters', self.pexercise.parameters
+        ))
+        self.notify(ExerciseAttribute(
+            self.sender, 'hints', self.pexercise.hints
         ))
         self.notify(RenderTemplate(
             self.sender, 'preamble', self.pexercise.preamble

@@ -111,15 +111,37 @@ class PyRope {
 		this.widget_comms[id].send({"value": value});
 	}
 
+	// Decodes a base64 encoded string.
+	static decode(s) {
+		return new TextDecoder().decode(
+			Uint8Array.from(atob(s), (m) => m.codePointAt(0))
+		);
+	}
+
+	// Nodes could contain latex code. This method converts latex into html
+	// via MathJax.
+	static render_latex(node) {
+		MathJax.Hub.Typeset(node);
+	}
+
 	// This methods sets innerHTML for all nodes with data-pyrope-id 'pyrope_id' to
 	// 'inner_html'. Note that 'inner_html' is a base64 encoded string.
 	static set_inner_html(pyrope_id, inner_html) {
 		document.querySelectorAll(`[data-pyrope-id="${pyrope_id}"]`).forEach(
 			node => {
-				node.innerHTML = new TextDecoder().decode(
-					Uint8Array.from(atob(inner_html), (m) => m.codePointAt(0))
-				);
-				MathJax.Hub.Typeset(node);
+				node.innerHTML = this.decode(inner_html);
+				this.render_latex(node);
+			}
+		);
+	}
+
+	// This method appends 'child' to all nodes with data-pyrope-id 'pyrope-id'.
+	// 'child' is a string containing a HTML element.
+	static append_child(pyrope_id, child) {
+		$(`[data-pyrope-id="${pyrope_id}"]`).append(this.decode(child));
+		document.querySelectorAll(`[data-pyrope-id="${pyrope_id}"]`).forEach(
+			node => {
+				this.render_latex(node.lastChild);
 			}
 		);
 	}
