@@ -28,6 +28,30 @@ float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
 
 class Exercise(abc.ABC):
 
+    # All possible metadata attributes.
+    title: str = None
+    subtitle: str = None
+    author: str = None
+    language: str = None
+    license: str = None
+    URL: str = None
+    origin: str = None
+    discipline: str = None
+    area: str = None
+    topics: str | tuple = None
+    topic_contingents: str | tuple = None
+    keywords: str | tuple = None
+    taxonomy: str | tuple = None
+
+    __taxonomy_levels__ = (
+        'knowledge',
+        'comprehension',
+        'application',
+        'analysis',
+        'synthesis',
+        'evaluation',
+    )
+
     def __init_subclass__(cls):
         old_init = cls.__init__
 
@@ -175,6 +199,16 @@ class ParametrizedExercise:
             elif par.default is inspect.Parameter.empty:
                 raise IllPosedError(f'Missing parameter: {par.name}.')
         return func(**kwargs)
+
+    @cached_property
+    def metadata(self):
+        metadata = {}
+        for name, annotation in Exercise.__annotations__.items():
+            value = getattr(self.exercise.__class__, name)
+            if issubclass(tuple, annotation) and isinstance(value, str):
+                value = (value,)
+            metadata[name] = value
+        return metadata
 
     @cached_property
     def parameters(self):

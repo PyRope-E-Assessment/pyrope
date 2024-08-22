@@ -36,6 +36,12 @@ New
 * When an exercise is instantiated, the range from which :code:`difficulty` is
   randomly chosen from can be specified with keyword arguments
   :code:`min_difficulty` and :code:`max_difficulty`.
+* The following metadata can be specified as class attributes for an exercise:
+  :code:`title`, :code:`subtitle`, :code:`author`, :code:`language`,
+  :code:`license`, :code:`URL`, :code:`origin`, :code:`discipline`,
+  :code:`area`, :code:`topic`, :code:`topic_contingent`, :code:`keywords` and
+  :code:`taxonomy`. If specified, they get tested via unit tests when
+  :code:`MyExercise().test()` is called.
 
 Changes
 -------
