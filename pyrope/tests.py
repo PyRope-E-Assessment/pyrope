@@ -174,6 +174,13 @@ class TestParametrizedExercise(unittest.TestCase):
                 f"Metadata '{name}' has to be a {annotation}, got "
                 f"{type(value)}."
             )
+            # TODO: make this a warning
+            if isinstance(tuple(), annotation) and isinstance(value, str):
+                self.assertNotIn(
+                    ',', value,
+                    f"Multiple values for '{name}' have to be listed as a "
+                    f"tuple, not inside a string."
+                )
             if isinstance(value, tuple):
                 for item in value:
                     self.assertIsInstance(
