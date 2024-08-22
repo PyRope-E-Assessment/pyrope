@@ -2,7 +2,8 @@
 from IPython import get_ipython
 
 from pyrope import (
-    config, dtypes, errors, examples, formatters, frontends, nodes, tests
+    config, database, dtypes, errors, examples, formatters, frontends, nodes,
+    tests
 )
 from pyrope.core import (
     CLIParser, Exercise, ExercisePool, ExerciseRunner, float_types,
@@ -16,6 +17,7 @@ from pyrope.nodes import widgets
 __all__ = [
     'CLIParser',
     'config',
+    'database',
     'dtypes',
     'errors',
     'examples',

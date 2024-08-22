@@ -2,7 +2,9 @@
 import abc
 import argparse
 import collections
+from datetime import datetime
 from functools import cached_property
+from hashlib import sha3_256
 import importlib
 import inspect
 import itertools
@@ -13,9 +15,13 @@ import unittest
 
 from IPython import get_ipython
 import numpy
+from sqlalchemy.sql import select
 
 from pyrope import frontends, tests
 from pyrope.config import process_total_score
+from pyrope.database import (
+    Exercise as DBExercise, Result, Session as DBSession, User
+)
 from pyrope.errors import IllPosedError
 from pyrope.messages import (
     ChangeWidgetAttribute, CreateWidget, ExerciseAttribute, RenderTemplate,
@@ -199,6 +205,20 @@ class ParametrizedExercise:
             elif par.default is inspect.Parameter.empty:
                 raise IllPosedError(f'Missing parameter: {par.name}.')
         return func(**kwargs)
+
+    @cached_property
+    def id(self):
+        return sha3_256(self.source.encode()).hexdigest()
+
+    @cached_property
+    def source(self):
+        try:
+            return inspect.getsource(self.exercise.__class__)
+        except OSError:
+            raise OSError(
+                f"Source code not available. Please save exercise "
+                f"{self.exercise.__class__.__name__} in a file."
+            )
 
     @cached_property
     def metadata(self):
@@ -594,7 +614,10 @@ class ParametrizedExercise:
 
 class ExerciseRunner:
 
-    def __init__(self, exercise, debug=False, global_parameters=None):
+    def __init__(
+        self, exercise, debug=False, global_parameters=None,
+        user_name='John Doe'
+    ):
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
@@ -602,6 +625,28 @@ class ExerciseRunner:
         self.widget_id_mapping = {
             widget.ID: widget for widget in self.pexercise.widgets
         }
+        with DBSession() as session:
+            user = session.scalar(select(User.name).where(
+                User.name == user_name
+            ))
+            if user is None:
+                session.add(User(name=user_name))
+            db_exercise = session.scalar(select(DBExercise.id).where(
+                DBExercise.id == self.pexercise.id
+            ))
+            if db_exercise is None:
+                label = self.pexercise.metadata['title']
+                if label is None:
+                    label = self.pexercise.exercise.__class__.__name__
+                session.add(DBExercise(
+                    id=self.pexercise.id, source=self.pexercise.source,
+                    label=label, score_maximum=self.pexercise.max_total_score
+                ))
+            session.commit()
+            self.user_id = session.scalar(select(User.id).where(
+                User.name == user_name
+            ))
+        self.started_at = None
 
     # TODO: enforce order of steps
     def run(self):
@@ -626,6 +671,7 @@ class ExerciseRunner:
         if self.debug:
             self.publish_solutions()
         self.notify(WaitingForSubmission(self.sender))
+        self.started_at = datetime.utcnow()
 
     def finish(self):
         if not self.debug:
@@ -649,6 +695,13 @@ class ExerciseRunner:
         self.notify(RenderTemplate(
             self.sender, 'feedback', self.pexercise.feedback
         ))
+        with DBSession() as session:
+            session.add(Result(
+                exercise_id=self.pexercise.id, user_id=self.user_id,
+                started_at=self.started_at, submitted_at=datetime.utcnow(),
+                score_given=self.pexercise.total_score
+            ))
+            session.commit()
 
     def publish_solutions(self):
         self.pexercise.solution

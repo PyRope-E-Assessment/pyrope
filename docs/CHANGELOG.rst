@@ -42,6 +42,7 @@ New
   :code:`area`, :code:`topic`, :code:`topic_contingent`, :code:`keywords` and
   :code:`taxonomy`. If specified, they get tested via unit tests when
   :code:`MyExercise().test()` is called.
+* Rudimentary database functionalities.
 
 Changes
 -------
