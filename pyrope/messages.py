@@ -1,12 +1,9 @@
 
-from datetime import datetime
-
 
 class Message:
 
     def __init__(self, sender):
         self.sender = sender
-        self.timestamp = datetime.now().astimezone()
 
 
 class ChangeWidgetAttribute(Message):
@@ -69,7 +66,7 @@ class RenderTemplate(Message):
 class Submit(Message):
 
     def __str__(self):
-        return f'{self.sender}: Submit an exercise.'
+        return f'{self.sender}: Exercise submitted.'
 
 
 class WaitingForSubmission(Message):

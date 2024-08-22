@@ -8,7 +8,10 @@ from hashlib import sha3_256
 import importlib
 import inspect
 import itertools
+import json
+import logging
 import os
+import pathlib
 import random
 import sys
 import unittest
@@ -17,7 +20,7 @@ from IPython import get_ipython
 import numpy
 from sqlalchemy.sql import select
 
-from pyrope import frontends, tests
+from pyrope import config, frontends, tests
 from pyrope.config import process_total_score
 from pyrope.database import (
     Exercise as DBExercise, Result, Session as DBSession, User
@@ -30,6 +33,22 @@ from pyrope.messages import (
 
 
 float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
+
+
+for name, log_config in config.logging.items():
+    logger = logging.getLogger(name)
+    logger.setLevel(log_config['level'])
+    log_dir = pathlib.Path(log_config['filename']).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
+    handler = logging.FileHandler(log_config['filename'])
+    formatter = logging.Formatter(
+        fmt=log_config['fmt'], datefmt=log_config['datefmt']
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+
+history_log = logging.getLogger('history')
 
 
 class Exercise(abc.ABC):
@@ -611,6 +630,15 @@ class ParametrizedExercise:
         for method_name in method_names:
             yield tests.TestParametrizedExercise(self, method_name)
 
+    @property
+    def summary(self):
+        summary = {'name': self.exercise.__class__.__name__}
+        summary |= {
+            property: getattr(self, property)
+            for property in config.summary_items
+        }
+        return summary
+
 
 class ExerciseRunner:
 
@@ -702,6 +730,7 @@ class ExerciseRunner:
                 score_given=self.pexercise.total_score
             ))
             session.commit()
+        history_log.info(json.dumps(self.pexercise.summary, default=str))
 
     def publish_solutions(self):
         self.pexercise.solution
