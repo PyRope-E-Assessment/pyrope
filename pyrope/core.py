@@ -32,7 +32,7 @@ from pyrope.messages import (
 )
 
 
-float_types = (bool, int, float, numpy.bool_, numpy.int_, numpy.float_)
+float_types = (bool, int, float, numpy.bool_, numpy.integer, numpy.floating)
 
 
 for name, log_config in config.logging.items():
