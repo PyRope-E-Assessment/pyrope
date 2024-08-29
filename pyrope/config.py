@@ -122,10 +122,10 @@ summary_items = (
     'answers',
     'correct',
     'feedback',
-    # TODO: hash
+    'id',
     'max_scores',
     'max_total_score',
-    # TODO: metadata
+    'metadata',
     'parameters',
     'preamble',
     'scores',
