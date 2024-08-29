@@ -143,7 +143,9 @@ summary_items = (
 #   necessary to fix them.
 # 'history':
 #   Eternal log file storing all information necessary for statistical purposes
-#   and learning analytics, such as score dashboards.
+#   and learning analytics, such as score dashboards. NOTE: Exercises which are
+#   not stored in a file, e.g. when developed in a Jupyter notebook cell, will
+#   not be added to the history.
 # 'pyrope':
 #   PyRope's internal system messages for debugging.
 log_dir: str = os.path.join(tempfile.gettempdir(), 'pyrope')
