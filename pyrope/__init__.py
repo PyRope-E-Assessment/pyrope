@@ -1,4 +1,5 @@
 
+# flake8: noqa F401
 from IPython import get_ipython
 
 from pyrope import (
@@ -11,8 +12,7 @@ from pyrope.core import (
 )
 from pyrope.ipython_extension import PyRopeMagics
 from pyrope.logo import logo
-from pyrope.nodes import widgets
-
+from pyrope.nodes import *
 
 __all__ = [
     'CLIParser',
@@ -32,8 +32,7 @@ __all__ = [
     'ParametrizedExercise',
     'PyRopeMagics',
     'tests',
-    'widgets'
-]
+] + nodes.__all__
 
 
 def load_ipython_extension(ipy):
