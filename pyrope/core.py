@@ -142,6 +142,23 @@ class Exercise(abc.ABC):
 
         cls.__init__ = new_init
 
+    @cached_property
+    def _source(self):
+        try:
+            return inspect.getsource(self.__class__)
+        except OSError:
+            return None
+
+    @cached_property
+    def source(self):
+        classes = [
+            cls()._source for cls in self.__class__.mro()[::-1]
+            if issubclass(cls, Exercise) and cls != Exercise
+        ]
+        if None in classes:
+            return None
+        return '\n\n'.join(classes)
+
     def run(self, debug=False, difficulty=None):
         if difficulty is not None:
             if not (
@@ -227,17 +244,13 @@ class ParametrizedExercise:
 
     @cached_property
     def id(self):
+        if self.source is None:
+            return None
         return sha3_256(self.source.encode()).hexdigest()
 
     @cached_property
     def source(self):
-        try:
-            return inspect.getsource(self.exercise.__class__)
-        except OSError:
-            raise OSError(
-                f"Source code not available. Please save exercise "
-                f"{self.exercise.__class__.__name__} in a file."
-            )
+        return self.exercise.source
 
     @cached_property
     def metadata(self):
@@ -660,6 +673,9 @@ class ExerciseRunner:
         self.widget_id_mapping = {
             widget.ID: widget for widget in self.pexercise.widgets
         }
+        self.started_at = None
+        if self.pexercise.id is None:
+            return
         with DBSession() as session:
             user = session.scalar(select(User.name).where(
                 User.name == user_name
@@ -681,7 +697,6 @@ class ExerciseRunner:
             self.user_id = session.scalar(select(User.id).where(
                 User.name == user_name
             ))
-        self.started_at = None
 
     # TODO: enforce order of steps
     def run(self):
@@ -733,6 +748,8 @@ class ExerciseRunner:
         self.notify(RenderTemplate(
             self.sender, 'feedback', self.pexercise.feedback
         ))
+        if self.pexercise.id is None:
+            return
         with DBSession() as session:
             session.add(Result(
                 exercise_id=self.pexercise.id, user_id=self.user_id,
