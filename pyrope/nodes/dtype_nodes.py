@@ -125,6 +125,9 @@ class Int(Node):
         Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
 
 
+Integer = Int
+
+
 class Matrix(Node):
 
     def __init__(self, *, widget=Text(), **kwargs):
