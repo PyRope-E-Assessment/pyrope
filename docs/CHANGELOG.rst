@@ -46,6 +46,7 @@ New
 * New exercise method :code:`hints`: This method can be used to return a string
   or an iterable of strings containing tips for students to solve an exercise.
   In :code:`JupyterFrontend` these hints can be rendered via a button.
+* History logging for learning analytics.
 
 Changes
 -------
