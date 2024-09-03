@@ -297,13 +297,10 @@ class JupyterSubmitSection(ipy_widgets.VBox):
         self.feedback_div_ID = f'id_{uuid4().hex}'
         self.score_div_ID = f'id_{uuid4().hex}'
 
+        btns = [self.submit_btn, self.hint_btn]
         if self.frontend.debug:
-            btn_box = ipy_widgets.HBox((
-                self.submit_btn, self.hint_btn, self.debug.clear_btn,
-                self.solution_btn
-            ))
-        else:
-            btn_box = ipy_widgets.HBox((self.submit_btn,))
+            btns += [self.debug.clear_btn, self.solution_btn]
+        btn_box = ipy_widgets.HBox(btns)
 
         vspace = ipy_widgets.Box(layout={'height': '15px'})
         result = ipy_widgets.HTML(
