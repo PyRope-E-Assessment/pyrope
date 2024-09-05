@@ -130,8 +130,11 @@ summary_items = (
     'preamble',
     'scores',
     'solution',
+    'started_at',
+    'submitted_at',
     'template',
     'total_score',
+    'user_name',
 )
 
 

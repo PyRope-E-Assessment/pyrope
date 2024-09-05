@@ -230,6 +230,9 @@ class ParametrizedExercise:
         self._total_score = None
         self._max_total_score = None
         self._none_solution_ifields = set()
+        self.user_name = None
+        self.started_at = None
+        self.submitted_at = None
 
     @staticmethod
     def apply(func, d):
@@ -669,11 +672,11 @@ class ExerciseRunner:
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
+        self.pexercise.user_name = user_name
         self.sender = exercise.__class__
         self.widget_id_mapping = {
             widget.ID: widget for widget in self.pexercise.widgets
         }
-        self.started_at = None
         if self.pexercise.id is None:
             return
         with DBSession() as session:
@@ -724,9 +727,10 @@ class ExerciseRunner:
         if self.debug:
             self.publish_solutions()
         self.notify(WaitingForSubmission(self.sender))
-        self.started_at = datetime.utcnow()
+        self.pexercise.started_at = datetime.utcnow()
 
     def finish(self):
+        self.pexercise.submitted_at = datetime.utcnow()
         if not self.debug:
             self.publish_solutions()
         self.notify(ExerciseAttribute(
@@ -753,7 +757,8 @@ class ExerciseRunner:
         with DBSession() as session:
             session.add(Result(
                 exercise_id=self.pexercise.id, user_id=self.user_id,
-                started_at=self.started_at, submitted_at=datetime.utcnow(),
+                started_at=self.pexercise.started_at,
+                submitted_at=self.pexercise.submitted_at,
                 score_given=self.pexercise.total_score
             ))
             session.commit()
