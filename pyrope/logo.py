@@ -6,33 +6,33 @@ import matplotlib.pyplot as pp
 import numpy as np
 
 
-def logo(figsize=(2, 2), R=1/np.sqrt(2), seed=42):
+def logo(figsize=(2, 2), seed=42):
 
     np.random.seed(seed)
 
     # ratio of the circumradii of an octahedron and the quadrilateral
     # obtained by prolonging every second edge
-    q = np.sqrt(2-np.sqrt(2))
+    q = np.sqrt(2 - np.sqrt(2))
 
     # polar vertex coordinates
+    R = 1/np.sqrt(2)
     r = np.array([0, R*q, R, R/q, 1, 1], ndmin=2).T
     phi = np.linspace(0, 2*np.pi, num=9)
     dphi = np.pi/8 * np.array(3*[0, 1], ndmin=2).T
 
     # cartesian vertex coordinates
-    x = (r * np.cos(phi-dphi)).flatten()[7:]
-    y = (r * np.sin(phi-dphi)).flatten()[7:]
+    x = (r * np.cos(phi - dphi)).flatten()[7:]
+    y = (r * np.sin(phi - dphi)).flatten()[7:]
 
     # Delaunay triangulation
     D = matplotlib.tri.Triangulation(x, y)
 
     # triangle centers
-    Cx, Cy = np.mean([x[D.triangles],
-                      y[D.triangles]], axis=-1)
+    Cx, Cy = np.mean([x[D.triangles], y[D.triangles]], axis=-1)
 
     # polar coordinates of triangle centers
     phi = np.arctan2(Cy, Cx)
-    r = np.sqrt(Cx**2+Cy**2) + phi/2**7
+    r = np.sqrt(Cx**2 + Cy**2) + phi/2**7
 
     # order triangles
     triangles = D.triangles[np.lexsort((phi, r))]
