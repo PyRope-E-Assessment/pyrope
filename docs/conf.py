@@ -10,6 +10,7 @@ project = 'PyRope'
 copyright = '2024'
 author = 'Konrad Schöbel'
 release = ''
+html_logo = 'Logo_PyRope.png'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

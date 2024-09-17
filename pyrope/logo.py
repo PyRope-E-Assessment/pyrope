@@ -6,7 +6,7 @@ import matplotlib.pyplot as pp
 import numpy as np
 
 
-def logo(figsize=(2, 2), seed=42):
+def logo(size=512, seed=42):
 
     np.random.seed(seed)
 
@@ -64,19 +64,21 @@ def logo(figsize=(2, 2), seed=42):
     # sparkle colours
     SC = np.random.rand(8)
 
-    # plot figure
-    pp.figure(figsize=figsize)
-    pp.axis('equal')
+    # create figure
+    pp.figure(figsize=(1, 1))
+    pp.axis('off')
     pp.xlim(-1, +1)
     pp.ylim(-1, +1)
-    pp.axis('off')
     pp.tripcolor(T, facecolors=TC, vmin=+0.0, vmax=3.0, cmap='hot')
     pp.tripcolor(S, facecolors=SC, vmin=-1.0, vmax=1.0, cmap='bone')
 
     # convert figure to image
     with io.BytesIO() as iobuffer:
-        pp.savefig(iobuffer, dpi=300, bbox_inches='tight')
+        pp.savefig(iobuffer, transparent=True, dpi=size)
         iobuffer.seek(0)
         image = pp.imread(iobuffer)
+
+    # prevent plotting
+    pp.close()
 
     return image
