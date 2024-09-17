@@ -39,10 +39,11 @@ Design Principles
 **Flexibility**
   PyRope not only allows you to easily adapt available exercises, but also to
   create your own, new exercise formats.
-**Collections**
-  Be it from your personal fund or from public sources, PyRope lets you
-  compile new exercise collections by selection, aggregation and filtering
-  mechanisms.
+..
+  **Collections**
+    Be it from your personal fund or from public sources, PyRope lets you
+    compile new exercise collections by selection, aggregation and filtering
+    mechanisms.
 **Autonomy**
   You can run PyRope locally, without the need of a database, a remote server
   or a learning management system. This is particularly interesting for
