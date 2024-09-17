@@ -215,12 +215,9 @@ and let PyRope do the rest.
 
       def problem(self, root):
           return pyrope.Problem(
-              f'The square root of {root**2} is <<answer>>.',
-              answer=pyrope.Natural()
+              f'The square root of {root**2} is <<root_>>.',
+              root_=pyrope.Natural()
           )
-
-      def the_solution(self, root):
-          return root
 
 
 For input fields using this naming convention, the solution is assumed to be
