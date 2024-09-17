@@ -354,7 +354,7 @@ Feedback
 
       def feedback(self, number):
           if number == 3:
-              return "Be honest! You knew the quiz, didn't you?"
+              return "Be honest: You knew the quiz, didn't you?"
           return 'You took three apples, so you have three!'
 
 
