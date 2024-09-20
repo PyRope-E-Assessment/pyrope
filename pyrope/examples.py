@@ -4,9 +4,9 @@ import math
 import random
 import sympy
 
-from pyrope import (
-    Equation, Exercise, Expression, Natural, Integer, Problem, Rational, Set,
-    String
+from pyrope.core import Exercise
+from pyrope.nodes import (
+    Equation, Expression, Natural, Integer, Problem, Rational, Set
 )
 
 
