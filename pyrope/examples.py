@@ -88,23 +88,23 @@ class Factor(Exercise):
         return 7
 
 
-class Factorisation(Exercise):
-
-    def parameters(self):
-        return dict(
-            p=random.randint(2, 9),
-            q=random.randint(2, 9),
-        )
-
-    def problem(self, p, q):
-        return Problem(
-            fr'{p*q} = <<p_>> $\times$ <<q_>>',
-            p_=Integer(minimum=2),
-            q_=Integer(minimum=2),
-        )
-
-    def scores(self, p, q, p_, q_):
-        return p_ * q_ == p * q
+#class Factorisation(Exercise):
+#
+#    def parameters(self):
+#        return dict(
+#            p=random.randint(2, 9),
+#            q=random.randint(2, 9),
+#        )
+#
+#    def problem(self, p, q):
+#        return Problem(
+#            fr'{p*q} = <<p_>> $\times$ <<q_>>',
+#            p_=Integer(minimum=2),
+#            q_=Integer(minimum=2),
+#        )
+#
+#    def scores(self, p, q, p_, q_):
+#        return p_ * q_ == p * q
 
 
 class FourtyTwo(Exercise):
