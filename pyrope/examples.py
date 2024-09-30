@@ -88,7 +88,7 @@ class Factor(Exercise):
         return 7
 
 
-#class Factorisation(Exercise):
+# class Factorisation(Exercise):
 #
 #    def parameters(self):
 #        return dict(
@@ -141,8 +141,10 @@ class IntegerDivision(Exercise):
         return dict(dividend=dividend, divisor=divisor)
 
     def problem(self):
-        return Problem('''
-            <<dividend>> divided by <<divisor>> is <<quotient>> with remainder <<remainder>>.
+        return Problem(
+            '''
+            <<dividend>> divided by <<divisor>> is <<quotient>> with remainder
+            <<remainder>>.
             ''',
             quotient=Natural(),
             remainder=Natural(),
