@@ -95,7 +95,7 @@ your own as follows.
 In the example above we still need to provide a sample solution.  This is
 because the auto-scoring will deduce the maximal score from it.  Omitting the
 sample solution will result in an error when submitting the answer, since
-PyRope can not determine the maximal score.
+PyRope cannot determine the maximal score.
 
 .. code:: none
 
@@ -284,7 +284,7 @@ Unit testing
 ------------
 
 Examples may contain inconsistencies, for instance when providing both, a
-maximal score and a sample solution, as in the following example..
+maximal score and a sample solution, as in the following example.
 
 .. code:: ipython3
 
