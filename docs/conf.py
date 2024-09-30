@@ -8,7 +8,7 @@
 
 project = 'PyRope'
 copyright = '2024'
-author = 'Konrad Schöbel'
+author = 'Konrad Schöbel, Paul Brassel'
 release = ''
 html_logo = 'Logo_PyRope.png'
 
