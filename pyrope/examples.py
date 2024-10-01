@@ -1,8 +1,8 @@
 
-import sympy
-
 from fractions import Fraction
 from math import prod
+
+import sympy
 
 from pyrope import (
     Equation, Exercise, Expression, Int, Problem, Rational, Set, String
