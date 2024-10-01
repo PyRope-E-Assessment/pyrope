@@ -178,10 +178,10 @@ class TestParametrizedExercise(unittest.TestCase):
             pexercise.exercise.problem, pexercise.parameters
         )
         self.assertIsInstance(
-                problem, nodes.Problem,
-                f"The 'problem' method must return an instance of "
-                f"{nodes.Problem}, not of {problem.__class__}."
-            )
+            problem, nodes.Problem,
+            f"The 'problem' method must return an instance of {nodes.Problem},"
+            f" not of {problem.__class__}."
+        )
 
     @with_all_pexercises
     def test_feedback_method(self, pexercise):

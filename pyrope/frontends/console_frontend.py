@@ -51,7 +51,7 @@ class ConsoleFrontend:
             for widget_id, widget in self.widgets.items()
         }
         print(self.formatter(template, **fields))
-        print(78*'-')
+        print(78 * '-')
 
     def render_feedback(self, feedback):
         print(78 * '-')

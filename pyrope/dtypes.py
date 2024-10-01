@@ -510,14 +510,14 @@ class IntType(DType):
         DType.check_type(self, value)
         if self.minimum is not None and value < self.minimum:
             raise ValidationError(
-                    f'Expected an integer greater or equal {self.minimum}, '
-                    f'got {value}.'
-                )
+                f'Expected an integer greater or equal {self.minimum}, '
+                f'got {value}.'
+            )
         if self.maximum is not None and value > self.maximum:
             raise ValidationError(
-                    f'Expected an integer less or equal {self.maximum}, '
-                    f'got {value}.'
-                )
+                f'Expected an integer less or equal {self.maximum}, '
+                f'got {value}.'
+            )
 
 
 class MatrixType(DType):
