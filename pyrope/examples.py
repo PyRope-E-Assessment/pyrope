@@ -4,9 +4,8 @@ import sympy
 from fractions import Fraction
 from math import prod
 
-from pyrope.core import Exercise
-from pyrope.nodes import (
-    Equation, Expression, Int, Problem, Rational, Set, String
+from pyrope import (
+    Equation, Exercise, Expression, Int, Problem, Rational, Set, String
 )
 
 

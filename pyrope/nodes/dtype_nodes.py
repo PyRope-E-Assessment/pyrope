@@ -10,7 +10,8 @@ from pyrope.dtypes import (
     RationalType, RealType, SetType, StringType, TupleType, VectorType
 )
 from pyrope.errors import ValidationError
-from pyrope.nodes import Checkbox, Dropdown, Node, RadioButtons, Slider, Text
+from pyrope.nodes.node import Node
+from pyrope.nodes.widgets import Checkbox, Dropdown, RadioButtons, Slider, Text
 
 
 class Problem(Node):

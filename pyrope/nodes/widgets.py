@@ -7,7 +7,7 @@ import numpy
 from pyrope.config import process_score
 from pyrope.errors import IllPosedError, ValidationError
 from pyrope.messages import ChangeWidgetAttribute, WidgetValidationError
-from pyrope.nodes import Node
+from pyrope.nodes.node import Node
 
 
 class NotifyingAttribute:

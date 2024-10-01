@@ -100,8 +100,8 @@ if args.subcommand == 'run':
                 except FileNotFoundError:
                     pass
                 if (
-                        os.path.isdir(checkpoint_path) and
-                        not os.listdir(checkpoint_path)
+                    os.path.isdir(checkpoint_path) and
+                    not os.listdir(checkpoint_path)
                 ):
                     os.rmdir(checkpoint_path)
                 break

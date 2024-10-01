@@ -1,38 +1,25 @@
 
-# flake8: noqa F401
 from IPython import get_ipython
 
-from pyrope import (
-    config, database, dtypes, errors, examples, formatters, frontends, nodes,
-    tests
-)
+from pyrope import config, nodes
 from pyrope.core import (
-    CLIParser, Exercise, ExercisePool, ExerciseRunner, float_types,
-    ParametrizedExercise
+    Exercise, ExercisePool, ExerciseRunner, ParametrizedExercise
 )
-from pyrope.ipython_extension import PyRopeMagics
 from pyrope.logo import logo
-from pyrope.nodes import *
+from pyrope.nodes import *  # noqa: F401
+from pyrope.ipython_extension import PyRopeMagics
 
 __all__ = [
-    'CLIParser',
     'config',
-    'database',
-    'dtypes',
-    'errors',
-    'examples',
     'Exercise',
     'ExercisePool',
     'ExerciseRunner',
-    'float_types',
-    'formatters',
-    'frontends',
     'logo',
     'nodes',
     'ParametrizedExercise',
-    'PyRopeMagics',
-    'tests',
-] + nodes.__all__
+]
+
+__all__ += nodes.__all__
 
 
 def load_ipython_extension(ipy):
