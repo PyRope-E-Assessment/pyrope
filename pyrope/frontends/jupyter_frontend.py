@@ -538,7 +538,7 @@ class JupyterHtmlWidget:
         self.correct = None
         self._description = ''
         self._disabled = False
-        self._valid = 'valid'
+        self._valid = ''
         self._value = None
 
         if widget_id is not None:
@@ -604,7 +604,7 @@ class JupyterHtmlWidget:
         mapping = {
             True: 'valid',
             False: 'invalid',
-            None: 'valid',
+            None: '',
         }
         self._valid = mapping.get(value, '')
         self.send({'className': f'pyrope {self._valid}'})
