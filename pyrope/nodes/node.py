@@ -6,6 +6,7 @@ from uuid import uuid4
 from pyrope.dtypes import TypeChecked
 from pyrope.errors import ValidationError
 from pyrope.formatters import TemplateFormatter
+from pyrope.messages import WidgetValidationError
 
 
 class Node:
@@ -66,6 +67,32 @@ class Node:
         keys = list(self.parent.ifields.keys())
         values = list(self.parent.ifields.values())
         return keys[values.index(self)]
+
+    def validate(self):
+        try:
+            value = self.value
+        except ValidationError as e:
+            for ifield in self.ifields.values():
+                try:
+                    ifield.value
+                except ValidationError:
+                    for ifield in self.ifields.values():
+                        ifield.validate()
+                    break
+            else:
+                self.valid = False
+                e.ifield = self
+                for widget in self.widgets:
+                    # pylint: disable=E1101
+                    widget.notify(WidgetValidationError(
+                        repr(e.ifield), e, widget.ID
+                    ))
+        else:
+            if value is None:
+                for ifield in self.ifields.values():
+                    ifield.validate()
+            else:
+                self.valid = True
 
     @property
     def valid(self):
@@ -183,10 +210,6 @@ class Node:
         self.ID = uuid4()
         for ifield in self.ifields.values():
             ifield.reset_IDs()
-
-    def notify(self, msg):
-        for widget in self.widgets:
-            widget.notify(msg)
 
     @cached_property
     def widgets(self):

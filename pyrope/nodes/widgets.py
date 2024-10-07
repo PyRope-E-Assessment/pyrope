@@ -6,7 +6,7 @@ import numpy
 
 from pyrope.config import process_score
 from pyrope.errors import IllPosedError, ValidationError
-from pyrope.messages import ChangeWidgetAttribute, WidgetValidationError
+from pyrope.messages import ChangeWidgetAttribute
 from pyrope.nodes.node import Node
 
 
@@ -74,30 +74,8 @@ class Widget(Node):
                 obj.notify(self)
 
     def validate(self):
-        ifield = self
-        while ifield.parent is not None:
-            try:
-                ifield.value
-            except ValidationError as e:
-                ifield.valid = False
-                e.ifield = ifield
-                ifield.notify(WidgetValidationError(
-                    repr(e.ifield), e, self.ID
-                ))
-                break
-            else:
-                invalid_siblings = False
-                for ifield in ifield.parent.ifields.values():
-                    try:
-                        ifield.value
-                    except ValidationError:
-                        invalid_siblings = True
-                    else:
-                        if ifield.valid is False:
-                            ifield.valid = None if self.value is None else True
-                if invalid_siblings:
-                    break
-                ifield = ifield.parent
+        if self.parent.value is None:
+            self.valid = None
 
     @property
     def value(self):
@@ -114,7 +92,12 @@ class Widget(Node):
             self.notify(ChangeWidgetAttribute(
                 repr(self), self.ID, 'value', value
             ))
-            self.validate()
+            ifield = self
+            while ifield.parent is not None:
+                if ifield.parent.parent is None:
+                    break
+                ifield = ifield.parent
+            ifield.validate()
 
     @property
     def valid(self):
@@ -122,10 +105,11 @@ class Widget(Node):
 
     @valid.setter
     def valid(self, value):
-        self._valid = value
-        self.notify(ChangeWidgetAttribute(
-            repr(self), self.ID, 'valid', value
-        ))
+        if value != self._valid:
+            self._valid = value
+            self.notify(ChangeWidgetAttribute(
+                repr(self), self.ID, 'valid', value
+            ))
 
     @property
     def the_solution(self):
