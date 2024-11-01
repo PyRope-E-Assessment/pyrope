@@ -386,8 +386,8 @@ class ParametrizedExercise:
     def hints(self):
         hints = self.apply(self.exercise.hints, self.parameters)
         if isinstance(hints, str):
-            hints = [hints]
-        return list(hints)
+            hints = (hints,)
+        return tuple(hints)
 
     @cached_property
     def trivial_input(self):
