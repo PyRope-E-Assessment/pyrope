@@ -48,6 +48,7 @@ New
   or an iterable of strings containing tips for students to solve an exercise.
   In :code:`JupyterFrontend` these hints can be rendered via a button.
 * History logging for learning analytics.
+* Make :code:`JupyterFrontend` Notebook 7 and JupyterLab compatible.
 
 Changes
 -------
