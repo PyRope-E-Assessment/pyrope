@@ -415,7 +415,7 @@ class Text(Widget):
         self.width = width
 
 
-class Textarea(Text):
+class TextArea(Text):
 
     height = NotifyingAttribute()
 

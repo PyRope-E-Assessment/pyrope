@@ -1,6 +1,6 @@
 
 from pyrope.nodes.widgets import (
-    Checkbox, Dropdown, RadioButtons, Slider, Text, Textarea
+    Checkbox, Dropdown, RadioButtons, Slider, Text, TextArea
 )
 from pyrope.nodes.dtype_nodes import (
     Bool, Complex, Dict, ElementwiseComplex, ElementwiseLinearExpression,
@@ -38,7 +38,7 @@ __all__ = [
     'Slider',
     'String',
     'Text',
-    'Textarea',
+    'TextArea',
     'Tuple',
     'Vector',
 ]
