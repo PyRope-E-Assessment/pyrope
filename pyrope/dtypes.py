@@ -471,9 +471,9 @@ class IntType(DType):
         if self.minimum is None and self.maximum is None:
             return 'an integer'
         if self.maximum is None:
-            return f'an integer greater equal {self.minimum}'
+            return f'an integer greater or equal to {self.minimum}'
         if self.minimum is None:
-            return f'an integer less or equal {self.maximum}'
+            return f'an integer less or equal to {self.maximum}'
         return f'an integer between {self.minimum} and {self.maximum}'
 
     def trivial_value(self):
