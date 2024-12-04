@@ -1,9 +1,7 @@
 
 from IPython.display import display
-from pyrope_ipywidgets import (
-    Checkbox as ipyCheckbox, Exercise as ipyExercise, Slider as ipySlider,
-    Text as ipyText, TextArea as ipyTextArea
-)
+import pyrope_ipywidgets
+
 
 from pyrope.messages import (
     ChangeWidgetAttribute, CreateWidget, ExerciseAttribute, RenderTemplate,
@@ -15,7 +13,7 @@ class JupyterFrontend:
 
     def __init__(self, widget_factory=None):
         self.answers = {}
-        self.exercise = ipyExercise(self.notify)
+        self.exercise = pyrope_ipywidgets.Exercise(self.notify)
         self.parameters = {}
         self.runner = None
         if widget_factory is None:
@@ -76,14 +74,17 @@ class JupyterFrontend:
 
 class JupyterWidgetFactory:
 
-    mapping = {
-        'Checkbox': ipyCheckbox,
-        'Slider': ipySlider,
-        'Text': ipyText,
-        'TextArea': ipyTextArea,
-    }
+    @staticmethod
+    def define_mapping():
+        return {
+            'Checkbox': pyrope_ipywidgets.Checkbox,
+            'Slider': pyrope_ipywidgets.Slider,
+            'Text': pyrope_ipywidgets.Text,
+            'TextArea': pyrope_ipywidgets.TextArea,
+        }
 
     def __call__(self, widget_type, widget_id, notification_callback):
-        return self.mapping.get(widget_type, ipyText)(
+        mapping = self.define_mapping()
+        return mapping.get(widget_type, pyrope_ipywidgets.Text)(
             widget_id, notification_callback
         )
