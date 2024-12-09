@@ -360,21 +360,13 @@ class RadioButtons(Widget):
 
 class Slider(Widget):
 
-    label_position = NotifyingAttribute()
     maximum = NotifyingAttribute()
     minimum = NotifyingAttribute()
     step = NotifyingAttribute()
     width = NotifyingAttribute()
 
-    def __init__(
-            self, minimum, maximum, label_position='right', step=1, width=25,
-            **kwargs
-    ):
+    def __init__(self, minimum, maximum, step=1, width=25, **kwargs):
         Widget.__init__(self, **kwargs)
-        if label_position not in ('left', 'right', 'neither'):
-            raise ValueError(
-                "'label_position' has to be either left, right or neither."
-            )
         if (
             not isinstance(minimum, numbers.Real) or
             not isinstance(maximum, numbers.Real) or
@@ -391,7 +383,6 @@ class Slider(Widget):
                 "'width' has to be an integer greater than or equal to 0 and "
                 "less than or equal to 100."
             )
-        self.label_position = label_position
         self.maximum = maximum
         self.minimum = minimum
         self.step = step
