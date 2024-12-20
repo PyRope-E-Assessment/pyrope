@@ -78,6 +78,7 @@ class JupyterWidgetFactory:
     def define_mapping():
         return {
             'Checkbox': pyrope_ipywidgets.Checkbox,
+            'RadioButtons': pyrope_ipywidgets.RadioButtons,
             'Slider': pyrope_ipywidgets.Slider,
             'Text': pyrope_ipywidgets.Text,
             'TextArea': pyrope_ipywidgets.TextArea,

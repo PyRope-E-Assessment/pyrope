@@ -347,13 +347,26 @@ class Dropdown(Widget):
 
 class RadioButtons(Widget):
 
+    labels = NotifyingAttribute()
     options = NotifyingAttribute()
     vertical = NotifyingAttribute()
 
-    def __init__(self, *args, vertical=True, **kwargs):
+    def __init__(self, *args, labels=None, vertical=True, **kwargs):
         Widget.__init__(self, **kwargs)
+        if len(args) != len(set(args)):
+            raise ValueError("The arguments have to be free of duplicates.")
+        if labels is not None and not isinstance(labels, (list, tuple)):
+            raise ValueError("'labels' has to be a list, tuple or None.")
+        if labels is not None and len(labels) != len(args):
+            raise ValueError(
+                "The amount of labels has to match the amount of given "
+                "arguments."
+            )
         if not isinstance(vertical, bool):
             raise ValueError("'vertical' has to be a boolean.")
+        if labels is None:
+            labels = tuple([str(arg) for arg in args])
+        self.labels = labels
         self.options = args
         self.vertical = vertical
 
