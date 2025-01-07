@@ -326,14 +326,9 @@ class Widget(Node):
 
 class Checkbox(Widget):
 
-    checked = NotifyingAttribute()
-
-    def __init__(self, checked=False, **kwargs):
+    def __init__(self, **kwargs):
         Widget.__init__(self, **kwargs)
-        if not isinstance(checked, bool):
-            raise ValueError("'checked' has to be a boolean.")
-        self.checked = checked
-        self._value = checked
+        self._value = False
 
 
 class Dropdown(Widget):
