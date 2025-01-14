@@ -27,8 +27,7 @@ class JupyterFrontend:
         self.runner.register_observer(self.observer)
 
     def observer(self, msg):
-        with self.exercise.debug_output:
-            print(msg)
+        self.exercise.debug_output.append_stdout(f'{msg}\n')
         if isinstance(msg, ExerciseAttribute):
             match msg.attribute_name:
                 case 'answers':
