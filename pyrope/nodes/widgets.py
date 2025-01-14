@@ -333,20 +333,10 @@ class Checkbox(Widget):
 
 class Dropdown(Widget):
 
-    options = NotifyingAttribute()
-
-    def __init__(self, *args, **kwargs):
-        Widget.__init__(self, **kwargs)
-        self.options = args
-
-
-class RadioButtons(Widget):
-
     labels = NotifyingAttribute()
     options = NotifyingAttribute()
-    vertical = NotifyingAttribute()
 
-    def __init__(self, *args, labels=None, vertical=True, **kwargs):
+    def __init__(self, *args, labels=None, **kwargs):
         Widget.__init__(self, **kwargs)
         if len(args) != len(set(args)):
             raise ValueError("The arguments have to be free of duplicates.")
@@ -357,12 +347,23 @@ class RadioButtons(Widget):
                 "The amount of labels has to match the amount of given "
                 "arguments."
             )
-        if not isinstance(vertical, bool):
-            raise ValueError("'vertical' has to be a boolean.")
         if labels is None:
             labels = tuple([str(arg) for arg in args])
+        for label in labels:
+            if not isinstance(label, str):
+                raise ValueError("All labels have to be strings.")
         self.labels = labels
         self.options = args
+
+
+class RadioButtons(Dropdown):
+
+    vertical = NotifyingAttribute()
+
+    def __init__(self, *args, vertical=True, **kwargs):
+        Dropdown.__init__(self, *args, **kwargs)
+        if not isinstance(vertical, bool):
+            raise ValueError("'vertical' has to be a boolean.")
         self.vertical = vertical
 
 
