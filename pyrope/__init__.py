@@ -30,14 +30,3 @@ def load_ipython_extension(ipy):
 if (ipy := get_ipython()) is not None:
     if 'pyrope' not in ipy.magics_manager.magics.get('line'):
         load_ipython_extension(ipy)
-
-
-def _jupyter_nbextension_paths():
-    return [
-        {
-            'section': 'notebook',
-            'src': 'nbextension',
-            'dest': 'pyrope',
-            'require': 'pyrope/extension',
-        }
-    ]
