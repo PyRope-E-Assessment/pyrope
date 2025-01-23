@@ -22,8 +22,8 @@ dev = [
     "pylint>=3.3.2",
 ]
 
-[tool.setuptools.packages.find]
-where = ["pyrope"]
+[tool.setuptools.packages]
+find = {}
 
 [tool.pylint.'MESSAGES CONTROL']
 errors-only = "True"
