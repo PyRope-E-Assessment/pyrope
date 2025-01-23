@@ -6,7 +6,7 @@ from pyrope.core import (
     Exercise, ExercisePool, ExerciseRunner, ParametrizedExercise
 )
 from pyrope.logo import logo
-from pyrope.nodes import *  # noqa: F401
+from pyrope.nodes import *  # noqa: F401, F403
 from pyrope.ipython_extension import PyRopeMagics
 
 __all__ = [
