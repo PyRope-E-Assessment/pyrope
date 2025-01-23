@@ -104,12 +104,6 @@ Requirements
 * `Python3 <https://www.python.org/downloads>`_ version 3.10 or higher and pip,
   which is a built-in package
 * `Git client <https://git-scm.com/downloads>`_
-* `Pandoc <https://pandoc.org/installing.html>`_ for converting exercise
-  templates. The required version depends on :code:`nbconvert`. PyRope uses
-  :code:`nbconvert 7.16.4` which requires >= 2.9.2 and < 4.0.0.
-* If you are using a virtual environment, make sure that Pandoc is installed
-  in it.
-* PyRope does not support Notebook 7 and JupyterLab yet.
 
 Windows
 -------
