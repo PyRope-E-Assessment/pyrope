@@ -1,5 +1,6 @@
 
 from IPython.display import display
+import matplotlib.pyplot as plt
 import pyrope_ipywidgets
 
 
@@ -53,6 +54,9 @@ class JupyterFrontend:
                     self.exercise.render_problem(msg.template)
                 case 'feedback':
                     self.exercise.render_feedback(msg.template)
+            # Prevent matplotlib from rendering a plot directly under a
+            # rendered exercise.
+            plt.close()
         elif isinstance(msg, CreateWidget):
             widget = self.widget_factory(
                 msg.widget_type, msg.widget_id, self.notify
