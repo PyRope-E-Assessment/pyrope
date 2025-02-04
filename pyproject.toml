@@ -6,12 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "pyrope"
 version = "0.1.0"
 dependencies = [
-    "matplotlib~=3.7",
-    "notebook==7.*",
-    "numpy~=1.24",
-    "pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/main/dist/pyrope_ipywidgets-0.1.0-py3-none-any.whl",
-    "SQLAlchemy~=2.0.30",
-    "sympy~=1.11",
+    "matplotlib>=3.7",
+    "notebook>=7",
+    "numpy>=1.24",
+    "SQLAlchemy>=2.0.30",
+    "sympy>=1.11",
 ]
 requires-python = ">=3.10"
 readme = "README.rst"
