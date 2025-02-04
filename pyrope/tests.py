@@ -518,8 +518,8 @@ class TestParametrizedExercise(unittest.TestCase):
         The score method of an exercise can return the scores for the answers
         in several formats:
             - A scalar value which is interpreted as the total score. Valid
-              data types are bool, int, float, numpy.bool_, numpy.int_,
-              numpy.float_. Booleans are converted to 0 or 1.
+              data types are bool, int, float, numpy.bool_, numpy.integer,
+              numpy.floating. Booleans are converted to 0 or 1.
             - A tuple where the first value is interpreted as the total score
               and the second one as the maximal total score. Its elements have
               to match a type from above.
