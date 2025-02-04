@@ -197,7 +197,7 @@ class ComplexType(DType):
             )
 
     def cast(self, value):
-        if isinstance(value, (np.int_, np.float_, np.complex_)):
+        if isinstance(value, (np.integer, np.floating, np.complexfloating)):
             value = value.item()
         if isinstance(value, (int, float)):
             return complex(value)
@@ -496,7 +496,7 @@ class IntType(DType):
         return value
 
     def cast(self, value):
-        if isinstance(value, (np.int_, np.float_, np.complex_)):
+        if isinstance(value, (np.integer, np.floating, np.complexfloating)):
             value = value.item()
         if isinstance(value, float) and int(value) == value:
             return int(value)
@@ -729,7 +729,7 @@ class RealType(DType):
         return value
 
     def cast(self, value):
-        if isinstance(value, (np.int_, np.float_, np.complex_)):
+        if isinstance(value, (np.integer, np.floating, np.complexfloating)):
             value = value.item()
         if isinstance(value, int):
             return float(value)
