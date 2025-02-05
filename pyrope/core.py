@@ -7,6 +7,7 @@ from functools import cached_property
 from hashlib import sha3_256
 import importlib
 import inspect
+import io
 import itertools
 import json
 import logging
@@ -213,9 +214,12 @@ class Exercise(abc.ABC):
         pexercise = ParametrizedExercise(self)
         yield from pexercise.test_cases()
 
-    def test(self, runner=unittest.TextTestRunner()):
+    def test(self, runner=None, suppress_output=False):
+        if runner is None:
+            stream = io.StringIO() if suppress_output else None
+            runner = unittest.TextTestRunner(stream=stream)
         suite = unittest.TestSuite(self.test_cases())
-        runner.run(suite)
+        return runner.run(suite).wasSuccessful()
 
 
 class ParametrizedExercise:
