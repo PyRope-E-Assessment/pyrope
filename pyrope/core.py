@@ -510,7 +510,7 @@ class ParametrizedExercise:
             return max_scores
         raise IllPosedError(
             'If implemented, the score method must return a number, a pair '
-            'of numbers or a dictionary with values of this type, where '
+            'of numbers or a dictionary with values of this type, where a '
             'number is either an int or a float.'
         )
 
