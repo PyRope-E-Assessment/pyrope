@@ -3,6 +3,7 @@ import abc
 import ast
 from fractions import Fraction
 import numbers
+import re
 import tokenize
 
 import numpy as np
@@ -802,13 +803,21 @@ class StringType(DType):
 
     dtype = str
 
-    def __init__(self, strip=False, **kwargs):
+    def __init__(
+        self, ignore_case=False, strip=True, squash_whitespaces=False,
+        **kwargs
+    ):
         DType.__init__(self, **kwargs)
+        self.ignore_case = ignore_case
         self.strip = strip
+        self.squash_whitespaces = squash_whitespaces
 
     @property
     def info(self):
-        return 'a string'
+        if self.ignore_case is True:
+            return 'a case insensitive string'
+        else:
+            return 'a string'
 
     def trivial_value(self):
         return ''
@@ -825,8 +834,12 @@ class StringType(DType):
         return value
 
     def normalize(self, value):
+        if self.ignore_case is True:
+            value = value.lower()
         if self.strip is True:
             value = value.strip()
+        if self.squash_whitespaces is True:
+            value = re.sub(r'\s+', ' ', value)
         return value
 
 

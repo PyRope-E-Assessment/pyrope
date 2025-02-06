@@ -49,6 +49,8 @@ New
   In :code:`JupyterFrontend` these hints can be rendered via a button.
 * History logging for learning analytics.
 * Make :code:`JupyterFrontend` Notebook 7 and JupyterLab compatible.
+* :code:`ignore_case` and :code:`squash_whitespaces` option for :code:`String`
+  nodes.
 
 Changes
 -------
