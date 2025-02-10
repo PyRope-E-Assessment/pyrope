@@ -10,7 +10,7 @@ designed for the needs in science, technology, engineering and mathematics
 In contrast to classical e-assessment systems, PyRope's philosophy is:
 
 .. epigraph::
-  **„Coding, not clicking.“**
+    **"Coding, not clicking."**
 
 If you want to develop an exercise, you should spend your time on its
 didactical design, not on the process of getting it into the system.
@@ -31,32 +31,34 @@ Design Principles
 =================
 
 **Simplicity**
-  Creating exercises should make fun. PyRope aims for simple and fast exercise
-  coding, even for users inexperienced with Python.
+    Creating exercises should make fun. PyRope aims for simple and fast
+    exercise coding, even for users inexperienced with Python.
 **Python**
-  With PyRope, you have the full power of Python at hand to create elaborate
-  exercises, limited only by your creativity.
+    With PyRope, you have the full power of Python at hand to create elaborate
+    exercises, limited only by your creativity.
 **Flexibility**
-  PyRope not only allows you to easily adapt available exercises, but also to
-  create your own, new exercise formats.
+    PyRope not only allows you to easily adapt available exercises, but also
+    to create your own, new exercise formats.
+
 ..
-  **Collections**
-    Be it from your personal fund or from public sources, PyRope lets you
-    compile new exercise collections by selection, aggregation and filtering
-    mechanisms.
+    **Collections**
+        Be it from your personal fund or from public sources, PyRope lets you
+        compile new exercise collections by selection, aggregation and filtering
+        mechanisms.
+
 **Autonomy**
-  You can run PyRope locally, without the need of a database, a remote server
-  or a learning management system. This is particularly interesting for
-  students who want to practice in private, without the fear of being tracked
-  permanently.
+    You can run PyRope locally, without the need of a database, a remote
+    server or a learning management system. This is particularly interesting
+    for students who want to practice in private, without the fear of being
+    tracked permanently.
 **Modularity**
-  The modular design of PyRope allows different user frontends and database
-  backends.
+    The modular design of PyRope allows different user frontends and database
+    backends.
 **Open Source**
-  PyRope is open source and licensed under the `GNU Affero General Public
-  License <https://www.gnu.org/licenses/agpl-3.0.en.html>`_.  You are free to
-  run, study, share and modify the source code, provided you distribute
-  derived versions under the same license terms.
+    PyRope is open source and licensed under the `GNU Affero General Public
+    License <https://www.gnu.org/licenses/agpl-3.0.en.html>`_.  You are free
+    to run, study, share and modify the source code, provided you distribute
+    derived versions under the same license terms.
 
 To keep PyRope simple, it will not:
 
@@ -93,15 +95,17 @@ Features
 
 .. warning::
 
-  This package is still in a very early stage of development and therefore
-  subject to heavy changes.  Please do not rely on stability or continuity yet,
-  especially not in exam contexts.
+    This package is still in a very early stage of development and therefore
+    subject to heavy changes.  Please do not rely on stability or continuity
+    yet, especially not in exam contexts.
 
 
 Getting started
 ===============
 
-For the impatient, here is what you need to do to get PyRope up and running.  More detailed instructions can be found in the section :doc:`Download and Installation <installation>`.
+For the impatient, here is what you need to do to get PyRope up and running.
+More detailed instructions can be found in the Section :doc:`Download and
+Installation <installation>`.
 
 First, install the following packages:
 
@@ -111,34 +115,40 @@ First, install the following packages:
 
 Then change to your install directory and run the commands below.
 
-.. tabs:: 
+.. tabs::
 
-  .. tab:: Windows
+    .. tab:: Windows
 
-    .. code-block:: console
+        .. code-block:: console
 
-      python -m venv venv
-      venv\Scripts\activate
-      python -m pip install git+https://github.com/PyRope-E-Assessment/pyrope.git
-      python -m pyrope run
+            python -m venv venv
+            venv\Scripts\activate
+            python -m pip install git+https://github.com/PyRope-E-Assessment/pyrope.git
+            python -m pyrope run
 
-  .. tab:: Linux
+    .. tab:: Linux
 
-    .. code-block:: console
+        .. code-block:: console
 
-      python3 -m venv venv
-      source venv/bin/activate
-      python3 -m pip install git+https://github.com/PyRope-E-Assessment/pyrope.git
-      python3 -m pyrope run
+            python3 -m venv venv
+            source venv/bin/activate
+            python3 -m pip install git+https://github.com/PyRope-E-Assessment/pyrope.git
+            python3 -m pyrope run
 
 
-Documentation
-=============
+.. toctree::
+    :caption: Documentation
+    :maxdepth: 2
 
-* :doc:`Download and installation <installation>`
-* :doc:`Quickstart tutorial <quickstart>`
-* :doc:`In-depth tutorial <tutorial>`
-* :doc:`Frequently asked questions <FAQ>`
+    installation
+    philosophy
+    learners
+    instructors
+    developers
+
+
+Contribution
+============
 
 You can contribute to this project in several ways:
 
@@ -155,12 +165,12 @@ Contact
 =======
 
 Software development:
-  * Konrad Schöbel <konrad.schoebel@htwk-leipzig.de>
-  * Paul Brassel <paul.brassel@htwk-leipzig.de>
+    * Konrad Schöbel <konrad.schoebel@htwk-leipzig.de>
+    * Paul Brassel <paul.brassel@htwk-leipzig.de>
 
 Exercise pools:
-  * Jochen Merker <jochen.merker@htwk-leipzig.de>
-  * Heike Hain <heike.hain@htwk-leipzig.de>
+    * Jochen Merker <jochen.merker@htwk-leipzig.de>
+    * Heike Hain <heike.hain@htwk-leipzig.de>
 
 
 Acknowledgements
@@ -169,6 +179,6 @@ Acknowledgements
 This project is developed at the HTWK Leipzig University of Applied Sciences
 and funded by the "Stiftung Innovation in der Hochschullehre".
 
-.. image:: Logo_StIL.png
-  :alt: logo Stiftung Innovation in der Hochschullehre
-  :width: 256px
+.. image:: logo-stil.png
+    :alt: logo Stiftung Innovation in der Hochschullehre
+    :width: 256px

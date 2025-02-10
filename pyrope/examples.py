@@ -1,4 +1,3 @@
-
 import fractions
 import math
 import random
@@ -88,23 +87,23 @@ class Factor(Exercise):
         return 7
 
 
-#class Factorisation(Exercise):
+# class Factorisation(Exercise):
 #
-#    def parameters(self):
-#        return dict(
-#            p=random.randint(2, 9),
-#            q=random.randint(2, 9),
-#        )
+#     def parameters(self):
+#         return dict(
+#             p=random.randint(2, 9),
+#             q=random.randint(2, 9),
+#         )
 #
-#    def problem(self, p, q):
-#        return Problem(
-#            fr'{p*q} = <<p_>> $\times$ <<q_>>',
-#            p_=Integer(minimum=2),
-#            q_=Integer(minimum=2),
-#        )
+#     def problem(self, p, q):
+#         return Problem(
+#             fr'{p*q} = <<p_>> $\times$ <<q_>>',
+#             p_=Integer(minimum=2),
+#             q_=Integer(minimum=2),
+#         )
 #
-#    def scores(self, p, q, p_, q_):
-#        return p_ * q_ == p * q
+#     def scores(self, p, q, p_, q_):
+#         return p_ * q_ == p * q
 
 
 class FourtyTwo(Exercise):
@@ -136,23 +135,27 @@ class FreeLunch(Exercise):
 class IntegerDivision(Exercise):
 
     def parameters(self):
-        dividend = random.randint(2, 10)
-        divisor = random.randint(1, dividend)
-        return dict(dividend=dividend, divisor=divisor)
+        a = random.randint(2, 10)
+        b = random.randint(1, a)
+        return dict(a=a, b=b)
 
     def problem(self):
-        return Problem('''
-            <<dividend>> divided by <<divisor>> is <<quotient>> with remainder <<remainder>>.
-            ''',
-            quotient=Natural(),
-            remainder=Natural(),
+        return Problem(
+            '<<a>> divided by <<b>> is <<q_>> with r_ <<r_>>.',
+            q_=Natural(),
+            r_=Natural(),
         )
 
-    def the_solution(self, dividend, divisor):
-        return dict(
-            quotient=dividend // divisor,
-            remainder=dividend % divisor,
-        )
+    def scores(self, a, b, q_, r_):
+        scores = dict(q_=0, r_=0)
+        if q_ == a // b:
+            scores['q_'] = 2
+        if r_ == a % b:
+            scores['r_'] = 1
+        return scores
+
+    def the_solution(self, a, b):
+        return dict(q_=a // b, r_=a % b)
 
 
 class MultiplicationTable(Exercise):
@@ -233,10 +236,11 @@ class SumEqualsProduct(Exercise):
 class SquareRoot(Exercise):
 
     def parameters(self):
-        return {'root': random.randint(1, 10)}
+        root = random.randint(1, 10)
+        return dict(root=root, radicand=root**2)
 
-    def problem(self, root):
+    def problem(self, radicand):
         return Problem(
-            f'The square root of {root**2} is <<root_>>.',
+            'The square root of <<radicand>> is <<root_>>.',
             root_=Natural()
         )

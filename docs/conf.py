@@ -9,16 +9,16 @@
 project = 'PyRope'
 copyright = '2024'
 author = 'Konrad Schöbel'
-release = ''
-html_logo = 'Logo_PyRope.png'
+release = '0.1.X'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = [
-    'sphinx_tabs.tabs',
-]
-exclude_patterns = []
+exclude_patterns = ['README.rst']
+extensions = ['sphinx.ext.autosectionlabel', 'sphinx_tabs.tabs']
+html_logo = 'logo-pyrope.png'
+html_title = 'Documentation'
+suppress_warnings = ['autosectionlabel.quickstart']
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

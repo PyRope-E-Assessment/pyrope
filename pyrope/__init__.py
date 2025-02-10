@@ -3,8 +3,8 @@
 from IPython import get_ipython
 
 from pyrope import (
-    config, database, dtypes, errors, examples, formatters, frontends, nodes,
-    tests
+    config, database, dtypes, errors, examples, templates, formatters,
+    frontends, nodes, tests
 )
 from pyrope.core import (
     CLIParser, Exercise, ExercisePool, ExerciseRunner, float_types,
@@ -31,6 +31,7 @@ __all__ = [
     'nodes',
     'ParametrizedExercise',
     'PyRopeMagics',
+    'templates',
     'tests',
 ] + nodes.__all__
 
