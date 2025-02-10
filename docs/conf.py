@@ -8,8 +8,9 @@
 
 project = 'PyRope'
 copyright = '2024'
-author = 'Konrad Schöbel'
+author = 'Konrad Schöbel, Paul Brassel'
 release = '0.1.X'
+html_logo = 'Logo_PyRope.png'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
