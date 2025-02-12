@@ -78,6 +78,24 @@ class TestExercise(unittest.TestCase):
         )
 
     @with_all_exercises
+    def test_parameter_names_are_stable(self, exercise):
+        '''
+        The set of parameter names defined by an exercise through its
+        parameters method needs to be same over different runs to keep
+        exercises consistent.
+        '''
+        names = set(core.ParametrizedExercise(exercise).parameters.keys())
+        for _ in range(config.maximum_test_repetitions):
+            pexercise = core.ParametrizedExercise(exercise)
+            names_ = set(pexercise.parameters.keys())
+            self.assertEqual(
+                names, names_,
+                f"The keys of the dictionary returned by an exercise's "
+                f"parameters method must not change over different runs, got "
+                f"{names} and {names_} as parameter names."
+            )
+
+    @with_all_exercises
     def test_maximal_total_score_is_stable(self, exercise):
         '''
         The maximal total score of an exercise is calculated by inserting the
