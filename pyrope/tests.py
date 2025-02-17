@@ -61,7 +61,7 @@ class TestExercise(unittest.TestCase):
         self.assertFalse(
             hasattr(exercise, 'solution'),
             "Do not implement a 'solution' method. Use 'the_solution' "
-            "instead it the solution is unique or 'a_solution' if not."
+            "instead if the solution is unique or 'a_solution' if not."
         )
 
     @with_all_exercises
