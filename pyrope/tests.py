@@ -96,6 +96,24 @@ class TestExercise(unittest.TestCase):
             )
 
     @with_all_exercises
+    def test_ifield_names_are_stable(self, exercise):
+        '''
+        The set of input field names defined by an exercise through its problem
+        method needs to be the same over different runs to keep exercises
+        consistent.
+        '''
+        names = set(core.ParametrizedExercise(exercise).ifields.keys())
+        for _ in range(config.maximum_test_repetitions):
+            pexercise = core.ParametrizedExercise(exercise)
+            names_ = set(pexercise.ifields.keys())
+            self.assertEqual(
+                names, names_,
+                f"The names of the input fields defined by an exercise's "
+                f"problem method must not change over different runs, got "
+                f"{names} and {names_} as input field names."
+            )
+
+    @with_all_exercises
     def test_maximal_total_score_is_stable(self, exercise):
         '''
         The maximal total score of an exercise is calculated by inserting the
