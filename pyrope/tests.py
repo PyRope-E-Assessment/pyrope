@@ -582,6 +582,8 @@ class TestParametrizedExercise(unittest.TestCase):
               case of a tuple the first value is interpreted as the score and
               the second one as the maximal score of the input field specified
               in the key.
+        The type of the returned score must not change over different runs to
+        keep exercises consistent.
         '''
         exercise = pexercise.exercise
 
@@ -589,6 +591,17 @@ class TestParametrizedExercise(unittest.TestCase):
             exercise.scores,
             pexercise.parameters | pexercise.dummy_input
         )
+        for _ in range(config.maximum_test_repetitions):
+            output_ = pexercise.apply(
+                exercise.scores,
+                pexercise.parameters | pexercise.dummy_input
+            )
+            self.assertEqual(
+                type(output), type(output_),
+                f"The scores method must return the same type over different "
+                f"runs of an exercise, got {type(output)} and {type(output_)}."
+            )
+
         if isinstance(output, dict) or len(pexercise.ifields) == 1:
             for answer in pexercise.answers.values():
                 if answer is None:
