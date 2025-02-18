@@ -60,6 +60,7 @@ class Exercise(abc.ABC):
     language: str = None
     license: str = None
     URL: str = None
+    pyrope_versions: str | tuple = None
     origin: str = None
     discipline: str = None
     area: str = None

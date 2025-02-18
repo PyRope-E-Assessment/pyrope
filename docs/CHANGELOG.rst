@@ -38,10 +38,10 @@ New
   :code:`min_difficulty` and :code:`max_difficulty`.
 * The following metadata can be specified as class attributes for an exercise:
   :code:`title`, :code:`subtitle`, :code:`author`, :code:`language`,
-  :code:`license`, :code:`URL`, :code:`origin`, :code:`discipline`,
-  :code:`area`, :code:`topic`, :code:`topic_contingent`, :code:`keywords` and
-  :code:`taxonomy`. If specified, they get tested via unit tests when
-  :code:`MyExercise().test()` is called.
+  :code:`license`, :code:`URL`, :code:`pyrope_versions`, :code:`origin`,
+  :code:`discipline`, :code:`area`, :code:`topic`, :code:`topic_contingent`,
+  :code:`keywords` and :code:`taxonomy`. If specified, they get tested via unit
+  tests when :code:`MyExercise().test()` is called.
 * Rudimentary database functionalities.
 * History log for statistical purposes and learning analytics.
 * New exercise method :code:`hints`: This method can be used to return a string
