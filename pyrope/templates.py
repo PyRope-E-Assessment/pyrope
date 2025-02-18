@@ -7,8 +7,7 @@ import random
 import sympy
 
 from pyrope.core import Exercise
-from pyrope.nodes import Problem, Natural, Int, Expression
-from pyrope.widgets import Dropdown
+from pyrope.nodes import Problem, Natural, Int, Expression, Dropdown
 
 plaudits = (
     'Fine',
@@ -74,7 +73,7 @@ class IntegerDivision(Exercise):
 
     def parameters(self):
         dividend = random.randint(10, 99)
-        divisor = random.randint(2, dividend-1)
+        divisor = random.randint(2, dividend - 1)
         return dict(dividend=dividend, divisor=divisor)
 
     def problem(self):
@@ -318,7 +317,7 @@ class QuadraticEquation(Exercise):
     #
     def __init__(
         self,
-        p_monic=1/2,
+        p_monic=1 / 2,
         w=(4, 4, 10),
         small_ints=small_ints,
         big_ints=big_ints,
@@ -455,7 +454,7 @@ class QuadraticEquation(Exercise):
         p = -2 * x0
         q = x0**2
 
-        return a, a*p, a*q, x0
+        return a, a * p, a * q, x0
 
     def simple_roots(self, difficulty, monic):
 
@@ -511,7 +510,7 @@ class QuadraticEquation(Exercise):
                 else:
                     a = random.choice(self.small_ints)
 
-            return a, a*p, a*q, x1, x2
+            return a, a * p, a * q, x1, x2
 
         # Past this level, the coefficients are chosen randomly and the roots
         # are derived from the coefficients via the quadratic formula.
@@ -539,7 +538,7 @@ class QuadraticEquation(Exercise):
 
         # quadratic formula
         a = sympy.Number(a)  # force symbolic expressions
-        p_half = b / (2*a)
+        p_half = b / (2 * a)
         q = c / a
         x1 = -p_half + sympy.sqrt(p_half**2 - q)
         x2 = -p_half - sympy.sqrt(p_half**2 - q)
@@ -586,7 +585,7 @@ class QuadraticEquation(Exercise):
             count = 2 if x1 != x2 else 1
 
         x = sympy.symbols('x')
-        qeq = sympy.Eq(a*x**2 + b*x + c, 0)
+        qeq = sympy.Eq(a * x**2 + b * x + c, 0)
 
         return dict(
             a=sympy.Number(a), b=b, c=c, x1=x1, x2=x2, count=count, qeq=qeq,
@@ -711,7 +710,7 @@ class QuadraticEquation(Exercise):
 
             # +q instead of -q under the root
             if p_ == p and q != 0 and q_ == -q:
-                s1 = s2 = 1/2
+                s1 = s2 = 1 / 2
 
         # 'count' is autoscored
         return {'x1_': s1, 'x2_': s2}

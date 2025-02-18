@@ -15,7 +15,7 @@ New
   :code:`None` has to be treated manually.
 * Add type hints to configurations to make it clearer for users.
 * Configure how many options of :code:`OneOf` nodes will be rendered as radio
-  buttons at most with :code:`one_of_maximum_radio_buttons`.
+  buttons at most with :code:`maximal_radio_buttons`.
 * :code:`ExpressionType` interprets :code:`e` and :code:`i` as euler's number
   and the imaginary unit if they are not specified as symbols.
 * Input fields have a :code:`correct` flag. Jupyter frontends use this flag to
@@ -38,8 +38,8 @@ New
   :code:`min_difficulty` and :code:`max_difficulty`.
 * The following metadata can be specified as class attributes for an exercise:
   :code:`title`, :code:`subtitle`, :code:`author`, :code:`language`,
-  :code:`license`, :code:`URL`, :code:`origin`, :code:`discipline`,
-  :code:`area`, :code:`topic`, :code:`topic_contingent`, :code:`keywords` and
+  :code:`license`, :code:`URL`, :code:`pyrope_versions`, :code:`origin`,
+  :code:`discipline`, :code:`area`, :code:`topic`, :code:`keywords` and
   :code:`taxonomy`. If specified, they get tested via unit tests when
   :code:`MyExercise().test()` is called.
 * Rudimentary database functionalities.
@@ -74,16 +74,16 @@ Changes
   :code:`Message`.
 * Line breaks are handled differently in templates: One or more blank lines
   start a new paragraph and escaping a newline character enforces a line break.
-  For multiline this means you only have to write a double backslash at the
-  end of a line or a single backslash in case of raw multiline strings.
+  For multiline strings this means you only have to write a double backslash at
+  the end of a line or a single backslash in case of raw multiline strings.
 
 Fixes
 -----
 
 * Raise an error in :code:`MatrixType` if :code:`atol` or :code:`rtol` are not
   real numbers.
-* :code:`\n\n` will now create a new paragraph in templates.
 * In Jupyter frontends, use Pandoc's :code:`tex_math_dollars` Markdown
   extension to respect LaTeX environments in all templates.
 * Return :code:`False` in :code:`ExpressionType.compare()` if
   :code:`sympy.Expr.equals` returns :code:`None`.
+* Widgets now use their correct parent node to calculate scores automatically.

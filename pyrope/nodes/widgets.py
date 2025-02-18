@@ -7,7 +7,7 @@ import numpy
 from pyrope.config import process_score
 from pyrope.errors import IllPosedError, ValidationError
 from pyrope.messages import ChangeWidgetAttribute, WidgetValidationError
-from pyrope.nodes import Node
+from pyrope.nodes.node import Node
 
 
 class NotifyingAttribute:
@@ -196,24 +196,22 @@ class Widget(Node):
 
     @property
     def auto_max_score(self):
-        ifield = self
-        while ifield.parent is not None and len(ifield.parent.ifields) == 1:
-            ifield = ifield.parent
-        solution = ifield.solution
-
         # If no maximal score is given, a (not necessarily unique) sample
         # solution must be provided.
-        if solution is None:
+        dtype_node = self.parent
+        if dtype_node.solution is None:
+            ifield = dtype_node
             while ifield.parent is not None:
                 if ifield.parent.parent is None:
                     break
                 ifield = ifield.parent
             raise IllPosedError(
-                f'Automatic setting of maximal score for {ifield.name} '
-                f'needs a sample solution.'
+                f'Automatic setting of maximal score for input field '
+                f'{ifield.name} needs a sample solution.'
             )
-
-        return float(ifield.compare(solution, solution))
+        return float(dtype_node.compare(
+            dtype_node.solution, dtype_node.solution
+        ))
 
     @property
     def displayed_max_score(self):
@@ -249,25 +247,21 @@ class Widget(Node):
 
     @property
     def auto_score(self):
-        ifield = self
-        while ifield.parent is not None and len(ifield.parent.ifields) == 1:
-            ifield = ifield.parent
-        the_solution = ifield.the_solution
-
-        # If no score is given, a unique sample solution must be provided.
-        if the_solution is None:
+        dtype_node = self.parent
+        if dtype_node.the_solution is None:
+            ifield = dtype_node
             while ifield.parent is not None:
                 if ifield.parent.parent is None:
                     break
                 ifield = ifield.parent
             raise IllPosedError(
-                f'Automatic scoring for {ifield.name} '
-                f'needs a unique sample solution.'
+                f'Automatic scoring for input field {ifield.name} needs a '
+                f'unique sample solution.'
             )
 
         # Empty or invalid input fields are scored with 0 points.
         try:
-            value = ifield.value
+            value = dtype_node.value
         except ValidationError:
             self.correct = False
             return 0.0
@@ -277,7 +271,7 @@ class Widget(Node):
 
         # If no score, but a unique sample solution is given, the input field
         # is scored by comparing it to this sample solution.
-        score = float(ifield.compare(value, the_solution))
+        score = float(dtype_node.compare(value, dtype_node.the_solution))
 
         if score == self.auto_max_score:
             self.correct = True

@@ -629,8 +629,8 @@ class JupyterHtmlWidget:
         if show:
             score_string = ''
             if (
-                self.displayed_score is not None
-                and self.displayed_max_score is not None
+                self.displayed_score is not None and
+                self.displayed_max_score is not None
             ):
                 score_string = '{}/{}'.format(
                     self.displayed_score, self.displayed_max_score
@@ -706,8 +706,8 @@ class JupyterHtmlDropdown(JupyterHtmlWidget):
             for option in self.options
         ])
         html_options = (
-                '<option value="" selected disabled hidden></option>' +
-                html_options
+            '<option value="" selected disabled hidden></option>' +
+            html_options
         )
         return (
             f'<select data-pyrope-id="{self.ID}" '

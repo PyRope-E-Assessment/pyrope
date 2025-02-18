@@ -1,6 +1,7 @@
 
 import inspect
 import itertools
+from packaging import version
 import unittest
 
 import matplotlib.pyplot as plt
@@ -178,10 +179,10 @@ class TestParametrizedExercise(unittest.TestCase):
             pexercise.exercise.problem, pexercise.parameters
         )
         self.assertIsInstance(
-                problem, nodes.Problem,
-                f"The 'problem' method must return an instance of "
-                f"{nodes.Problem}, not of {problem.__class__}."
-            )
+            problem, nodes.Problem,
+            f"The 'problem' method must return an instance of {nodes.Problem},"
+            f" not of {problem.__class__}."
+        )
 
     @with_all_pexercises
     def test_feedback_method(self, pexercise):
@@ -247,6 +248,14 @@ class TestParametrizedExercise(unittest.TestCase):
                         item, core.Exercise.__taxonomy_levels__,
                         f"{item} is not a valid level in Bloom's taxonomy."
                     )
+            elif name == 'pyrope_versions':
+                if isinstance(value, str):
+                    value = (value,)
+                for pyrope_version in value:
+                    try:
+                        version.parse(pyrope_version)
+                    except version.InvalidVersion:
+                        self.fail(f"{pyrope_version} is not a valid version.")
 
     @with_all_pexercises
     def test_solution_values(self, pexercise):
