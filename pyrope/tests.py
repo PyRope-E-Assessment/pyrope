@@ -635,4 +635,10 @@ class TestParametrizedExercise(unittest.TestCase):
         Test if inputs (especially None values) raise an exception in the
         feedback method.
         '''
-        pexercise.feedback
+        try:
+            pexercise.feedback
+        except Exception:
+            self.fail(
+                f"The feedback method raises an error for the following "
+                f"inputs: {pexercise.answers}."
+            )
