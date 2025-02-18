@@ -2,8 +2,6 @@
 import os
 import tempfile
 
-import pyrope
-
 
 # Maximum length for text field input.
 #
@@ -99,12 +97,6 @@ def process_score(score: int | float) -> int | float:
 
 def process_total_score(total_score: int | float) -> int | float:  # noqa
     return round(total_score, 1)
-
-
-# Path to CSS file for jupyter frontend styles.
-dirname: str = os.path.dirname(pyrope.__file__)
-filename: str = 'static/jupyter_frontend.css'
-jupyter_frontend_css: str = os.path.join(dirname, filename)
 
 
 # Default value for maximal rendered radio buttons.
