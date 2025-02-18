@@ -11,8 +11,6 @@ New
 ---
 
 * Empty input fields can be scored manually with :code:`treat_none_manually`.
-* Test if :code:`treat_none_manually` is set to :code:`True` for cases where
-  :code:`None` has to be treated manually.
 * Add type hints to configurations to make it clearer for users.
 * Configure how many options of :code:`OneOf` nodes will be rendered as radio
   buttons at most with :code:`maximal_radio_buttons`.
