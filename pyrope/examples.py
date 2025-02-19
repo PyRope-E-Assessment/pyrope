@@ -106,7 +106,7 @@ class Factor(Exercise):
 #         return p_ * q_ == p * q
 
 
-class FourtyTwo(Exercise):
+class FortyTwo(Exercise):
 
     def problem(self):
         return Problem(
