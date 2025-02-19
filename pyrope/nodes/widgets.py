@@ -255,8 +255,8 @@ class Widget(Node):
                     break
                 ifield = ifield.parent
             raise IllPosedError(
-                f'Automatic scoring for input field {ifield.name} needs a '
-                f'unique sample solution.'
+                f"Automatic scoring for input field '{ifield.name}' needs a "
+                f"unique sample solution."
             )
 
         # Empty or invalid input fields are scored with 0 points.
