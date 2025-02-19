@@ -1,6 +1,6 @@
-'''
+"""
 This file contains templates for coding exercises in PyRope.
-'''
+"""
 
 import math
 import random
@@ -101,7 +101,7 @@ class IntegerDivision(Exercise):
         return scores
 
     def hints(self):
-        return '''
+        yield '''
             Imagine you give a pizza party. You have ordered <<dividend>>
             pizzas for <<divisor>> people and want to share them in equal
             parts. How many entire pizzas can everyone eat?
@@ -115,18 +115,18 @@ class IntegerDivision(Exercise):
             if quotient * divisor + remainder != dividend:
                 return fr'''
                     ${quotient} \times {divisor} + {remainder}$
-                    equals ${quotient * divisor + remainder}$, not
+                    equals {quotient * divisor + remainder}, not
                     {dividend}.
                 '''
         if remainder is not None and remainder >= divisor:
-            return '''
+            return f'''
                 Your remainder {remainder} is not smaller than the divisor
                 {divisor}.
             '''
 
 
 # The following is an extensive template for a PyRope exercise, including all
-# recommended metadata and all relevant aspects of an exercise.  For a minimal
+# recommended metadata and all relevant aspects of an exercise. For a minimal
 # template without comments, see the example above.
 #
 class QuadraticEquation(Exercise):
@@ -152,7 +152,7 @@ class QuadraticEquation(Exercise):
     # Use [Markdown syntax](https://www.markdownguide.org/basic-syntax/), so
     # that the description can be nicely formatted.
     #
-    '''
+    """
     Train knowledge and application of the quadratic formula.
 
     Exercise Parameters
@@ -162,13 +162,13 @@ class QuadraticEquation(Exercise):
         Approximate probability that the coefficient of the quadratic term is
         1.
     w: triple of positive floats, default=(4, 4, 10)
-        Weights for no, one and two distinct roots.  The default weights are
+        Weights for no, one and two distinct roots. The default weights are
         equal to the number of difficulty levels in each of these three cases
         (see below).
     small_ints: list of int, default: non-zero single digit integers
-        Integers considered to be 'small' for use as roots or coefficents.
+        Integers considered to be 'small' for use as roots or coefficients.
     big_ints: list of int, default: two digit integers
-        Integers considered to be 'big' for use as roots or coefficents.
+        Integers considered to be 'big' for use as roots or coefficients.
     nice_fracs: list of Fractions, default: fractions of nice integers
         Fractions considered to be 'nice' for use as roots or coefficients.
 
@@ -207,7 +207,7 @@ class QuadraticEquation(Exercise):
     Remarks
     -------
     * We explicitly ask the number of roots for several reasons:
-      * It can be determined independently from the discriminant.
+      * It can be determined independently of the discriminant.
       * If learners know there are two roots, but are unable to find them, they
         will still get more points than someone leaving all input fields empty.
       * The entered number of roots allows to distinguish between the two
@@ -220,17 +220,17 @@ class QuadraticEquation(Exercise):
     -------
     For simplicity, quadratic equations with complex coefficients are not
     modelled with this exercise.
-    '''
+    """
 
     # Provide exercise metadata via class attributes.
     #
-    # The use of metadata is not mandatory, but strongly recommended.  Please
+    # The use of metadata is not mandatory, but strongly recommended. Please
     # provide at least an expressive title as a more descriptive reference of
     # your exercise than the class name, as well as a license and the origin.
     #
     # There is no explicit convention for metadata names either, but if you
     # stick to the naming used here, you facilitate easy filtering of exercise
-    # pools based on keywords or search patterns.  However, if you use names
+    # pools based on keywords or search patterns. However, if you use names
     # from this template, they must be strings unless otherwise stated.
     #
     # Avoid metadata depending on context, such as a course name or the
@@ -248,9 +248,9 @@ class QuadraticEquation(Exercise):
         'Paul Brassel <paul.brassel@htwk-leipzig.de>',
     )
 
-    # Note that your exercise definitions are actually source code.  So you
+    # Note that your exercise definitions are actually source code. So you
     # should choose a software license, preferably a liberal one to make your
-    # exercises an Open Educational Ressource.
+    # exercises an Open Educational Resource.
     #
     # https://en.wikipedia.org/wiki/Open_educational_resources
     #
@@ -262,16 +262,16 @@ class QuadraticEquation(Exercise):
     # possibly newer versions can be found.
     URL = 'https://github.com/PyRope-E-Assessment/pyrope.git'
 
-    # PyRope version(s) this exercise has been tested with.  Use a tuple to
+    # PyRope version(s) this exercise has been tested with. Use a tuple to
     # enumerate multiple versions.
     pyrope_versions = '0.1.0', '0.1.1'
 
     # If your exercise is derived, inspired or translated from another one,
-    # you can indicate this here for reference.  Set to 'None' if you write it
+    # you can indicate this here for reference. Set to 'None' if you write it
     # from scratch.
     origin = None
 
-    # The following categories serve to classify your exercise.  Use a tuple
+    # The following categories serve to classify your exercise. Use a tuple
     # for each category, ordered by relevance.
     discipline = 'Mathematics'
     area = 'Calculus'
@@ -288,7 +288,7 @@ class QuadraticEquation(Exercise):
     #
     # Note that an exercise can easily be translated into other languages by
     # replacing only the language specific methods, i.e. the preamble, the
-    # problem statement, hints and feedback.  Metadata, documentation and
+    # problem statement, hints and feedback. Metadata, documentation and
     # comments should therefore be written in English.
     #
     language = 'English'
@@ -311,7 +311,7 @@ class QuadraticEquation(Exercise):
     big_ints = range(-20, 21)
 
     # Exercise parameters should be defined in the Exercise class constructor
-    # and stored as class attributes.  These are parameters which determine
+    # and stored as class attributes. These are parameters which determine
     # the behaviour of the exercise and should not change on repetitions of
     # the exercise within the same test or by the same user.
     #
@@ -350,7 +350,7 @@ class QuadraticEquation(Exercise):
     #   * unusual input syntax
     #
     # Note that the preamble can easily be suppressed or changed by
-    # subclassing the exercise and overriding this method.  So please avoid
+    # subclassing the exercise and overriding this method. So please avoid
     # putting this context information into the problem template.
     #
     def preamble(self):
@@ -365,7 +365,7 @@ class QuadraticEquation(Exercise):
                 \end{align*}
             $$
 
-            with given numbers $a$, $b$ and $c$.  Since $a$ is not zero, we
+            with given numbers $a$, $b$ and $c$. Since $a$ is not zero, we
             can divide this equation by $a$ to obtain the equivalent equation
 
             $$
@@ -376,7 +376,7 @@ class QuadraticEquation(Exercise):
                 \end{align*}
             $$
 
-            The solutions of the quadratic equation are called *roots*.  Their
+            The solutions of the quadratic equation are called *roots*. Their
             number is determined by the *discriminant*
 
             $$
@@ -409,7 +409,7 @@ class QuadraticEquation(Exercise):
 
     def no_roots(self, difficulty, monic):
 
-        # discretise difficulty into 3 levels at 3 sublevels
+        # discretize difficulty into 3 levels at 3 sublevels
         sublevels = (self.small_ints, self.big_ints, self.nice_fracs)
         level, coefs = pigeonhole(difficulty, 3, sublevels)
 
@@ -436,7 +436,7 @@ class QuadraticEquation(Exercise):
 
     def double_root(self, difficulty, monic):
 
-        # discretise difficulty into 4 levels at 4 sublevels
+        # discretize difficulty into 4 levels at 4 sublevels
         sublevels = ([1], self.small_ints, self.big_ints, self.nice_fracs)
         levels = ([0], self.small_ints, self.big_ints, self.nice_fracs)
         level, sublevel = pigeonhole(difficulty, levels, sublevels)
@@ -461,7 +461,7 @@ class QuadraticEquation(Exercise):
         a = None
         coefs = None
 
-        # discretise difficulty into 10 levels
+        # discretize difficulty into 10 levels
         level = pigeonhole(difficulty, 9)
 
         # simple root at zero
@@ -545,7 +545,7 @@ class QuadraticEquation(Exercise):
 
         return a, b, c, x1, x2
 
-    # Instance parameters should be defined in the 'parameters' method.  These
+    # Instance parameters should be defined in the 'parameters' method. These
     # are parameters which may vary between repetitions of the exercise within
     # the same test or by the same user, just as the randomised parameters do.
     #
@@ -553,13 +553,13 @@ class QuadraticEquation(Exercise):
     # runner:
     #   'difficulty': float in [0,1]
     #       A measure for the difficulty of the exercise, ranging from 0
-    #       (trivial) to 1 (hard).  For discrete levels of difficulty the
+    #       (trivial) to 1 (hard). For discrete levels of difficulty the
     #       interval [0,1] can be divided into subintervals, or 'levels'.
     #       Use this to allow the runner to make the exercise adaptive.
     #   'user_name': string
-    #       The student's name.  Used this to personalise the exercise.
+    #       The student's name. Used this to personalise the exercise.
     #   'user_ID': string
-    #       The student's ID.  Maybe used for individually reproducible
+    #       The student's ID. Maybe used for individually reproducible
     #       parameter randomisation, e.g. via a random seed.
     #
     # Note that all instance parameters must have sensible default values,
@@ -592,8 +592,8 @@ class QuadraticEquation(Exercise):
             difficulty=difficulty
         )
 
-    # The problem definition is mandatory.  Avoid using information in the
-    # template depending on context, such as the course name.  Put this into
+    # The problem definition is mandatory. Avoid using information in the
+    # template depending on context, such as the course name. Put this into
     # the preamble, which is easier to skip or change.
     #
     def problem(self, qeq):
@@ -619,10 +619,10 @@ class QuadraticEquation(Exercise):
         )
 
     # A sample solution is provided via the 'the_solution' and 'a_solution'
-    # methods.  These are optional but mutually exclusive.
+    # methods. These are optional but mutually exclusive.
     #
     # The auto scoring needs to know whether a sample solution is unique or
-    # not.  A unique solution is provided via the 'the_solution' method and is
+    # not. A unique solution is provided via the 'the_solution' method and is
     # used to determine the maximal score and to check the correctness of the
     # user input.
     #
@@ -633,7 +633,7 @@ class QuadraticEquation(Exercise):
         return dict(count_=count, x1_=x1, x2_=x2)
 
     # The auto scoring needs to know whether a sample solution is unique or
-    # not.  A non-unique solution is provided via the 'a_solution' method and
+    # not. A non-unique solution is provided via the 'a_solution' method and
     # is used to determine the maximal score, but not to check the correctness
     # of the user input.
     #
@@ -737,7 +737,7 @@ class QuadraticEquation(Exercise):
             if x1_ + x2_ == x1 + x2 and x1_ * x2_ == -x1 * x2:
                 return r'You used $+q$ instead of $-q$ under the root.'
 
-        # no cross check
+        # no cross-check
         for x_ in {x1_, x2_}:
             if x_ is not None and x_ not in {x1, x2}:
-                return 'Cross check your solutions.'
+                return 'Cross-check your solutions.'
