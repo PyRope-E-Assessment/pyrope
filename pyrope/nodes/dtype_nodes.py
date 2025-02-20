@@ -193,13 +193,14 @@ class MultipleChoice(Node):
 
 class Natural(Int):
 
-    def __init__(self, *, with_zero=True, **kwargs):
-        if not isinstance(with_zero, bool):
-            raise ValueError("'with_zero' must be boolean.")
-        minimum = 0
-        if not with_zero:
-            minimum = 1
+    def __init__(self, **kwargs):
+        minimum = kwargs.pop('minimum', 0)
         Int.__init__(self, minimum=minimum, **kwargs)
+        if minimum < 0:
+            raise ValueError(
+                f"'minimum' has to greater than or equal to zero, "
+                f"got {minimum}."
+            )
 
 
 class OneOf(Node):
