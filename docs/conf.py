@@ -19,6 +19,7 @@ exclude_patterns = ['README.rst']
 extensions = ['sphinx.ext.autosectionlabel', 'sphinx_tabs.tabs']
 html_logo = 'logo-pyrope.png'
 html_title = 'Documentation'
+html_favicon = 'favicon-48x48.png'
 suppress_warnings = ['autosectionlabel.quickstart']
 
 # -- Options for HTML output -------------------------------------------------
