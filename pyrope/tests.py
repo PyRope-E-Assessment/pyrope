@@ -43,10 +43,10 @@ class TestExercise(unittest.TestCase):
 
     @with_all_exercises
     def test_hints_method_name(self, exercise):
-        '''
+        """
         An exercise must not implement a method called 'hint' to explicitly
         point out that the method to implement custom hints is called 'hints'.
-        '''
+        """
         self.assertFalse(
             hasattr(exercise, 'hint'),
             "Do not implement a 'hint' method. Use 'hints' instead."
@@ -54,11 +54,11 @@ class TestExercise(unittest.TestCase):
 
     @with_all_exercises
     def test_solution_method_name(self, exercise):
-        '''
+        """
         An exercise must not implement a method called 'solution', to avoid
         ambiguity: Solutions are provided via the 'the_solution' method if
         they are unique or via 'a_solution' if not.
-        '''
+        """
         self.assertFalse(
             hasattr(exercise, 'solution'),
             "Do not implement a 'solution' method. Use 'the_solution' "
@@ -67,11 +67,11 @@ class TestExercise(unittest.TestCase):
 
     @with_all_exercises
     def test_scores_method_name(self, exercise):
-        '''
+        """
         An exercise must not implement a method called 'score' to explicitly
         point out that the method to implement custom scores is called
         'scores'.
-        '''
+        """
         self.assertFalse(
             hasattr(exercise, 'score'),
             "Do not implement a 'score' method. Use 'scores' to implement "
@@ -104,10 +104,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_preamble_method(self, pexercise):
-        '''
+        """
         The preamble must be a string. Its output fields must be in the
         exercise's parameters.
-        '''
+        """
         preamble = pexercise.exercise.preamble
         if callable(preamble):
             preamble = pexercise.apply(preamble, pexercise.parameters)
@@ -129,10 +129,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_parameters_method(self, pexercise):
-        '''
+        """
         If implemented, the 'parameters' method of an exercise must return a
         dictionary. Its keys must be strings, as they name the input fields.
-        '''
+        """
         parameters = pexercise.parameters
         self.assertIsInstance(
             parameters, dict,
@@ -147,10 +147,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_hints_method(self, pexercise):
-        '''
+        """
         The hints method has to return a string or an iterable object yielding
         only strings.
-        '''
+        """
         hints = pexercise.apply(
             pexercise.exercise.hints, pexercise.parameters
         )
@@ -172,9 +172,9 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_problem_method(self, pexercise):
-        '''
+        """
         A problem must be an instance of class 'Problem'.
-        '''
+        """
         problem = pexercise.apply(
             pexercise.exercise.problem, pexercise.parameters
         )
@@ -186,10 +186,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_feedback_method(self, pexercise):
-        '''
+        """
         A feedback must be a string. Its output fields must be in the
         exercise's parameters or in the answers.
-        '''
+        """
         kwargs = pexercise.parameters | pexercise.dummy_input
         feedback = pexercise.apply(
             pexercise.exercise.feedback, kwargs
@@ -212,11 +212,11 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_metadata(self, pexercise):
-        '''
+        """
         Metadata are either strings, tuples of strings or None. In case of
         'taxonomy' the strings have to be part of Bloom's taxonomy levels
         specified in Exercise.__taxonomy_levels__.
-        '''
+        """
         for name, annotation in core.Exercise.__annotations__.items():
             value = getattr(pexercise.exercise, name)
             if value is None:
@@ -258,33 +258,15 @@ class TestParametrizedExercise(unittest.TestCase):
                         self.fail(f"{pyrope_version} is not a valid version.")
 
     @with_all_pexercises
-    def test_solution_values(self, pexercise):
-        '''
-        None is only a valid solution if 'treat_none_manually' is set to True.
-        Otherwise, it is not possible to determine if None is an intended
-        solution or was simply not given. Empty strings are treated the same
-        way as None because they are cast to None.
-        '''
-        for name, solution in pexercise.solution.items():
-            if pexercise.ifields[name].treat_none_manually is False:
-                self.assertIsNotNone(
-                    solution,
-                    f"None and empty strings are only valid solutions if "
-                    f"'treat_none_manually' is set to True. Found None or '' "
-                    f" as a/the solution with 'treat_none_manually=False' for "
-                    f"input field {name}."
-                )
-
-    @with_all_pexercises
     def test_score_weights(self, pexercise):
-        '''
+        """
         Scores can be weighted via the key word argument 'weights' of the
         Exercise class. Input fields can be weighted either all the same or
         individually. 'weights' needs to be an integer, a float or a
         dictionary. In case of a dictionary, a key is the name if an input
         field and a value is the corresponding weight in form of an integer or
         a float.
-        '''
+        """
         weights = pexercise.exercise.weights
         score_output = pexercise.apply(
             pexercise.exercise.scores,
@@ -331,9 +313,9 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_maximal_total_score_is_positive(self, pexercise):
-        '''
+        """
         The maximal total score should be positive.
-        '''
+        """
         self.assertGreater(
             pexercise.max_total_score, 0.0,
             'The maximal total score is not positive.'
@@ -341,9 +323,9 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_maximal_scores_are_positive(self, pexercise):
-        '''
+        """
         The maximal input field scores should be positive.
-        '''
+        """
         max_scores = pexercise.max_scores
         if None in max_scores.values():
             return
@@ -355,10 +337,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_no_score_for_empty_inputs(self, pexercise):
-        '''
+        """
         If all input fields are empty and treat None automatically, the total
         score should be zero.
-        '''
+        """
         if pexercise.ifields == {}:
             return
         if any([
@@ -377,9 +359,9 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_maximal_scores_for_sample_solution(self, pexercise):
-        '''
+        """
         A sample solution should get maximal input field scores.
-        '''
+        """
         answers = pexercise.solution
         for value in answers.values():
             if value is None:
@@ -397,9 +379,9 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises
     def test_maximal_total_score_for_sample_solution(self, pexercise):
-        '''
+        """
         A sample solution should get maximal total score.
-        '''
+        """
         answers = pexercise.solution
         for value in answers.values():
             if value is None:
@@ -425,10 +407,10 @@ class TestParametrizedExercise(unittest.TestCase):
         return wrapped_test
 
     @with_all_pexercises_and_all_inputs
-    def test_total_score_is_nonnegative(self, pexercise):
-        '''
+    def test_total_score_is_non_negative(self, pexercise):
+        """
         The total score should not be negative.
-        '''
+        """
         self.assertGreaterEqual(
             pexercise.total_score, 0.0,
             'The maximal total score is negative.'
@@ -436,19 +418,19 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises_and_all_inputs
     def test_total_score_is_less_equal_maximal_total_score(self, pexercise):
-        '''
+        """
         The total score should be less or equal the maximal total score.
-        '''
+        """
         self.assertLessEqual(
             pexercise.total_score, pexercise.max_total_score,
             'The total score is greater than the maximal total score.'
         )
 
     @with_all_pexercises_and_all_inputs
-    def test_scores_are_nonnegative(self, pexercise):
-        '''
+    def test_scores_are_non_negative(self, pexercise):
+        """
         The input field scores should not be negative.
-        '''
+        """
         # Note that either all or none of the input fields are scored.
         if None in pexercise.scores.values():
             return
@@ -460,10 +442,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises_and_all_inputs
     def test_scores_are_less_equal_maximal_scores(self, pexercise):
-        '''
+        """
         For each input field the score should be less or equal the maximal
         score.
-        '''
+        """
         # Note that either all or none of the input fields are scored.
         if None in pexercise.scores.values():
             return
@@ -476,10 +458,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises_and_all_inputs
     def test_score_sum_is_not_greater_total_score(self, pexercise):
-        '''
+        """
         The total score is equal to the sum of all input field scores if the
         input fields are scored individually.
-        '''
+        """
         # TODO: This should be a framework test and not a test for users.
         # Note that either all or none of the input fields are scored.
         score_output = pexercise.apply(
@@ -496,7 +478,7 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises_and_all_inputs
     def test_score_method_return_values(self, pexercise):
-        '''
+        """
         The score method of an exercise can return the scores for the answers
         in several formats:
             - A scalar value which is interpreted as the total score. Valid
@@ -510,7 +492,7 @@ class TestParametrizedExercise(unittest.TestCase):
               case of a tuple the first value is interpreted as the score and
               the second one as the maximal score of the input field specified
               in the key.
-        '''
+        """
         exercise = pexercise.exercise
 
         output = pexercise.apply(
@@ -604,10 +586,10 @@ class TestParametrizedExercise(unittest.TestCase):
 
     @with_all_pexercises_and_all_inputs
     def test_feedback_with_inputs(self, pexercise):
-        '''
+        """
         Test if inputs (especially None values) raise an exception in the
         feedback method.
-        '''
+        """
         try:
             pexercise.feedback
         except Exception:

@@ -206,8 +206,8 @@ class Widget(Node):
                     break
                 ifield = ifield.parent
             raise IllPosedError(
-                f'Automatic setting of maximal score for input field '
-                f'{ifield.name} needs a sample solution.'
+                f"Automatic setting of maximal score for input field "
+                f"'{ifield.name}' needs a sample solution."
             )
         return float(dtype_node.compare(
             dtype_node.solution, dtype_node.solution

@@ -137,7 +137,7 @@ class DType(abc.ABC):
         return value
 
 
-class BoolType(DType):
+class BooleanType(DType):
 
     dtype = bool
 
