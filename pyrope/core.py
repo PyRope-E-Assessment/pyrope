@@ -478,9 +478,7 @@ class ParametrizedExercise:
         max_scores = self.apply(
             self.exercise.scores, self.parameters | answer
         )
-        for name, value in solution.items():
-            if value is None and name in max_scores:
-                max_scores[name] = None
+
         if isinstance(scores, float_types):
             self._max_total_score = (
                 float(max_scores) * list(self.score_weights.values())[0]
@@ -497,6 +495,13 @@ class ParametrizedExercise:
                 if name in max_scores else None
                 for name in self.ifields
             }
+            for name, value in solution.items():
+                if (
+                    value is None and
+                    isinstance(max_scores[name], float_types) and
+                    name not in self._none_solution_ifields
+                ):
+                    max_scores[name] = None
             for name, value in max_scores.items():
                 if isinstance(value, float_types):
                     max_scores[name] = float(value)
