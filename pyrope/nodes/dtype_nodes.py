@@ -5,7 +5,7 @@ import sympy
 
 from pyrope import config
 from pyrope.dtypes import (
-    BoolType, ComplexType, DictType, EquationType, ExpressionType, IntType,
+    BooleanType, ComplexType, DictType, EquationType, ExpressionType, IntType,
     LinearExpressionType, ListType, MatrixType, OneOfType, PolynomialType,
     RationalType, RealType, SetType, StringType, TupleType, VectorType
 )
@@ -44,11 +44,14 @@ class Problem(Node):
         ) / len(self.ifields)
 
 
-class Bool(Node):
+class Boolean(Node):
 
     def __init__(self, *, widget=Checkbox(), **kwargs):
-        self.dtype = BoolType(**kwargs)
+        self.dtype = BooleanType(**kwargs)
         Node.__init__(self, '<<_>>', {'_': widget}, **kwargs)
+
+
+Bool = Boolean
 
 
 class Complex(Node):
