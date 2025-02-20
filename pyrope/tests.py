@@ -425,7 +425,7 @@ class TestParametrizedExercise(unittest.TestCase):
         return wrapped_test
 
     @with_all_pexercises_and_all_inputs
-    def test_total_score_is_nonnegative(self, pexercise):
+    def test_total_score_is_non_negative(self, pexercise):
         """
         The total score should not be negative.
         """
@@ -445,7 +445,7 @@ class TestParametrizedExercise(unittest.TestCase):
         )
 
     @with_all_pexercises_and_all_inputs
-    def test_scores_are_nonnegative(self, pexercise):
+    def test_scores_are_non_negative(self, pexercise):
         """
         The input field scores should not be negative.
         """
