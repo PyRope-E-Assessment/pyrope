@@ -12,11 +12,12 @@ context for the learner, for example by providing information on:
 * scoring used or
 * unusual input syntax
 
-It depends on the :ref:`configuration`, whether the preamble is prepended to
-an exercise or not. Therefore, any information absolutely necessary to solve
-the exercise should go into the :ref:`problem template <template>`. On the
-other hand, since the preamble can easily be suppressed or changed, you should
-avoid putting any other context information into the problem template.
+It depends on the :ref:`configuration <configuration>`, whether the preamble is
+prepended to an exercise or not. Therefore, any information absolutely
+necessary to solve the exercise should go into the
+:ref:`problem template <template>`. On the other hand, since the preamble can
+easily be suppressed or changed, you should avoid putting any other context
+information into the problem template.
 
 .. code:: python
 
@@ -24,10 +25,10 @@ avoid putting any other context information into the problem template.
 
         def preamble(self):
             return '''
-                The legend says his teacher gave Carl Friiedrich Gauß the
+                The legend says his teacher gave Carl Friedrich Gauß the
                 task to sum all natural numbers from 1 through 100, hoping to
                 occupy him for a while. But he immediately came up with the
-                correct answer: 5050.  How long will you need?
+                correct answer: 5050. How long will you need?
             '''
 
         def parameters(self):
@@ -35,10 +36,10 @@ avoid putting any other context information into the problem template.
 
         def problem(self):
             return pyrope.Problem(
-                r'$1+2+3+\cdots+<<n>>=$<<sum_>>',
+                r'$1+2+3+\cdots+<<n>>=$ <<sum_>>',
                 sum_=pyrope.Natural()
             )
 
         def the_solution(self, n):
-            return n * (n+1) / 2
+            return n * (n + 1) / 2
 

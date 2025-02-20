@@ -11,7 +11,7 @@ Unique Sample Solution
 
         def problem(self):
             return pyrope.Problem(
-                'What is 6x7?  <<answer>>',
+                r'What is $6 \times 7$? <<answer>>',
                 answer=pyrope.Natural()
             )
 
@@ -33,7 +33,7 @@ Non-Unique Sample Solution
                 factor=pyrope.Natural()
             )
 
-        def score(self, factor):
+        def scores(self, factor):
             return factor in {2, 3, 7}
 
         def a_solution(self):
@@ -49,12 +49,12 @@ Implicit Sample Solution
     class QuadraticEquation(pyrope.Exercise):
 
         def parameters(self):
-            x=random.randint(1, 9)
-            return dict(x=r, q=x**2)
+            x = random.randint(1, 9)
+            return dict(x=x, q=x**2)
 
         def problem(self, q):
-            return Problem(
-                'Give a root of the quadratic equation $x^2-<<q>>=0$.',
+            return pyrope.Problem(
+                'Give a root of the quadratic equation $x^2-<<q>>=0$: <<x_>>',
                 x_=pyrope.Integer()
             )
 

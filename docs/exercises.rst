@@ -3,7 +3,7 @@ Exercises
 *********
 
 The following explains in detail and with lots of examples how to use PyRope
-to create interactive exercises.  For a quick glimpse on the bare essentials,
+to create interactive exercises. For a quick glimpse on the bare essentials,
 please have a look into the :doc:`Quickstart Tutorial <quickstart>` instead.
 
 For the examples in this documentation one needs to import the PyRope module.

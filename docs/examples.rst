@@ -10,7 +10,7 @@ Examples
 Tiny Examples
 -------------
 
-The following is a collection of spartanic examples without comments or
+The following is a collection of spartan examples without comments or
 metadata. Among others, you will find here most of the exercises from the
 documentation again.
 

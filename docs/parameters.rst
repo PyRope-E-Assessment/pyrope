@@ -18,7 +18,7 @@ do not change if run twice and have always the same answer.
 
         def problem(self):
             return pyrope.Problem(
-                'What is 6x7?  <<answer>>',
+                r'What is $6 \times 7$? <<answer>>',
                 answer=pyrope.Natural()
             )
 
@@ -48,7 +48,7 @@ methods.
 
         def problem(self):
             return pyrope.Problem(
-                '<<a>> * <<b>> = <<answer>>',
+                r'$<<a>> \times <<b>> =$ <<answer>>',
                 answer=pyrope.Natural()
             )
 
@@ -93,7 +93,7 @@ parameters.
 Global parameter  Type                   Meaning
 ================  =====================  =================================
 ``userID``        string                 user ID as provided from the
-                                         athenticator
+                                         authenticator
 ``username``      string                 user name
 ``difficulty``    float between 0 and 1  value parametrising the
                                          difficulty of the exercise

@@ -13,7 +13,7 @@ single input field and a static answer.
 
         def problem(self):
             return pyrope.Problem(
-                'What is 6x7?  <<answer>>',
+                r'What is $6 \times 7$? <<answer>>',
                 answer=pyrope.Natural()
             )
 
@@ -21,7 +21,7 @@ single input field and a static answer.
             return 42
 
 The problem statement consists of a template with placeholders for input and
-output fields, together with a specification of the input field types.  It is
+output fields, together with a specification of the input field types. It is
 is created by calling :py:meth:`pyrope.Problem` with appropriate parameters.
 
 .. code-block:: python
@@ -33,7 +33,7 @@ Template
 --------
 
 An exercise template is a string with placeholders for input and output
-fields.  The string is interpreted as `Markdown
+fields. The string is interpreted as `Markdown
 <https://www.markdownguide.org/>`_ to allow for basic `formatting
 <https://www.markdownguide.org/cheat-sheet/>`_ such as
 
@@ -48,7 +48,7 @@ fields.  The string is interpreted as `Markdown
 * `tables <https://www.markdownguide.org/extended-syntax/#tables>`_
 
 Template strings will usually span multiple lines and Python's triple quoted
-strings are best suited for that.  In order to allow for a consistent
+strings are best suited for that. In order to allow for a consistent
 indentation, PyRope will eliminate any common leading whitespace from every
 line in the template string.
 
@@ -64,16 +64,16 @@ is properly enclosed in ``$`` respectively ``$$`` delimiters.
     sequences
     <https://docs.python.org/3/reference/lexical_analysis.html#escape-sequences>`_.
     For example, write ``r'... $\beta$ ...'`` to avoid that ``\b`` is understood
-    as a backspace.  Otherwise you would have to write ``'...$\\beta$...'``.
+    as a backspace. Otherwise you would have to write ``'...$\\beta$...'``.
 
 
 Placeholders
 ------------
 
 The syntax for a placeholder is ``<<name>>``, where ``name`` is the name of
-the input or output field.  The delimiters ``<<`` and ``>>`` were chosen to
+the input or output field. The delimiters ``<<`` and ``>>`` were chosen to
 interfere as little as possible with markup, :math:`\LaTeX`, HTML or Python.
-Placeholders can be placed within most Markdown elements.  Note that there is
+Placeholders can be placed within most Markdown elements. Note that there is
 no syntactical difference between placeholders for input and output fields.
 In the exercise below, for example, ``a`` and ``b`` are output fields whereas
 ``answer`` is an input field.
@@ -92,7 +92,7 @@ In the exercise below, for example, ``a`` and ``b`` are output fields whereas
 
         def problem(self, a, b):
             return pyrope.Problem(
-                '<<a>> * <<b>> = <<answer>>',
+                r'$<<a>> \times <<b>> =$ <<answer>>',
                 answer=pyrope.Natural()
             )
 
@@ -103,7 +103,7 @@ In the exercise below, for example, ``a`` and ``b`` are output fields whereas
 Input Fields
 ------------
 
-Input fields in PyRope are typed.  This assures two important facts:
+Input fields in PyRope are typed. This assures two important facts:
 
 1. The learner gets immediate visual feedback on syntactically invalid input.
 2. The instructor is guaranteed that variables coming from user input have the
@@ -120,23 +120,28 @@ Input field                              Python Type
 :py:class:`String`                       ``str``
 :py:class:`Tuple`                        ``tuple``
 :py:class:`List`                         ``list``
+:py:class:`Set`                          ``set``
 :py:class:`Dict`                         ``dict``
-:py:class:`Rational`                     ``fraction.Fraction``
-:py:class:`Vector`                       ``np.array``, one-dimensional
-:py:class:`RowVector`                    ``np.array`` of shape (1, N)
-:py:class:`ColumnVector`                 ``np.array`` of shape (N, 1)
-:py:class:`Matrix`                       ``np.array``, two-dimensional
+:py:class:`MultipleChoice`               ``dict``
+:py:class:`OneOf`                        ``object``
+:py:class:`Rational`                     ``fractions.Fraction``
+:py:class:`Vector`                       ``numpy.array``, one-dimensional
+:py:class:`Matrix`                       ``numpy.array``, two-dimensional
+:py:class:`Expression`                   ``sympy.Expr``
+:py:class:`Polynomial`                   ``sympy.Poly``
+:py:class:`LinearExpression`             ``sympy.Poly``, degree one
+:py:class:`Equation`                     ``sympy.Equality``
 =======================================  ======================================
 
 The keyword arguments to :py:meth:`pyrope.Problem` define which placeholders
-stand for input fields.  The keys are the names of the input fields and the
+stand for input fields. The keys are the names of the input fields and the
 values are the input fields, created by calling the corresponding constructor.
 
 
 .. attention::
 
     Currently it is not possible to place input fields within :math:`\LaTeX`
-    environments, although this is planned for the future.  For the time being,
+    environments, although this is planned for the future. For the time being,
     there are two options to deal with this:
 
     1. Break up the :math:`\LaTeX` environment for the input fields.
@@ -146,7 +151,7 @@ values are the input fields, created by calling the corresponding constructor.
 
     For example, you can not use ``r'... $\frac{<<a>>}{<<b>>}$ ...'`` to ask
     for a fraction with separated input fields for numerator :math:`a` and
-    denominator :math:`b`.  Instead, use:
+    denominator :math:`b`. Instead, use:
 
     .. code-block:: python
 
@@ -157,7 +162,7 @@ values are the input fields, created by calling the corresponding constructor.
         )
 
     Note that PyRope also provides a :py:class:`pyrope.Rational` input field
-    for fractions.  With the ``elementwise=True`` option, numerator and
+    for fractions. With the ``elementwise=True`` option, numerator and
     denominator have separate input fields.
 
 
@@ -175,13 +180,14 @@ problem statement.
 
 Note that it is not necessary to specify the output parameters as keyword
 parameters to the :py:meth:`problem` method if they only appear in the
-template string.  Your linter or IDE will probably complain about unused
+template string. Your linter or IDE will probably complain about unused
 variables if you do so.
 
 Output fields can be placed in all Markdown elements, even
-within :math:`\LaTeX` environments.  However, to avoid parsing issues, you
-have to indicate when an output field ``name`` is placed inside a
-:math:`\LaTeX` environment by using the special syntax ``<<name:latex>>``.
+within :math:`\LaTeX` environments. However, you have to indicate when an
+output field ``name`` is placed inside a :math:`\LaTeX` environment to the
+frontend by using the special syntax ``<<name:latex>>`` so that it can be
+rendered properly.
 
 .. code-block:: python
 
@@ -201,5 +207,3 @@ have to indicate when an output field ``name`` is placed inside a
 
         def the_solution(self, root):
             return root
-
-

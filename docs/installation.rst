@@ -15,7 +15,7 @@ Make sure you have the following installed on your system:
   PyRope does not support Notebook 7 and JupyterLab yet.
 
 .. tip::
-  We recommend to install PyRope into a virtual environment.  This avoids
+  We recommend to install PyRope into a virtual environment. This avoids
   conflicts with other Python packages on your system.
 
 First change to a directory where you want to store the virtual environment,

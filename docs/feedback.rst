@@ -3,8 +3,9 @@ Feedback
 ========
 
 Feedback based on the learner's answers can be provided via the
-:py:meth:`feedback` method. Note that it depends on the :ref:`Configuration`,
-whether the feedback is shown to the user or not.
+:py:meth:`feedback` method. Note that it depends on the
+:ref:`configuration <configuration>`, whether the feedback is shown to the user
+or not.
 
 .. code:: python
 

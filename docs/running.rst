@@ -3,7 +3,7 @@ Running
 =======
 
 If you have no exercise at hand, you can copy the file ``examples.py`` from
-the PyRope sources to your current folder.  To find out where it is located,
+the PyRope sources to your current folder. To find out where it is located,
 run the following command.
 
 .. tabs::
@@ -60,13 +60,13 @@ Command Line
 
     .. code:: console
 
-      python -m pyrope run examples.py:FourtyTwo
+      python -m pyrope run examples.py:FortyTwo
 
   .. group-tab:: Linux
 
     .. code:: console
 
-      python3 -m pyrope run examples.py:FourtTwo
+      python3 -m pyrope run examples.py:FortyTwo
 
 
 Jupyter Cell Magics
@@ -74,7 +74,7 @@ Jupyter Cell Magics
 
 .. code::
 
-  %pyrope run examples.py:FourtTwo
+  %pyrope run examples.py:FortyTwo
 
 
 User input validation

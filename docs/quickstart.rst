@@ -8,7 +8,7 @@ to the sections on :doc:`exercises` and :doc:`running` exercises.
 
 We recommend to develop exercises interactively within a Jupyter Notebook.
 This is by far the simplest and fastest way, as it allows to seamlessly
-alternate between writing code and testing it.  To follow the examples below,
+alternate between writing code and testing it. To follow the examples below,
 you must import the PyRope module beforehand.
 
 .. code:: python
@@ -20,12 +20,12 @@ Minimal Example
 ===============
 
 For simplicity, let us start with a static exercise that has single input
-field with a fixed answer.  Copy the following code into a Notebook cell and
+field with a fixed answer. Copy the following code into a Notebook cell and
 execute it by pressing ``Shift+Enter``.
 
 .. code:: python
 
-    class FourtyTwo(pyrope.Exercise):
+    class FortyTwo(pyrope.Exercise):
 
         def problem(self):
             return pyrope.Problem('''
@@ -41,18 +41,18 @@ execute it by pressing ``Shift+Enter``.
             return 42
 
 
-This *defines* the exercise.  To see if it *runs* as expected, execute the
+This *defines* the exercise. To see if it *runs* as expected, execute the
 following cell.
 
 .. code:: python
 
-  FourtyTwo().run()
+  FortyTwo().run()
 
 .. image:: 42.png
   :alt: Exercise as shown to the learner
 
 
-To rerun the exercise, simply execute the cell again.  If you are not
+To rerun the exercise, simply execute the cell again. If you are not
 satisfied, you can go back, edit the code in the exercise definition and then
 run the exercise again to see the effect of your changes.
 
@@ -61,15 +61,15 @@ Scoring
 =======
 
 Observe that we do not need to implement a method to score the answer in the
-example above.  This is because PyRope has an auto-scoring mechanism, which by
-default awards one point if the answer is correct and zero if not.  The
+example above. This is because PyRope has an auto-scoring mechanism, which by
+default awards one point if the answer is correct and zero if not. The
 correctness of the answer is deduced from comparing it to the given sample
-solution.  If you are not satisfied with the auto-scoring, you can implement
+solution. If you are not satisfied with the auto-scoring, you can implement
 your own as follows.
 
 .. code:: python
 
-    class FourtyTwo(pyrope.Exercise):
+    class FortyTwo(pyrope.Exercise):
 
         def problem(self):
             return pyrope.Problem('''
@@ -91,12 +91,12 @@ your own as follows.
             return 42
 
 
-In the example above we still need to provide a sample solution.  This is
-because the auto-scoring will deduce the maximal score from it.  Omitting the
+In the example above we still need to provide a sample solution. This is
+because the auto-scoring will deduce the maximal score from it. Omitting the
 sample solution will result in an error when submitting the answer, since
 PyRope cannot determine the maximal score.
 
-.. code::
+.. code:: text
 
     ---------------------------------------------------------------------------
     IllPosedError                             Traceback (most recent call last)
@@ -110,7 +110,7 @@ instead of a single number from the :py:meth:`scores` method.
 
 .. code:: python
 
-    class FourtyTwo(pyrope.Exercise):
+    class FortyTwo(pyrope.Exercise):
 
         def problem(self):
             return pyrope.Problem('''
@@ -134,7 +134,7 @@ Sample Solution
 
 Notice that in the above example the learner does not get the correct solution
 as feedback for a wrong answer. This is why you should always implement a
-sample solution.  After all, if you can not provide a solution, why should
+sample solution. After all, if you can not provide a solution, why should
 your students?
 
 A unique sample solution is provided via the method :py:meth:`the_solution` as
@@ -158,17 +158,17 @@ instead.
             return 7
 
 In this case we still need to implement the :py:meth:`scores` method.
-Otherwise the auto-scoring can not determine the correctness of the answer and
+Otherwise the auto-scoring cannot determine the correctness of the answer and
 raises an error when submitting the exercise.
 
-.. code::
+.. code:: text
 
     ---------------------------------------------------------------------------
     IllPosedError                             Traceback (most recent call last)
 
     [...]
 
-    IllPosedError: Automatic scoring for  needs a unique sample solution.
+    IllPosedError: Automatic scoring for input field 'answer' needs a unique sample solution.
 
 
 Randomisation
@@ -226,7 +226,7 @@ appending an underscore to the parameter name and let PyRope do the rest.
 
 
 For input fields using this naming convention, the solution is assumed to be
-unique.  This is why PyRope here automatically inserts the sample solution
+unique. This is why PyRope here automatically inserts the sample solution
 into the feedback.
 
 
@@ -265,14 +265,14 @@ Multiple input fields
 =====================
 
 If the exercise has more than one input field, then the scores for each input
-field can be returned in a dictionary.  The same holds for the/a sample
+field can be returned in a dictionary. The same holds for the/a sample
 solution.
 
 .. code:: python
 
     import random
 
-    class Sum_and_Product(pyrope.Exercise):
+    class SumAndProduct(pyrope.Exercise):
 
         def parameters(self):
             a = random.randint(1, 9)
@@ -281,23 +281,23 @@ solution.
 
         def problem(self):
             return pyrope.Problem('''
-                * The sum of <<a>> and <<b>> is <<thesum>>.
+                * The sum of <<a>> and <<b>> is <<the_sum>>.
                 * The product of <<a>> and <<b>> is <<product>>.
                 ''',
-                thesum=pyrope.Natural(),
+                the_sum=pyrope.Natural(),
                 product=pyrope.Natural(),
             )
 
-        def scores(self, a, b, thesum, product):
-            scores = dict(thesum=0, product=0)
-            if thesum == a + b:
-                scores['thesum'] = 1
+        def scores(self, a, b, the_sum, product):
+            scores = dict(the_sum=0, product=0)
+            if the_sum == a + b:
+                scores['the_sum'] = 1
             if product == a * b:
                 scores['product'] = 2
             return scores
 
         def the_solution(self, a, b):
-            return dict(thesum=a+b, product=a*b)
+            return dict(the_sum=a+b, product=a*b)
 
 
 In cases where it is not possible to score input fields individually, you can
@@ -310,8 +310,8 @@ return an overall score from the :py:meth:`scores` method.
     class Factorisation(pyrope.Exercise):
 
         def parameters(self):
-            a=random.randint(2, 9),
-            b=random.randint(2, 9),
+            a = random.randint(2, 9)
+            b = random.randint(2, 9)
             return dict(a=a, b=b, product=a*b)
 
         def problem(self, product):
@@ -351,7 +351,7 @@ when stuck with the solution of an exercise. These are provided by the
 
         def hints(self):
             yield 'It is a natural number.'
-            yield 'You can find it in the "Hitchhiker\'s Guide to the Galaxy."'
+            yield 'You can find it in the "Hitchhiker\'s Guide to the Galaxy".'
 
 
 Unit testing
@@ -406,5 +406,5 @@ automated tests on an exercise.
 
     FAILED (failures=1)
 
-This helps to avoid execptions during exercise runs and to gain confidence in
+This helps to avoid exceptions during exercise runs and to gain confidence in
 third party exercises obtained from foreign sources.

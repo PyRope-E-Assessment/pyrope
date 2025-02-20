@@ -3,7 +3,7 @@ The Exercise Class
 ==================
 
 In PyRope, every exercise is modelled by a separate subclass of the
-:py:class:`pyrope.Exercise` class.  This subclass serves as a container to put
+:py:class:`pyrope.Exercise` class. This subclass serves as a container to put
 together variables that contain metadata and functions that implement the
 different elements of an exercise.
 
@@ -56,7 +56,7 @@ Exercise metadata is stored in attributes of the :py:class:`pyrope.Exercise`
 class. The use of metadata is not mandatory, but strongly suggested.
 The following is a list of recommended metadata attributes which
 will be recognised by PyRope. A more verbose description of
-exercise metadata attributes can be found in the exmaple template
+exercise metadata attributes can be found in the example template
 :py:class:`pyrope.templates.QuadraticEquation`.
 
 ===============  ===================================================================
@@ -81,7 +81,7 @@ taxonomy         taxonomy according to
 **Commentѕ**
 
 * There is no explicit convention for metadata names either, but if you stick
-  to the naming in the table below, you facilitate easy filtering of exercise
+  to the naming in the table above, you facilitate easy filtering of exercise
   pools based on keywords or search patterns.
 * Avoid metadata depending on context, such as a course name or the difficulty
   of the exercise.
@@ -94,6 +94,6 @@ taxonomy         taxonomy according to
   Metadata, documentation and comments should therefore be written in English.
 * Exercise definitions are actually source code. So one should give a
   software license, preferably a liberal one to make the exercise an
-  `Open Educational Ressource <https://en.wikipedia.org/wiki/Open_educational_resources>`_.
+  `Open Educational Resource <https://en.wikipedia.org/wiki/Open_educational_resources>`_.
 
 

@@ -21,7 +21,7 @@ established software developing practices and tools, and therefore help to:
 * use a familiar integrated development environment (IDE)
 * improve documentation
 * spot and fix bugs
-* share exercise pools as open educational ressources (OER)
+* share exercise pools as open educational resources (OER)
 * better understand exercises authored by others
 * make exercises easily accessible to automated analyses
 * increase confidence in the e-assessment system
@@ -43,8 +43,8 @@ Design Principles
 ..
     **Collections**
         Be it from your personal fund or from public sources, PyRope lets you
-        compile new exercise collections by selection, aggregation and filtering
-        mechanisms.
+        compile new exercise collections by selection, aggregation and
+        filtering mechanisms.
 
 **Autonomy**
     You can run PyRope locally, without the need of a database, a remote
@@ -56,7 +56,7 @@ Design Principles
     backends.
 **Open Source**
     PyRope is open source and licensed under the `GNU Affero General Public
-    License <https://www.gnu.org/licenses/agpl-3.0.en.html>`_.  You are free
+    License <https://www.gnu.org/licenses/agpl-3.0.en.html>`_. You are free
     to run, study, share and modify the source code, provided you distribute
     derived versions under the same license terms.
 
@@ -87,8 +87,8 @@ Features
 
 * sophisticated auto-scoring mechanism
 * programmable individual feedback
-* unit testing of exercises for inconsistencies or common errors like missing or
-  inappropriate treatment of trivial user input
+* unit testing of exercises for inconsistencies or common errors like missing
+  or inappropriate treatment of trivial user input
 * Jupyter Notebook based frontend
 * flexible configuration
 
@@ -96,7 +96,7 @@ Features
 .. warning::
 
     This package is still in a very early stage of development and therefore
-    subject to heavy changes.  Please do not rely on stability or continuity
+    subject to heavy changes. Please do not rely on stability or continuity
     yet, especially not in exam contexts.
 
 
@@ -153,7 +153,7 @@ Contribution
 You can contribute to this project in several ways:
 
 * Tell us your user experience.
-* Create your own exercises or exercise pools and make them public.  Send us a
+* Create your own exercises or exercise pools and make them public. Send us a
   reference if you do so.
 * Find bugs and report them in our `issue tracker
   <https://github.com/PyRope-E-Assessment/pyrope/issues>`_.
