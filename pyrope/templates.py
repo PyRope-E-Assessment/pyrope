@@ -741,3 +741,6 @@ class QuadraticEquation(Exercise):
         for x_ in {x1_, x2_}:
             if x_ is not None and x_ not in {x1, x2}:
                 return 'Cross-check your solutions.'
+
+        # no feedback otherwise
+        return ''
