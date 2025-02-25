@@ -310,19 +310,22 @@ return an overall score from the :py:meth:`scores` method.
     class Factorisation(pyrope.Exercise):
 
         def parameters(self):
-            a = random.randint(2, 9)
-            b = random.randint(2, 9)
-            return dict(a=a, b=b, product=a*b)
-
-        def problem(self, product):
-            return pyrope.Problem(
-                r'<<product>> = <<a_>> $\times$ <<b_>>',
-                a_=pyrope.Integer(minimum=2),
-                b_=pyrope.Integer(minimum=2),
+            return dict(
+                p=random.randint(2, 9),
+                q=random.randint(2, 9),
             )
 
-        def scores(self, product, a_, b_):
-            return a_ * b_ == product
+        def problem(self, p, q):
+            return pyrope.Problem(
+                fr'{p * q} = <<p_>> $\times$ <<q_>>',
+                p_=pyrope.Integer(minimum=2),
+                q_=pyrope.Integer(minimum=2),
+            )
+
+        def scores(self, p, q, p_, q_):
+            if None in {p_, q_}:
+                return 0
+            return p_ * q_ == p * q
 
 
 Hints
