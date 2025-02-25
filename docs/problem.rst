@@ -113,24 +113,24 @@ Input fields in PyRope are typed. This assures two important facts:
 Input field                              Python Type
 =======================================  ======================================
 :py:class:`Boolean` or :py:class:`Bool`  ``bool``
-:py:class:`Natural`                      ``int``, non-negative
-:py:class:`Integer` or :py:class:`Int`   ``int``
-:py:class:`Real`                         ``float``
 :py:class:`Complex`                      ``complex``
+:py:class:`Dict`                         ``dict``
+:py:class:`Equation`                     ``sympy.Equality``
+:py:class:`Expression`                   ``sympy.Expr``
+:py:class:`Integer` or :py:class:`Int`   ``int``
+:py:class:`LinearExpression`             ``sympy.Poly``, degree one
+:py:class:`List`                         ``list``
+:py:class:`Matrix`                       ``numpy.array``, two-dimensional
+:py:class:`MultipleChoice`               ``dict``
+:py:class:`Natural`                      ``int``, non-negative
+:py:class:`OneOf`                        ``object``
+:py:class:`Polynomial`                   ``sympy.Poly``
+:py:class:`Rational`                     ``fractions.Fraction``
+:py:class:`Real`                         ``float``
+:py:class:`Set`                          ``set``
 :py:class:`String`                       ``str``
 :py:class:`Tuple`                        ``tuple``
-:py:class:`List`                         ``list``
-:py:class:`Set`                          ``set``
-:py:class:`Dict`                         ``dict``
-:py:class:`MultipleChoice`               ``dict``
-:py:class:`OneOf`                        ``object``
-:py:class:`Rational`                     ``fractions.Fraction``
 :py:class:`Vector`                       ``numpy.array``, one-dimensional
-:py:class:`Matrix`                       ``numpy.array``, two-dimensional
-:py:class:`Expression`                   ``sympy.Expr``
-:py:class:`Polynomial`                   ``sympy.Poly``
-:py:class:`LinearExpression`             ``sympy.Poly``, degree one
-:py:class:`Equation`                     ``sympy.Equality``
 =======================================  ======================================
 
 The keyword arguments to :py:meth:`pyrope.Problem` define which placeholders
