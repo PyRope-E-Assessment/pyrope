@@ -194,6 +194,11 @@ class TestParametrizedExercise(unittest.TestCase):
         feedback = pexercise.apply(
             pexercise.exercise.feedback, kwargs
         )
+        self.assertIsNot(
+            feedback, None,
+            'Feedback is None. If you really want no feedback, return an '
+            'empty string in the last line.'
+        )
         self.assertIsInstance(
             feedback, str,
             f"The 'feedback' method must return a string, not an instance "
