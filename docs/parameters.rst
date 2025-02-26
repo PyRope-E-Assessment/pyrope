@@ -72,12 +72,15 @@ The default values assure that they will always have a valid value.
 
     class Count(pyrope.Exercise):
 
-        def parameters(self, username='John Doe'):
-            return dict(count=len(username.replace(' ', '')))
+        def parameters(self, user_name='John Doe'):
+            return dict(
+                count=len(user_name.replace(' ', '')),
+                user_name=user_name,
+            )
 
         def problem(self):
             return pyrope.Problem('''
-                Hello <<username>>!
+                Hello <<user_name>>!
 
                 How many letters has your name? <<count_>>
                 ''',
@@ -92,9 +95,9 @@ parameters.
 ================  =====================  =================================
 Global parameter  Type                   Meaning
 ================  =====================  =================================
-``userID``        string                 user ID as provided from the
+``user_id``       string                 user ID as provided from the
                                          authenticator
-``username``      string                 user name
+``user_name``     string                 user name
 ``difficulty``    float between 0 and 1  value parametrising the
                                          difficulty of the exercise
 ================  =====================  =================================
