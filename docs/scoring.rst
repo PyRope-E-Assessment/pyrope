@@ -84,6 +84,8 @@ If it is not possible to score the input fields individually or if the
 instructor prefers to score them in common, then the :py:meth:`scores` method
 must return a single :ref:`score <Scores>`.
 
+.. _IntegerDivision:
+
 .. code-block:: python
 
     import random
@@ -202,7 +204,7 @@ accordingly.
 
 * In case of :ref:`Individual Input Field Scoring`, PyRope simply scores any
   empty input field with zero points. What happens behind the scenes is that
-  PyRope substitutes some valid (usually trivial) value for each empty input
+  PyRope inserts some valid (usually trivial) value into each empty input
   field before calling the :py:meth:`scores` method and ignores the
   corresponding scores for this input.
 * In case of :ref:`Joint Input Field Scoring`, it is not possible to score an
@@ -214,8 +216,52 @@ However, sometimes empty input fields have a special meaning. If you ask for
 a solution of some equation, for example, then an empty input field can also
 mean that there is no solution. For such cases, every input field constructor
 offers an option ``treat_none_manually``, which is set to ``False`` by
-default. If set to ``True``, PyRope sets the corresponding input field
-variable to ``None``. By setting it to ``True`` the instructor assures to
-properly deal with ``None`` values.
+default. If ``True``, PyRope assigns ``None`` to the variable of an empty
+input field. By setting ``treat_none_manually=True`` the instructor assures to
+properly deal with such ``None`` values.
 
+* In case of :ref:`Individual Input Field Scoring`, PyRope will score only
+  those empty input fields with zero points that do not have the option
+  ``treat_none_manually`` set to ``True``. The scoring of all other
+  empty input fields is left to the :py:meth:`scores` method, called with
+  ``None`` for assigned to every variables of an empty input field.
+* In case of :ref:`Joint Input Field Scoring`, the entire exercise is scored
+  with zero points unless every empty input field has ``treat_none_manually ``
+  set to ``True``. Otherwise, scoring is left to the :py:meth:`scores`
+  method, called with ``None`` assigned to every variable of an empty input
+  field.
 
+In the :ref:`integer division example <IntegerDivision>` from above, for
+example, we check two conditions and assign points if they are satisfied. The
+first involves both input fields ``quotient`` and ``remainder``, the second
+only ``remainder``. This means we can score the second condition even if
+``quotient`` is left empty.
+
+.. code-block:: python
+
+    import random
+
+    class IntegerDivision(pyrope.Exercise):
+
+        def parameters(self):
+            dividend = random.randint(2, 10)
+            divisor = random.randint(1, dividend)
+            return dict(dividend=dividend, divisor=divisor)
+
+        def problem(self):
+            return pyrope.Problem('''
+                <<dividend>> divided by <<divisor>> is equal to
+                <<quotient>> with remainder <<remainder>>.
+                ''',
+                quotient=pyrope.Natural(treat_none_manually=True),
+                remainder=pyrope.Natural(),
+            )
+
+        def scores(self, dividend, divisor, quotient, remainder):
+            scores = 0
+            if quotient is not None:
+                if quotient * divisor + remainder == dividend:
+                    scores += 2
+            if remainder < divisor:
+                scores += 1
+            return (scores, 3)
