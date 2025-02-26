@@ -159,7 +159,7 @@ class Exercise(abc.ABC):
             return None
         return '\n\n'.join(classes)
 
-    def run(self, debug=False, difficulty=None):
+    def run(self, debug=False, difficulty=None, global_parameters=None):
         if difficulty is not None:
             if not (
                 isinstance(difficulty, float_types) and
@@ -171,7 +171,9 @@ class Exercise(abc.ABC):
                 )
             difficulty = float(difficulty)
         self.difficulty = difficulty
-        runner = ExerciseRunner(self, debug=debug)
+        runner = ExerciseRunner(
+            self, debug=debug, global_parameters=global_parameters
+        )
         if get_ipython() is not None:
             frontend = frontends.JupyterFrontend()
         else:
