@@ -229,6 +229,8 @@ class ParametrizedExercise:
             self.global_parameters['min_difficulty'] = 0.0
         if 'max_difficulty' not in self.global_parameters:
             self.global_parameters['max_difficulty'] = 1.0
+        if 'user_name' not in self.global_parameters:
+            self.global_parameters['user_name'] = 'John Doe'
         self._total_score = None
         self._max_total_score = None
         self._none_solution_ifields = set()
@@ -672,13 +674,11 @@ class ParametrizedExercise:
 
 class ExerciseRunner:
 
-    def __init__(
-        self, exercise, debug=False, global_parameters=None,
-        user_name='John Doe'
-    ):
+    def __init__(self, exercise, debug=False, global_parameters=None):
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
+        user_name = self.pexercise.global_parameters['user_name']
         self.pexercise.user_name = user_name
         self.sender = exercise.__class__
         self.widget_id_mapping = {
