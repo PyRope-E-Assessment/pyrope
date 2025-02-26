@@ -9,6 +9,8 @@ Python's ``yield`` statement.
 
 .. code:: python
 
+    import random
+
     class Gauss(pyrope.Exercise):
 
         def parameters(self):

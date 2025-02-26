@@ -33,6 +33,8 @@ using a dictionary with the input field names as keys and the corresponding
 
 .. code-block:: python
 
+    import random
+
     class IntegerDivision(pyrope.Exercise):
 
         def parameters(self):
@@ -83,6 +85,8 @@ instructor prefers to score them in common, then the :py:meth:`scores` method
 must return a single :ref:`score <Scores>`.
 
 .. code-block:: python
+
+    import random
 
     class IntegerDivision(pyrope.Exercise):
 
@@ -153,6 +157,8 @@ solution. By default, a correct answer is scored one point and an incorrect
 zero.
 
 .. code-block:: python
+
+    import random
 
     class IntegerDivision(pyrope.Exercise):
 
