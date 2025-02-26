@@ -179,6 +179,14 @@ Acknowledgements
 This project is developed at the HTWK Leipzig University of Applied Sciences
 and funded by the "Stiftung Innovation in der Hochschullehre".
 
-.. image:: logo-stil.png
+.. |stil| image:: logo-stil.png
     :alt: logo Stiftung Innovation in der Hochschullehre
     :width: 256px
+
+.. |fassmii| image:: logo-fassmii.png
+    :alt: logo Feedback-basiertes E-Assessment in Mathematik, Informatik und Ingenieurwissenschaften
+    :width: 256px
+
+|stil|
+
+|fassmii|
