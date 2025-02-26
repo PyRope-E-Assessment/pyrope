@@ -88,6 +88,13 @@ The default values assure that they will always have a valid value.
             )
 
 
+The default values can be overwritten in the following manner.
+
+.. code-block:: python
+
+    Count().run(global_parameters={'user_name': 'Jane Doe'})
+
+
 Global parameters can be used to personalise exercises or adapting their
 difficulty. Currently, PyRope only provides the following few global
 parameters.
