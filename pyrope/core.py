@@ -233,7 +233,6 @@ class ParametrizedExercise:
             self.global_parameters['user_name'] = 'John Doe'
         self._total_score = None
         self._max_total_score = None
-        self._none_solution_ifields = set()
         self.user_name = None
         self.started_at = None
         self.submitted_at = None
@@ -340,11 +339,6 @@ class ParametrizedExercise:
 
         solution = explicit | implicit
 
-        for name, value in solution.items():
-            if value is None or (isinstance(value, str) and value == ''):
-                if self.ifields[name].treat_none_manually is True:
-                    self._none_solution_ifields.add(name)
-
         self.model.the_solution = solution
         return {
             name: ifield.the_solution
@@ -364,11 +358,6 @@ class ParametrizedExercise:
                 )
             names = list(self.ifields.keys())
             solution = {names[0]: solution}
-
-        for name, value in solution.items():
-            if value is None or (isinstance(value, str) and value == ''):
-                if self.ifields[name].treat_none_manually is True:
-                    self._none_solution_ifields.add(name)
 
         self.model.a_solution = solution
         return {
@@ -437,13 +426,11 @@ class ParametrizedExercise:
 
     @cached_property
     def max_scores(self):
-        solution = {
-            name: value for name, value in self.solution.items()
-            if name not in self._none_solution_ifields
-        }
+        solution = self.solution
         scores = self.apply(
             self.exercise.scores, self.parameters | self.dummy_input
         )
+
         if scores is None or isinstance(scores, float_types):
             for name, value in solution.items():
                 if value is None:
@@ -451,17 +438,17 @@ class ParametrizedExercise:
                         f"Unable to determine maximal score for "
                         f"input field '{name}'."
                     )
+
         if scores is None:
             max_scores = {
                 name: float(ifield.auto_max_score) * self.score_weights[name]
-                if name not in self._none_solution_ifields
-                else self.score_weights[name] * len(self.ifields[name].widgets)
                 for name, ifield in self.ifields.items()
             }
             self._max_total_score = sum(max_scores.values())
             for name, ifield in self.ifields.items():
                 ifield.displayed_max_score = max_scores[name]
             return max_scores
+
         if isinstance(scores, tuple):
             self._max_total_score = (
                 float(scores[1]) * list(self.score_weights.values())[0]
@@ -473,17 +460,12 @@ class ParametrizedExercise:
                 return {name: self._max_total_score}
             return {name: None for name in self.ifields}
 
-        answer = {
-            name: self.dummy_input[name]
-            if value is None else value
-            for name, value in solution.items()
-        }
-        answer |= {name: None for name in self._none_solution_ifields}
-        max_scores = self.apply(
-            self.exercise.scores, self.parameters | answer
-        )
-
         if isinstance(scores, float_types):
+            # This will not raise an error since all values inside solution
+            # are not None.
+            max_scores = self.apply(
+                self.exercise.scores, self.parameters | solution
+            )
             self._max_total_score = (
                 float(max_scores) * list(self.score_weights.values())[0]
             )
@@ -493,19 +475,32 @@ class ParametrizedExercise:
                 ifield.displayed_max_score = self._max_total_score
                 return {name: self._max_total_score}
             return {name: None for name in self.ifields}
+
         if isinstance(scores, dict):
+            answer = {
+                name: self.dummy_input[name]
+                if value is None and
+                not self.ifields[name].treat_none_manually
+                else value
+                for name, value in solution.items()
+            }
+            max_scores = self.apply(
+                self.exercise.scores, self.parameters | answer
+            )
+            # In case a dummy input obtained a float type score for an input
+            # field.
+            for name, value in solution.items():
+                if (
+                    value is None and name in max_scores and
+                    not self.ifields[name].treat_none_manually and
+                    isinstance(max_scores[name], float_types)
+                ):
+                    max_scores[name] = None
             max_scores = {
                 name: max_scores[name]
                 if name in max_scores else None
                 for name in self.ifields
             }
-            for name, value in solution.items():
-                if (
-                    value is None and
-                    isinstance(max_scores[name], float_types) and
-                    name not in self._none_solution_ifields
-                ):
-                    max_scores[name] = None
             for name, value in max_scores.items():
                 if isinstance(value, float_types):
                     max_scores[name] = float(value)
@@ -517,6 +512,7 @@ class ParametrizedExercise:
                 self.ifields[name].displayed_max_score = max_scores[name]
             self._max_total_score = sum(max_scores.values())
             return max_scores
+
         raise IllPosedError(
             'If implemented, the score method must return a number, a pair '
             'of numbers or a dictionary with values of this type, where '
@@ -535,12 +531,15 @@ class ParametrizedExercise:
             for name, answer in answers.items()
             if answer is None and not self.ifields[name].treat_none_manually
         }
-        if isinstance(output, dict)\
-                or (output is not None and len(self.ifields) == 1):
+        if (
+            isinstance(output, dict) or
+            (output is not None and len(self.ifields) == 1)
+        ):
             answers |= fill_values
         scores = self.apply(
             self.exercise.scores, self.parameters | answers
         )
+
         if isinstance(output, dict):
             for name in fill_values:
                 if name not in scores:
@@ -549,15 +548,18 @@ class ParametrizedExercise:
                     scores[name] = (0.0, scores[name][1])
                 else:
                     scores[name] = 0.0
+
         if output is not None and len(self.ifields) == 1:
             for name in fill_values:
                 if isinstance(output, tuple):
                     scores = {name: (0.0, scores[1])}
                 else:
                     scores = {name: 0.0}
+
         no_scores = {name: None for name in self.ifields}
         if scores is None:
             scores = no_scores
+
         names = list(self.ifields.keys())
         ifields = list(self.ifields.values())
         if isinstance(scores, float_types):
@@ -568,6 +570,7 @@ class ParametrizedExercise:
                 ifields[0].displayed_score = self._total_score
                 return {names[0]: self._total_score}
             return no_scores
+
         if isinstance(scores, tuple):
             self._total_score = (
                 float(scores[0]) * list(self.score_weights.values())[0]
@@ -576,24 +579,23 @@ class ParametrizedExercise:
                 ifields[0].displayed_score = self._total_score
                 return {names[0]: self._total_score}
             return no_scores
+
         for name, ifield in self.model.ifields.items():
             if name not in scores:
                 scores[name] = None
             if scores[name] is None:
-                if name in self._none_solution_ifields:
-                    score = float(self.answers[name] is None)
-                    scores[name] = score * len(self.ifields[name].widgets)
-                else:
-                    scores[name] = ifield.auto_score
+                scores[name] = ifield.auto_score
             if isinstance(scores[name], tuple):
                 scores[name] = scores[name][0]
             scores[name] = float(scores[name]) * self.score_weights[name]
             ifield.displayed_score = scores[name]
+
         self._total_score = sum([
             scores[name][0]
             if isinstance(scores[name], tuple) else scores[name]
             for name in self.ifields.keys()
         ])
+
         return scores
 
     @property
