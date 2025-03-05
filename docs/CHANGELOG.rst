@@ -74,6 +74,7 @@ Changes
   start a new paragraph and escaping a newline character enforces a line break.
   For multiline strings this means you only have to write a double backslash at
   the end of a line or a single backslash in case of raw multiline strings.
+* Accept ``None`` and empty strings as solutions.
 
 Fixes
 -----

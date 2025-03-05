@@ -368,8 +368,8 @@ class TestParametrizedExercise(unittest.TestCase):
         A sample solution should get maximal input field scores.
         """
         answers = pexercise.solution
-        for value in answers.values():
-            if value is None:
+        for name in pexercise.ifields:
+            if name not in answers:
                 return
         pexercise.answers = answers
         max_scores = pexercise.max_scores
@@ -388,8 +388,8 @@ class TestParametrizedExercise(unittest.TestCase):
         A sample solution should get maximal total score.
         """
         answers = pexercise.solution
-        for value in answers.values():
-            if value is None:
+        for name in pexercise.ifields:
+            if name not in answers:
                 return
         pexercise.answers = answers
         self.assertEqual(
