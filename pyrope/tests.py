@@ -78,6 +78,24 @@ class TestExercise(unittest.TestCase):
             "custom scores."
         )
 
+    @with_all_exercises
+    def test_maximal_total_score_is_stable(self, exercise):
+        '''
+        The maximal total score of an exercise is calculated by inserting the
+        sample solution. The sample solution depends on the exercise's
+        parameters which could be randomized. Therefore, the maximal total
+        score has to be same over different runs of an exercise.
+        '''
+        max_total_score = core.ParametrizedExercise(exercise).max_total_score
+        for _ in range(config.maximum_test_repetitions):
+            pexercise = core.ParametrizedExercise(exercise)
+            self.assertEqual(
+                max_total_score, pexercise.max_total_score,
+                f"The maximal total score must not change over different "
+                f"runs of an exercise, got {max_total_score} and "
+                f"{pexercise.max_total_score} as a maximal total score."
+            )
+
 
 class TestParametrizedExercise(unittest.TestCase):
 
@@ -482,8 +500,8 @@ class TestParametrizedExercise(unittest.TestCase):
         The score method of an exercise can return the scores for the answers
         in several formats:
             - A scalar value which is interpreted as the total score. Valid
-              data types are bool, int, float, numpy.bool_, numpy.int_,
-              numpy.float_. Booleans are converted to 0 or 1.
+              data types are bool, int, float, numpy.bool_, numpy.integer,
+              numpy.floating. Booleans are converted to 0 or 1.
             - A tuple where the first value is interpreted as the total score
               and the second one as the maximal total score. Its elements have
               to match a type from above.

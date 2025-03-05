@@ -6,7 +6,7 @@ import numpy
 
 from pyrope.config import process_score
 from pyrope.errors import IllPosedError, ValidationError
-from pyrope.messages import ChangeWidgetAttribute, WidgetValidationError
+from pyrope.messages import ChangeWidgetAttribute
 from pyrope.nodes.node import Node
 
 
@@ -74,30 +74,8 @@ class Widget(Node):
                 obj.notify(self)
 
     def validate(self):
-        ifield = self
-        while ifield.parent is not None:
-            try:
-                ifield.value
-            except ValidationError as e:
-                ifield.valid = False
-                e.ifield = ifield
-                ifield.notify(WidgetValidationError(
-                    repr(e.ifield), e, self.ID
-                ))
-                break
-            else:
-                invalid_siblings = False
-                for ifield in ifield.parent.ifields.values():
-                    try:
-                        ifield.value
-                    except ValidationError:
-                        invalid_siblings = True
-                    else:
-                        if ifield.valid is False:
-                            ifield.valid = None if self.value is None else True
-                if invalid_siblings:
-                    break
-                ifield = ifield.parent
+        if self.parent.value is None:
+            self.valid = None
 
     @property
     def value(self):
@@ -114,7 +92,12 @@ class Widget(Node):
             self.notify(ChangeWidgetAttribute(
                 repr(self), self.ID, 'value', value
             ))
-            self.validate()
+            ifield = self
+            while ifield.parent is not None:
+                if ifield.parent.parent is None:
+                    break
+                ifield = ifield.parent
+            ifield.validate()
 
     @property
     def valid(self):
@@ -122,10 +105,11 @@ class Widget(Node):
 
     @valid.setter
     def valid(self, value):
-        self._valid = value
-        self.notify(ChangeWidgetAttribute(
-            repr(self), self.ID, 'valid', value
-        ))
+        if value != self._valid:
+            self._valid = value
+            self.notify(ChangeWidgetAttribute(
+                repr(self), self.ID, 'valid', value
+            ))
 
     @property
     def the_solution(self):
@@ -342,55 +326,56 @@ class Widget(Node):
 
 class Checkbox(Widget):
 
-    checked = NotifyingAttribute()
-
-    def __init__(self, checked=False, **kwargs):
+    def __init__(self, **kwargs):
         Widget.__init__(self, **kwargs)
-        if not isinstance(checked, bool):
-            raise ValueError("'checked' has to be a boolean.")
-        self.checked = checked
-        self._value = checked
+        self._value = False
 
 
 class Dropdown(Widget):
 
+    labels = NotifyingAttribute()
     options = NotifyingAttribute()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, labels=None, **kwargs):
         Widget.__init__(self, **kwargs)
+        if len(args) != len(set(args)):
+            raise ValueError("The arguments have to be free of duplicates.")
+        if labels is not None and not isinstance(labels, (list, tuple)):
+            raise ValueError("'labels' has to be a list, tuple or None.")
+        if labels is not None and len(labels) != len(args):
+            raise ValueError(
+                "The amount of labels has to match the amount of given "
+                "arguments."
+            )
+        if labels is None:
+            labels = tuple([str(arg) for arg in args])
+        for label in labels:
+            if not isinstance(label, str):
+                raise ValueError("All labels have to be strings.")
+        self.labels = labels
         self.options = args
 
 
-class RadioButtons(Widget):
+class RadioButtons(Dropdown):
 
-    options = NotifyingAttribute()
     vertical = NotifyingAttribute()
 
     def __init__(self, *args, vertical=True, **kwargs):
-        Widget.__init__(self, **kwargs)
+        Dropdown.__init__(self, *args, **kwargs)
         if not isinstance(vertical, bool):
             raise ValueError("'vertical' has to be a boolean.")
-        self.options = args
         self.vertical = vertical
 
 
 class Slider(Widget):
 
-    label_position = NotifyingAttribute()
     maximum = NotifyingAttribute()
     minimum = NotifyingAttribute()
     step = NotifyingAttribute()
     width = NotifyingAttribute()
 
-    def __init__(
-            self, minimum, maximum, label_position='right', step=1, width=25,
-            **kwargs
-    ):
+    def __init__(self, minimum, maximum, step=1, width=25, **kwargs):
         Widget.__init__(self, **kwargs)
-        if label_position not in ('left', 'right', 'neither'):
-            raise ValueError(
-                "'label_position' has to be either left, right or neither."
-            )
         if (
             not isinstance(minimum, numbers.Real) or
             not isinstance(maximum, numbers.Real) or
@@ -407,7 +392,6 @@ class Slider(Widget):
                 "'width' has to be an integer greater than or equal to 0 and "
                 "less than or equal to 100."
             )
-        self.label_position = label_position
         self.maximum = maximum
         self.minimum = minimum
         self.step = step
@@ -431,7 +415,7 @@ class Text(Widget):
         self.width = width
 
 
-class Textarea(Text):
+class TextArea(Text):
 
     height = NotifyingAttribute()
 

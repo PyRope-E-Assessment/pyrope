@@ -1,3 +1,29 @@
 [build-system]
 requires = ["setuptools >= 74.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyrope"
+version = "0.1.0"
+dependencies = [
+    "matplotlib>=3.7",
+    "notebook>=7",
+    "numpy>=1.24",
+    "pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/0.1.X/dist/pyrope_ipywidgets-0.1.0-py3-none-any.whl",
+    "SQLAlchemy>=2.0.30",
+    "sympy>=1.11",
+]
+requires-python = ">=3.10"
+readme = "README.rst"
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=7.1.1",
+    "pylint>=3.3.2",
+]
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.pylint.'MESSAGES CONTROL']
+errors-only = "True"

@@ -1,2 +1,0 @@
-recursive-include pyrope/static *
-recursive-include pyrope/nbextension *

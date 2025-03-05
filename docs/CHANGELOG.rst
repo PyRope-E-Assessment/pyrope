@@ -46,6 +46,12 @@ New
   or an iterable of strings containing tips for students to solve an exercise.
   In :code:`JupyterFrontend` these hints can be rendered via a button.
 * History logging for learning analytics.
+* Make :code:`JupyterFrontend` Notebook 7 and JupyterLab compatible.
+* :code:`Exercise.test()` now returns a boolean value whether all tests passed
+  or not. Furthermore, it got a new option :code:`suppress_output` which
+  defaults to :code:`False`.
+* :code:`ignore_case` and :code:`squash_whitespaces` option for :code:`String`
+  nodes.
 
 Changes
 -------

@@ -3,6 +3,7 @@ import abc
 import ast
 from fractions import Fraction
 import numbers
+import re
 import tokenize
 
 import numpy as np
@@ -197,7 +198,7 @@ class ComplexType(DType):
             )
 
     def cast(self, value):
-        if isinstance(value, (np.int_, np.float_, np.complex_)):
+        if isinstance(value, (np.integer, np.floating, np.complexfloating)):
             value = value.item()
         if isinstance(value, (int, float)):
             return complex(value)
@@ -471,9 +472,9 @@ class IntType(DType):
         if self.minimum is None and self.maximum is None:
             return 'an integer'
         if self.maximum is None:
-            return f'an integer greater equal {self.minimum}'
+            return f'an integer greater or equal to {self.minimum}'
         if self.minimum is None:
-            return f'an integer less or equal {self.maximum}'
+            return f'an integer less or equal to {self.maximum}'
         return f'an integer between {self.minimum} and {self.maximum}'
 
     def trivial_value(self):
@@ -496,7 +497,7 @@ class IntType(DType):
         return value
 
     def cast(self, value):
-        if isinstance(value, (np.int_, np.float_, np.complex_)):
+        if isinstance(value, (np.integer, np.floating, np.complexfloating)):
             value = value.item()
         if isinstance(value, float) and int(value) == value:
             return int(value)
@@ -729,7 +730,7 @@ class RealType(DType):
         return value
 
     def cast(self, value):
-        if isinstance(value, (np.int_, np.float_, np.complex_)):
+        if isinstance(value, (np.integer, np.floating, np.complexfloating)):
             value = value.item()
         if isinstance(value, int):
             return float(value)
@@ -802,13 +803,21 @@ class StringType(DType):
 
     dtype = str
 
-    def __init__(self, strip=False, **kwargs):
+    def __init__(
+        self, ignore_case=False, strip=True, squash_whitespaces=False,
+        **kwargs
+    ):
         DType.__init__(self, **kwargs)
+        self.ignore_case = ignore_case
         self.strip = strip
+        self.squash_whitespaces = squash_whitespaces
 
     @property
     def info(self):
-        return 'a string'
+        if self.ignore_case is True:
+            return 'a case insensitive string'
+        else:
+            return 'a string'
 
     def trivial_value(self):
         return ''
@@ -825,8 +834,12 @@ class StringType(DType):
         return value
 
     def normalize(self, value):
+        if self.ignore_case is True:
+            value = value.lower()
         if self.strip is True:
             value = value.strip()
+        if self.squash_whitespaces is True:
+            value = re.sub(r'\s+', ' ', value)
         return value
 
 

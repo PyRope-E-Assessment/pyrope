@@ -221,7 +221,7 @@ class OneOf(Node):
 class Polynomial(Node):
 
     def __init__(
-            self, *, degree=None, elementwise=False, widget=Text(), **kwargs
+        self, *, degree=None, elementwise=False, widget=Text(), **kwargs
     ):
         self.dtype = PolynomialType(degree=degree, **kwargs)
         if elementwise is True:

@@ -6,7 +6,7 @@ from pyrope.core import (
     Exercise, ExercisePool, ExerciseRunner, ParametrizedExercise
 )
 from pyrope.logo import logo
-from pyrope.nodes import *  # noqa: F401
+from pyrope.nodes import *  # noqa: F401, F403
 from pyrope.ipython_extension import PyRopeMagics
 
 __all__ = [
@@ -30,14 +30,3 @@ def load_ipython_extension(ipy):
 if (ipy := get_ipython()) is not None:
     if 'pyrope' not in ipy.magics_manager.magics.get('line'):
         load_ipython_extension(ipy)
-
-
-def _jupyter_nbextension_paths():
-    return [
-        {
-            'section': 'notebook',
-            'src': 'nbextension',
-            'dest': 'pyrope',
-            'require': 'pyrope/extension',
-        }
-    ]
