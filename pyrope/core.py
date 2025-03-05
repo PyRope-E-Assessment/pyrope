@@ -160,7 +160,7 @@ class Exercise(abc.ABC):
             return None
         return '\n\n'.join(classes)
 
-    def run(self, debug=False, difficulty=None):
+    def run(self, debug=False, difficulty=None, global_parameters=None):
         if difficulty is not None:
             if not (
                 isinstance(difficulty, float_types) and
@@ -172,7 +172,9 @@ class Exercise(abc.ABC):
                 )
             difficulty = float(difficulty)
         self.difficulty = difficulty
-        runner = ExerciseRunner(self, debug=debug)
+        runner = ExerciseRunner(
+            self, debug=debug, global_parameters=global_parameters
+        )
         if get_ipython() is not None:
             frontend = frontends.JupyterFrontend()
         else:
@@ -231,9 +233,10 @@ class ParametrizedExercise:
             self.global_parameters['min_difficulty'] = 0.0
         if 'max_difficulty' not in self.global_parameters:
             self.global_parameters['max_difficulty'] = 1.0
+        if 'user_name' not in self.global_parameters:
+            self.global_parameters['user_name'] = 'John Doe'
         self._total_score = None
         self._max_total_score = None
-        self._none_solution_ifields = set()
         self.user_name = None
         self.started_at = None
         self.submitted_at = None
@@ -248,6 +251,17 @@ class ParametrizedExercise:
             elif par.default is inspect.Parameter.empty:
                 raise IllPosedError(f'Missing parameter: {par.name}.')
         return func(**kwargs)
+
+    def ifield_defaults(self, func):
+        signature = inspect.signature(func)
+        defaults = {}
+        for par in signature.parameters.values():
+            if (
+                par.name in self.ifields and
+                par.default is not inspect.Parameter.empty
+            ):
+                defaults[par.name] = par.default
+        return defaults
 
     @cached_property
     def id(self):
@@ -340,15 +354,11 @@ class ParametrizedExercise:
 
         solution = explicit | implicit
 
-        for name, value in solution.items():
-            if value is None or (isinstance(value, str) and value == ''):
-                if self.ifields[name].treat_none_manually is True:
-                    self._none_solution_ifields.add(name)
-
         self.model.the_solution = solution
         return {
             name: ifield.the_solution
             for name, ifield in self.model.ifields.items()
+            if name in solution
         }
 
     @cached_property
@@ -365,25 +375,21 @@ class ParametrizedExercise:
             names = list(self.ifields.keys())
             solution = {names[0]: solution}
 
-        for name, value in solution.items():
-            if value is None or (isinstance(value, str) and value == ''):
-                if self.ifields[name].treat_none_manually is True:
-                    self._none_solution_ifields.add(name)
-
         self.model.a_solution = solution
         return {
             name: ifield.a_solution
             for name, ifield in self.model.ifields.items()
+            if name in solution
         }
 
     @property
     def solution(self):
         # trigger solutions via getter
-        self.the_solution
-        self.a_solution
+        names = set(self.the_solution.keys()) | set(self.a_solution.keys())
         return {
             name: ifield.solution
             for name, ifield in self.model.ifields.items()
+            if name in names
         }
 
     @cached_property
@@ -437,31 +443,21 @@ class ParametrizedExercise:
 
     @cached_property
     def max_scores(self):
-        solution = {
-            name: value for name, value in self.solution.items()
-            if name not in self._none_solution_ifields
-        }
+        solution = self.solution
         scores = self.apply(
             self.exercise.scores, self.parameters | self.dummy_input
         )
-        if scores is None or isinstance(scores, float_types):
-            for name, value in solution.items():
-                if value is None:
-                    raise IllPosedError(
-                        f"Unable to determine maximal score for "
-                        f"input field '{name}'."
-                    )
+
         if scores is None:
             max_scores = {
                 name: float(ifield.auto_max_score) * self.score_weights[name]
-                if name not in self._none_solution_ifields
-                else self.score_weights[name] * len(self.ifields[name].widgets)
                 for name, ifield in self.ifields.items()
             }
             self._max_total_score = sum(max_scores.values())
             for name, ifield in self.ifields.items():
                 ifield.displayed_max_score = max_scores[name]
             return max_scores
+
         if isinstance(scores, tuple):
             self._max_total_score = (
                 float(scores[1]) * list(self.score_weights.values())[0]
@@ -473,17 +469,16 @@ class ParametrizedExercise:
                 return {name: self._max_total_score}
             return {name: None for name in self.ifields}
 
-        answer = {
-            name: self.dummy_input[name]
-            if value is None else value
-            for name, value in solution.items()
-        }
-        answer |= {name: None for name in self._none_solution_ifields}
-        max_scores = self.apply(
-            self.exercise.scores, self.parameters | answer
-        )
-
         if isinstance(scores, float_types):
+            for name in self.ifields:
+                if name not in solution:
+                    raise IllPosedError(
+                        f"Unable to determine a maximal total score because "
+                        f"there is no solution for input field '{name}'."
+                    )
+            max_scores = self.apply(
+                self.exercise.scores, self.parameters | solution
+            )
             self._max_total_score = (
                 float(max_scores) * list(self.score_weights.values())[0]
             )
@@ -493,30 +488,39 @@ class ParametrizedExercise:
                 ifield.displayed_max_score = self._max_total_score
                 return {name: self._max_total_score}
             return {name: None for name in self.ifields}
+
         if isinstance(scores, dict):
-            max_scores = {
-                name: max_scores[name]
-                if name in max_scores else None
+            answer = {
+                name: solution[name] if name in solution
+                else self.dummy_input[name]
                 for name in self.ifields
             }
-            for name, value in solution.items():
-                if (
-                    value is None and
-                    isinstance(max_scores[name], float_types) and
-                    name not in self._none_solution_ifields
-                ):
+
+            max_scores = self.apply(
+                self.exercise.scores, self.parameters | answer
+            )
+
+            for name in self.ifields:
+                # Fill up missing input field names with None.
+                if name not in max_scores:
                     max_scores[name] = None
+                # In case a dummy input obtained a float type score.
+                elif name not in solution:
+                    if isinstance(max_scores[name], float_types):
+                        max_scores[name] = None
+
             for name, value in max_scores.items():
                 if isinstance(value, float_types):
                     max_scores[name] = float(value)
                 elif isinstance(value, tuple):
                     max_scores[name] = float(value[1])
-                elif value is None or solution[name] is None:
+                elif value is None:
                     max_scores[name] = self.ifields[name].auto_max_score
                 max_scores[name] *= self.score_weights[name]
                 self.ifields[name].displayed_max_score = max_scores[name]
             self._max_total_score = sum(max_scores.values())
             return max_scores
+
         raise IllPosedError(
             'If implemented, the score method must return a number, a pair '
             'of numbers or a dictionary with values of this type, where a '
@@ -525,75 +529,84 @@ class ParametrizedExercise:
 
     @property
     def scores(self):
-        self.solution
+        self.solution  # Essential for a successful auto scoring.
         output = self.apply(
             self.exercise.scores, self.parameters | self.dummy_input
         )
-        answers = self.answers
-        fill_values = {
-            name: self.dummy_input[name]
-            for name, answer in answers.items()
-            if answer is None and not self.ifields[name].treat_none_manually
+        # Get all non-empty answers.
+        answers = {
+            name: value for name, value in self.answers.items()
+            if value is not None
         }
-        if isinstance(output, dict)\
-                or (output is not None and len(self.ifields) == 1):
-            answers |= fill_values
+        no_scores = {name: None for name in self.ifields}
+
+        # Joint input field scoring.
+        if (
+            isinstance(output, float_types + (tuple,)) and
+            len(self.ifields) != 1
+        ):
+            # In a joint input field scoring scenario all input fields need
+            # to have non-empty answers.
+            if set(answers.keys()) != set(self.ifields.keys()):
+                self._total_score = 0.0
+                return no_scores
+            score = self.apply(
+                self.exercise.scores, self.parameters | answers
+            )
+            if isinstance(score, float_types):
+                score = float(score)
+            else:
+                score = float(score[0])
+            self._total_score = score * list(self.score_weights.values())[0]
+            return no_scores
+
+        defaults = self.ifield_defaults(self.exercise.scores)
+        # Use default values if there is no answer.
+        answers = defaults | answers
+        # Use dummy inputs to fill up empty answers.
+        fill_values = {
+            name: self.dummy_input[name] for name in self.ifields
+            if name not in answers
+        }
+        answers |= fill_values
         scores = self.apply(
             self.exercise.scores, self.parameters | answers
         )
-        if isinstance(output, dict):
-            for name in fill_values:
-                if name not in scores:
-                    continue
-                elif isinstance(scores[name], tuple):
-                    scores[name] = (0.0, scores[name][1])
-                else:
+
+        # Input field-wise scoring for float and tuple types if there is only
+        # one input field.
+        if isinstance(scores, float_types + (tuple,)):
+            name = list(self.ifields.keys())[0]
+            if isinstance(scores, float_types):
+                scores = float(scores)
+            else:
+                scores = float(scores[0])
+            self._total_score = scores * self.score_weights[name]
+            self.ifields[name].displayed_score = self._total_score
+            return {name: self._total_score}
+
+        # Cast scores and fill up missing scores with None.
+        if isinstance(scores, dict):
+            for name in self.ifields:
+                if name in scores and name in fill_values:
                     scores[name] = 0.0
-        if output is not None and len(self.ifields) == 1:
-            for name in fill_values:
-                if isinstance(output, tuple):
-                    scores = {name: (0.0, scores[1])}
+                if name in scores:
+                    if isinstance(scores[name], tuple):
+                        scores[name] = scores[name][0]
+                    scores[name] = float(scores[name])
                 else:
-                    scores = {name: 0.0}
-        no_scores = {name: None for name in self.ifields}
+                    scores[name] = None
+
         if scores is None:
             scores = no_scores
-        names = list(self.ifields.keys())
-        ifields = list(self.ifields.values())
-        if isinstance(scores, float_types):
-            self._total_score = (
-                float(scores) * list(self.score_weights.values())[0]
-            )
-            if len(names) == 1:
-                ifields[0].displayed_score = self._total_score
-                return {names[0]: self._total_score}
-            return no_scores
-        if isinstance(scores, tuple):
-            self._total_score = (
-                float(scores[0]) * list(self.score_weights.values())[0]
-            )
-            if len(names) == 1:
-                ifields[0].displayed_score = self._total_score
-                return {names[0]: self._total_score}
-            return no_scores
-        for name, ifield in self.model.ifields.items():
-            if name not in scores:
-                scores[name] = None
+
+        for name, ifield in self.ifields.items():
             if scores[name] is None:
-                if name in self._none_solution_ifields:
-                    score = float(self.answers[name] is None)
-                    scores[name] = score * len(self.ifields[name].widgets)
-                else:
-                    scores[name] = ifield.auto_score
-            if isinstance(scores[name], tuple):
-                scores[name] = scores[name][0]
-            scores[name] = float(scores[name]) * self.score_weights[name]
+                scores[name] = ifield.auto_score
+            scores[name] = scores[name] * self.score_weights[name]
             ifield.displayed_score = scores[name]
-        self._total_score = sum([
-            scores[name][0]
-            if isinstance(scores[name], tuple) else scores[name]
-            for name in self.ifields.keys()
-        ])
+
+        self._total_score = sum(scores.values())
         return scores
 
     @property
@@ -644,7 +657,7 @@ class ParametrizedExercise:
         for key in keys:
             factor = [None]
             for answer in answers:
-                if answer[key] is not None:
+                if answer.get(key, None) is not None:
                     factor.append(answer[key])
             factors.append(factor)
 
@@ -674,13 +687,11 @@ class ParametrizedExercise:
 
 class ExerciseRunner:
 
-    def __init__(
-        self, exercise, debug=False, global_parameters=None,
-        user_name='John Doe'
-    ):
+    def __init__(self, exercise, debug=False, global_parameters=None):
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
+        user_name = self.pexercise.global_parameters['user_name']
         self.pexercise.user_name = user_name
         self.sender = exercise.__class__
         self.widget_id_mapping = {

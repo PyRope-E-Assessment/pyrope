@@ -1,7 +1,7 @@
 
-================
-PyRope Changelog
-================
+=========
+Changelog
+=========
 
 
 v0.1.1
@@ -10,48 +10,48 @@ v0.1.1
 New
 ---
 
-* Empty input fields can be scored manually with :code:`treat_none_manually`.
 * Add type hints to configurations to make it clearer for users.
-* Configure how many options of :code:`OneOf` nodes will be rendered as radio
-  buttons at most with :code:`maximal_radio_buttons`.
-* :code:`ExpressionType` interprets :code:`e` and :code:`i` as euler's number
-  and the imaginary unit if they are not specified as symbols.
-* Input fields have a :code:`correct` flag. Jupyter frontends use this flag to
+* Configure how many options of :py:class:`OneOf` nodes will be rendered as
+  radio buttons at most with ``maximal_radio_buttons``.
+* :py:class:`ExpressionType` interprets :code:`e` and :code:`i` as euler's
+  number and the imaginary unit if they are not specified as symbols.
+* Input fields have a ``correct`` flag. Jupyter frontends use this flag to
   highlight input fields after submission.
-* Weight scores with :code:`weights` when instantiating an exercise and test
-  :code:`weights`.
-* Implement :code:`atol` and :code:`rtol` for :code:`Complex` and :code:`Real`
+* Weight scores with ``weights`` when instantiating an exercise and test
+  ``weights``.
+* Implement ``atol`` and ``rtol`` for :py:class:`Complex` and :py:class:`Real`
   nodes.
 * Add specific exercises from a Python script to an exercise pool via the CLI,
-  i.e. :code:`/path/to/exercises/exercises.py:Example1,Example2,...`.
-* New nodes: :code:`Polynomial`, :code:`ElementwisePolynomial`,
-  :code:`LinearExpression`, :code:`ElementwiseLinearExpression` and
-  :code:`MultipleChoice`.
-* New compare option :code:`up_to_multiple` for :code:`Vector`. With this
+  i.e. ``/path/to/exercises/exercises.py:Example1,Example2,...``.
+* New nodes: :py:class:`Polynomial`, :py:class:`ElementwisePolynomial`,
+  :py:class:`LinearExpression`, :py:class:`ElementwiseLinearExpression` and
+  :py:class:`MultipleChoice`.
+* New compare option ``up_to_multiple`` for :py:class:`Vector`. With this
   option linear dependent input vectors will also get the maximal score.
-* An exercise's difficulty can be set with :code:`difficulty` on
-  :code:`Exercise.run()`.
-* When an exercise is instantiated, the range from which :code:`difficulty` is
+* An exercise's difficulty can be set with ``difficulty`` on
+  :py:meth:`Exercise.run`.
+* When an exercise is instantiated, the range from which ``difficulty`` is
   randomly chosen from can be specified with keyword arguments
-  :code:`min_difficulty` and :code:`max_difficulty`.
+  ``min_difficulty`` and ``max_difficulty``.
 * The following metadata can be specified as class attributes for an exercise:
-  :code:`title`, :code:`subtitle`, :code:`author`, :code:`language`,
-  :code:`license`, :code:`URL`, :code:`pyrope_versions`, :code:`origin`,
-  :code:`discipline`, :code:`area`, :code:`topic`, :code:`keywords` and
-  :code:`taxonomy`. If specified, they get tested via unit tests when
-  :code:`MyExercise().test()` is called.
+  ``title``, ``subtitle``, ``author``, ``language``, ``license``, ``URL``,
+  ``pyrope_versions``, ``origin``, ``discipline``, ``area``, ``topic``,
+  ``keywords`` and ``taxonomy``. If specified, they get tested via unit tests
+  when :py:meth:`MyExercise().test` is called.
 * Rudimentary database functionalities.
 * History log for statistical purposes and learning analytics.
-* New exercise method :code:`hints`: This method can be used to return a string
-  or an iterable of strings containing tips for students to solve an exercise.
-  In :code:`JupyterFrontend` these hints can be rendered via a button.
+* New exercise method :py:meth:`hints`: This method can be used to return a
+  string or an iterable of strings containing tips for students to solve an
+  exercise. In :py:class:`JupyterFrontend` these hints can be rendered via a
+  button.
 * History logging for learning analytics.
-* Make :code:`JupyterFrontend` Notebook 7 and JupyterLab compatible.
-* :code:`Exercise.test()` now returns a boolean value whether all tests passed
-  or not. Furthermore, it got a new option :code:`suppress_output` which
-  defaults to :code:`False`.
-* :code:`ignore_case` and :code:`squash_whitespaces` option for :code:`String`
+* Make :py:class:`JupyterFrontend` Notebook 7 and JupyterLab compatible.
+* :py:meth:`Exercise.test` now returns a boolean value whether all tests passed
+  or not. Furthermore, it got a new option ``suppress_output`` which defaults
+  to ``False``.
+* ``ignore_case`` and ``squash_whitespaces`` option for :py:class:`String`
   nodes.
+* Define default values in :py:meth:`scores` for input fields.
 
 Changes
 -------
@@ -61,33 +61,36 @@ Changes
   so that changes in exercises are considered.
 * In Jupyter frontends, Feedbacks and total scores will now have the same style
   as problem and preamble templates.
-* Remove :code:`Widget.new_instance()` because :code:`Node.clone()` made it
+* Remove :py:meth:`Widget.new_instance` because :py:meth:`Node.clone` made it
   obsolete.
 * Jupyter frontend: Encode and decode templates with Base64.
-* Drop :code:`ColumnVector` and :code:`RowVector`. Use :code:`Vector` with
-  keyword argument :code:`orientation` instead. Vectors are now represented as
-  a flat :code:`numpy.array` internally.
+* Drop :py:class:`ColumnVector` and :py:class:`RowVector`. Use
+  :py:class:`Vector` with keyword argument ``orientation`` instead. Vectors are
+  now represented as a flat :py:class:`numpy.array` internally.
 * Validate arguments of widgets.
-* Rename :code:`score_types` to :code:`float_types`.
-* Create a :code:`nodes` package and outsource errors into a separate module to
-  avoid circular imports.
+* Rename ``score_types`` to ``float_types``.
+* Create a :py:mod:`nodes` package and outsource errors into a separate module
+  to avoid circular imports.
 * Composed input fields can be invalid even if all children nodes are valid.
   Therefore all children nodes are now invalid if the composed input field is
   invalid.
 * Messages sent between frontends and runners are now encapsulated by the class
-  :code:`Message`.
+  :py:class:`Message`.
 * Line breaks are handled differently in templates: One or more blank lines
   start a new paragraph and escaping a newline character enforces a line break.
   For multiline strings this means you only have to write a double backslash at
   the end of a line or a single backslash in case of raw multiline strings.
+* Accept ``None`` and empty strings as solutions.
+* If there are empty input fields with no default values in a joint input
+  field scoring scenario, the exercise gets a total score of zero.
 
 Fixes
 -----
 
-* Raise an error in :code:`MatrixType` if :code:`atol` or :code:`rtol` are not
+* Raise an error in :py:class:`MatrixType` if ``atol`` or ``rtol`` are not
   real numbers.
-* In Jupyter frontends, use Pandoc's :code:`tex_math_dollars` Markdown
-  extension to respect LaTeX environments in all templates.
-* Return :code:`False` in :code:`ExpressionType.compare()` if
-  :code:`sympy.Expr.equals` returns :code:`None`.
+* In Jupyter frontends, use Pandoc's ``tex_math_dollars`` Markdown extension to
+  respect LaTeX environments in all templates.
+* Return ``False`` in :py:meth:`ExpressionType.compare` if
+  :py:meth:`sympy.Expr.equals` returns ``None``.
 * Widgets now use their correct parent node to calculate scores automatically.

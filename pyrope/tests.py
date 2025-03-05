@@ -212,6 +212,11 @@ class TestParametrizedExercise(unittest.TestCase):
         feedback = pexercise.apply(
             pexercise.exercise.feedback, kwargs
         )
+        self.assertIsNot(
+            feedback, None,
+            'Feedback is None. If you really want no feedback, return an '
+            'empty string in the last line.'
+        )
         self.assertIsInstance(
             feedback, str,
             f"The 'feedback' method must return a string, not an instance "
@@ -354,35 +359,13 @@ class TestParametrizedExercise(unittest.TestCase):
             )
 
     @with_all_pexercises
-    def test_no_score_for_empty_inputs(self, pexercise):
-        """
-        If all input fields are empty and treat None automatically, the total
-        score should be zero.
-        """
-        if pexercise.ifields == {}:
-            return
-        if any([
-            ifield.treat_none_manually
-            for ifield in pexercise.ifields.values()
-        ]):
-            return
-        pexercise.answers = {
-            name: None
-            for name in pexercise.ifields
-        }
-        self.assertEqual(
-            pexercise.total_score, 0.0,
-            'The total score for empty input fields is not zero.'
-        )
-
-    @with_all_pexercises
     def test_maximal_scores_for_sample_solution(self, pexercise):
         """
         A sample solution should get maximal input field scores.
         """
         answers = pexercise.solution
-        for value in answers.values():
-            if value is None:
+        for name in pexercise.ifields:
+            if name not in answers:
                 return
         pexercise.answers = answers
         max_scores = pexercise.max_scores
@@ -401,8 +384,8 @@ class TestParametrizedExercise(unittest.TestCase):
         A sample solution should get maximal total score.
         """
         answers = pexercise.solution
-        for value in answers.values():
-            if value is None:
+        for name in pexercise.ifields:
+            if name not in answers:
                 return
         pexercise.answers = answers
         self.assertEqual(
@@ -512,29 +495,21 @@ class TestParametrizedExercise(unittest.TestCase):
               in the key.
         """
         exercise = pexercise.exercise
-
-        output = pexercise.apply(
-            exercise.scores,
-            pexercise.parameters | pexercise.dummy_input
+        answers = {
+            name: value for name, value in pexercise.answers.items()
+            if value is not None
+        }
+        defaults = pexercise.ifield_defaults(exercise.scores)
+        answers = pexercise.dummy_input | defaults | answers
+        scores = pexercise.apply(
+            exercise.scores, pexercise.parameters | answers
         )
-        if isinstance(output, dict) or len(pexercise.ifields) == 1:
-            for answer in pexercise.answers.values():
-                if answer is None:
-                    return
-
-        try:
-            scores = pexercise.apply(
-                exercise.scores,
-                pexercise.parameters | pexercise.answers
-            )
-        except BaseException as e:
-            if None in pexercise.answers.values():
-                raise e.__class__(
-                    f'It seems empty input fields in exercise '
-                    f'{pexercise.exercise} are not properly treated.'
-                ) from e
-            raise e
-
+        self.assertTrue(
+            isinstance(scores, core.float_types + (tuple, dict)) or
+            scores is None,
+            f"The scores method has to return either a float type, tuple, "
+            f"dict or None, got {type(scores)}."
+        )
         if scores is None:
             return
         if isinstance(scores, core.float_types):

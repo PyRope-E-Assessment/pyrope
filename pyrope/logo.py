@@ -6,7 +6,7 @@ import matplotlib.pyplot as pp
 import numpy as np
 
 
-def logo(figsize=(2, 2), R=1 / np.sqrt(2), seed=42):
+def logo(size=512, seed=42):
 
     np.random.seed(seed)
 
@@ -15,6 +15,7 @@ def logo(figsize=(2, 2), R=1 / np.sqrt(2), seed=42):
     q = np.sqrt(2 - np.sqrt(2))
 
     # polar vertex coordinates
+    R = 1 / np.sqrt(2)
     r = np.array([0, R * q, R, R / q, 1, 1], ndmin=2).T
     phi = np.linspace(0, 2 * np.pi, num=9)
     dphi = np.pi / 8 * np.array(3 * [0, 1], ndmin=2).T
@@ -27,13 +28,11 @@ def logo(figsize=(2, 2), R=1 / np.sqrt(2), seed=42):
     D = matplotlib.tri.Triangulation(x, y)
 
     # triangle centers
-    Cx, Cy = np.mean(
-        [x[D.triangles], y[D.triangles]], axis=-1
-    )
+    Cx, Cy = np.mean([x[D.triangles], y[D.triangles]], axis=-1)
 
     # polar coordinates of triangle centers
     phi = np.arctan2(Cy, Cx)
-    r = np.sqrt(Cx ** 2 + Cy ** 2) + phi / 2 ** 7
+    r = np.sqrt(Cx**2 + Cy**2) + phi / 2**7
 
     # order triangles
     triangles = D.triangles[np.lexsort((phi, r))]
@@ -65,19 +64,21 @@ def logo(figsize=(2, 2), R=1 / np.sqrt(2), seed=42):
     # sparkle colours
     SC = np.random.rand(8)
 
-    # plot figure
-    pp.figure(figsize=figsize)
-    pp.axis('equal')
+    # create figure
+    pp.figure(figsize=(1, 1))
+    pp.axis('off')
     pp.xlim(-1, +1)
     pp.ylim(-1, +1)
-    pp.axis('off')
     pp.tripcolor(T, facecolors=TC, vmin=+0.0, vmax=3.0, cmap='hot')
     pp.tripcolor(S, facecolors=SC, vmin=-1.0, vmax=1.0, cmap='bone')
 
     # convert figure to image
     with io.BytesIO() as iobuffer:
-        pp.savefig(iobuffer, dpi=300, bbox_inches='tight')
+        pp.savefig(iobuffer, transparent=True, dpi=size)
         iobuffer.seek(0)
         image = pp.imread(iobuffer)
+
+    # prevent plotting
+    pp.close()
 
     return image
