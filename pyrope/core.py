@@ -248,6 +248,17 @@ class ParametrizedExercise:
                 raise IllPosedError(f'Missing parameter: {par.name}.')
         return func(**kwargs)
 
+    def ifield_defaults(self, func):
+        signature = inspect.signature(func)
+        defaults = {}
+        for par in signature.parameters.values():
+            if (
+                par.name in self.ifields and
+                par.default is not inspect.Parameter.empty
+            ):
+                defaults[par.name] = par.default
+        return defaults
+
     @cached_property
     def id(self):
         if self.source is None:
@@ -514,81 +525,84 @@ class ParametrizedExercise:
 
     @property
     def scores(self):
-        self.solution
+        self.solution  # Essential for a successful auto scoring.
         output = self.apply(
             self.exercise.scores, self.parameters | self.dummy_input
         )
-        answers = self.answers
-        fill_values = {
-            name: self.dummy_input[name]
-            for name, answer in answers.items()
-            if answer is None and not self.ifields[name].treat_none_manually
+        # Get all non-empty answers.
+        answers = {
+            name: value for name, value in self.answers.items()
+            if value is not None
         }
+        no_scores = {name: None for name in self.ifields}
+
+        # Joint input field scoring.
         if (
-            isinstance(output, dict) or
-            (output is not None and len(self.ifields) == 1)
+            isinstance(output, float_types + (tuple,)) and
+            len(self.ifields) != 1
         ):
-            answers |= fill_values
+            # In a joint input field scoring scenario all input fields need
+            # to have non-empty answers.
+            if set(answers.keys()) != set(self.ifields.keys()):
+                self._total_score = 0.0
+                return no_scores
+            score = self.apply(
+                self.exercise.scores, self.parameters | answers
+            )
+            if isinstance(score, float_types):
+                score = float(score)
+            else:
+                score = float(score[0])
+            self._total_score = score * list(self.score_weights.values())[0]
+            return no_scores
+
+        defaults = self.ifield_defaults(self.exercise.scores)
+        # Use default values if there is no answer.
+        answers = defaults | answers
+        # Use dummy inputs to fill up empty answers.
+        fill_values = {
+            name: self.dummy_input[name] for name in self.ifields
+            if name not in answers
+        }
+        answers |= fill_values
         scores = self.apply(
             self.exercise.scores, self.parameters | answers
         )
 
-        if isinstance(output, dict):
-            for name in fill_values:
-                if name not in scores:
-                    continue
-                elif isinstance(scores[name], tuple):
-                    scores[name] = (0.0, scores[name][1])
-                else:
+        # Input field-wise scoring for float and tuple types if there is only
+        # one input field.
+        if isinstance(scores, float_types + (tuple,)):
+            name = list(self.ifields.keys())[0]
+            if isinstance(scores, float_types):
+                scores = float(scores)
+            else:
+                scores = float(scores[0])
+            self._total_score = scores * self.score_weights[name]
+            self.ifields[name].displayed_score = self._total_score
+            return {name: self._total_score}
+
+        # Cast scores and fill up missing scores with None.
+        if isinstance(scores, dict):
+            for name in self.ifields:
+                if name in scores and name in fill_values:
                     scores[name] = 0.0
-
-        if output is not None and len(self.ifields) == 1:
-            for name in fill_values:
-                if isinstance(output, tuple):
-                    scores = {name: (0.0, scores[1])}
+                if name in scores:
+                    if isinstance(scores[name], tuple):
+                        scores[name] = scores[name][0]
+                    scores[name] = float(scores[name])
                 else:
-                    scores = {name: 0.0}
+                    scores[name] = None
 
-        no_scores = {name: None for name in self.ifields}
         if scores is None:
             scores = no_scores
 
-        names = list(self.ifields.keys())
-        ifields = list(self.ifields.values())
-        if isinstance(scores, float_types):
-            self._total_score = (
-                float(scores) * list(self.score_weights.values())[0]
-            )
-            if len(names) == 1:
-                ifields[0].displayed_score = self._total_score
-                return {names[0]: self._total_score}
-            return no_scores
-
-        if isinstance(scores, tuple):
-            self._total_score = (
-                float(scores[0]) * list(self.score_weights.values())[0]
-            )
-            if len(names) == 1:
-                ifields[0].displayed_score = self._total_score
-                return {names[0]: self._total_score}
-            return no_scores
-
-        for name, ifield in self.model.ifields.items():
-            if name not in scores:
-                scores[name] = None
+        for name, ifield in self.ifields.items():
             if scores[name] is None:
                 scores[name] = ifield.auto_score
-            if isinstance(scores[name], tuple):
-                scores[name] = scores[name][0]
-            scores[name] = float(scores[name]) * self.score_weights[name]
+            scores[name] = scores[name] * self.score_weights[name]
             ifield.displayed_score = scores[name]
 
-        self._total_score = sum([
-            scores[name][0]
-            if isinstance(scores[name], tuple) else scores[name]
-            for name in self.ifields.keys()
-        ])
-
+        self._total_score = sum(scores.values())
         return scores
 
     @property

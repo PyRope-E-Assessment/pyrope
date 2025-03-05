@@ -10,7 +10,6 @@ v0.1.1
 New
 ---
 
-* Empty input fields can be scored manually with ``treat_none_manually``.
 * Add type hints to configurations to make it clearer for users.
 * Configure how many options of :py:class:`OneOf` nodes will be rendered as
   radio buttons at most with ``maximal_radio_buttons``.
@@ -46,6 +45,7 @@ New
   exercise. In :py:class:`JupyterFrontend` these hints can be rendered via a
   button.
 * History logging for learning analytics.
+* Define default values in :py:meth:`scores` for input fields.
 
 Changes
 -------
@@ -75,6 +75,8 @@ Changes
   For multiline strings this means you only have to write a double backslash at
   the end of a line or a single backslash in case of raw multiline strings.
 * Accept ``None`` and empty strings as solutions.
+* If there are empty input fields with no default values in a joint input
+  field scoring scenario, the exercise gets a total score of zero.
 
 Fixes
 -----

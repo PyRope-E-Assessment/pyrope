@@ -17,13 +17,9 @@ class Node:
     the_solution = TypeChecked()
     solution = TypeChecked()
 
-    def __init__(self, template, ifields, treat_none_manually=False, **kwargs):
+    def __init__(self, template, ifields, **kwargs):
         self.ID = uuid4()
         self.parent = None
-
-        if not isinstance(treat_none_manually, bool):
-            raise ValueError("'treat_none_manually' has to be a boolean.")
-        self.treat_none_manually = treat_none_manually
 
         for name, ifield in ifields.items():
             if not isinstance(ifield, Node):
