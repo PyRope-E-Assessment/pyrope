@@ -48,12 +48,19 @@ fields. The string is interpreted as `Markdown
 * `tables <https://www.markdownguide.org/extended-syntax/#tables>`_
 
 Template strings will usually span multiple lines and Python's triple quoted
-strings are best suited for that. In order to allow for a consistent
-indentation, PyRope will eliminate any common leading whitespace from every
-line in the template string.
+strings are best suited for that. In order to allow for a consistent source
+code indentation, PyRope will eliminate any common leading whitespace from
+every line in the template string.
+
+An empty line in the template will insert a small vertical space and start a
+new paragraph.  The same effect can be achieved by a backslash at the end of a
+line. Note that the backslash has to be escaped as ``\\`` unless you use
+:ref:`raw strings <raw_strings>`.
 
 For mathematical expressions, PyRope admits the use of :math:`\LaTeX` if it
 is properly enclosed in ``$`` respectively ``$$`` delimiters.
+
+.. _raw_strings:
 
 .. tip::
 
