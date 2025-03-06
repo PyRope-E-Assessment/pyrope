@@ -103,8 +103,6 @@ class Factorisation(Exercise):
         )
 
     def scores(self, p, q, p_, q_):
-        if None in {p_, q_}:
-            return 0
         return p_ * q_ == p * q
 
 

@@ -614,8 +614,8 @@ class QuadraticEquation(Exercise):
             (Leave input fields empty where necessary.)
             ''',
             count_=Int(minimum=0, maximum=2, widget=Dropdown(0, 1, 2)),
-            x1_=Expression(treat_none_manually=True),
-            x2_=Expression(treat_none_manually=True),
+            x1_=Expression(),
+            x2_=Expression(),
         )
 
     # A sample solution is provided via the 'the_solution' and 'a_solution'
@@ -664,7 +664,7 @@ class QuadraticEquation(Exercise):
         yield 'Now use the quadratic formula.'
 
     # Scoring
-    def scores(self, a, b, c, x1, x2, count_, x1_, x2_):
+    def scores(self, a, b, c, x1, x2, count_, x1_=None, x2_=None):
 
         # no roots
         if x1 is None and x2 is None:
