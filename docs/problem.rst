@@ -53,7 +53,7 @@ code indentation, PyRope will eliminate any common leading whitespace from
 every line in the template string.
 
 An empty line in the template will insert a small vertical space and start a
-new paragraph.  The same effect can be achieved by a backslash at the end of a
+new paragraph. The same effect can be achieved by a backslash at the end of a
 line. Note that the backslash has to be escaped as ``\\`` unless you use
 :ref:`raw strings <raw_strings>`.
 
