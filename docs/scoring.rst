@@ -139,7 +139,7 @@ is the score assigned to this solution.
             a=random.randint(2, 9)
             b=random.randint(2, 9)
             return dict(a=a, b=b, product=a*b)
-                
+
         def problem(self, a, b, product):
 
             return pyrope.Problem(
@@ -199,37 +199,34 @@ Empty Input Fields
 PyRope allows the learner to leave input fields empty, although a warning will
 be issued before submitting the answers. Note that an instructor does not
 have to bother about how to deal with empty inputs. PyRope will assume an
-empty input field means the learner doesn't know the answer and scores it
+empty input field means the learner doesn't know the answer and score it
 accordingly.
 
 * In case of :ref:`Individual Input Field Scoring`, PyRope simply scores any
   empty input field with zero points. What happens behind the scenes is that
   PyRope inserts some valid (usually trivial) value into each empty input
   field before calling the :py:meth:`scores` method and ignores the
-  corresponding scores for this input.
+  corresponding score for this input.
 * In case of :ref:`Joint Input Field Scoring`, it is not possible to score an
   exercise, if the learner leaves an input field empty and ignores the
   corresponding warning. PyRope will give zero points for the entire exercise
   in this case.
 
-However, sometimes empty input fields have a special meaning. If you ask for
-a solution of some equation, for example, then an empty input field can also
-mean that there is no solution. For such cases, every input field constructor
-offers an option ``treat_none_manually``, which is set to ``False`` by
-default. If ``True``, PyRope assigns ``None`` to the variable of an empty
-input field. By setting ``treat_none_manually=True`` the instructor assures to
-properly deal with such ``None`` values.
+However, sometimes empty input fields have a special meaning. If you ask
+for a solution of some equation, for example, then an empty input field can
+also mean that there is no solution. In such cases, the instructor needs to
+take care of scoring empty input fields. To deal with empty input manually,
+the :py:meth:`scores` method must declare a default value for the respective
+parameter, which will be substituted for an empty input.
 
 * In case of :ref:`Individual Input Field Scoring`, PyRope will score only
-  those empty input fields with zero points that do not have the option
-  ``treat_none_manually`` set to ``True``. The scoring of all other
-  empty input fields is left to the :py:meth:`scores` method, called with
-  ``None`` for assigned to every variables of an empty input field.
+  those empty input fields with zero points that do not have a default
+  value. The scoring of empty input fields with default value is left to
+  the :py:meth:`scores` method, called with the corresponding default values.
 * In case of :ref:`Joint Input Field Scoring`, the entire exercise is scored
-  with zero points unless every empty input field has ``treat_none_manually ``
-  set to ``True``. Otherwise, scoring is left to the :py:meth:`scores`
-  method, called with ``None`` assigned to every variable of an empty input
-  field.
+  with zero points unless every empty input field has a default value.
+  Otherwise, scoring is left to the :py:meth:`scores` method, called with
+  default values assigned to every variable of an empty input field.
 
 In the :ref:`integer division example <IntegerDivision>` from above, for
 example, we check two conditions and assign points if they are satisfied. The
@@ -239,29 +236,11 @@ only ``remainder``. This means we can score the second condition even if
 
 .. code-block:: python
 
-    import random
-
-    class IntegerDivision(pyrope.Exercise):
-
-        def parameters(self):
-            dividend = random.randint(2, 10)
-            divisor = random.randint(1, dividend)
-            return dict(dividend=dividend, divisor=divisor)
-
-        def problem(self):
-            return pyrope.Problem('''
-                <<dividend>> divided by <<divisor>> is equal to
-                <<quotient>> with remainder <<remainder>>.
-                ''',
-                quotient=pyrope.Natural(treat_none_manually=True),
-                remainder=pyrope.Natural(),
-            )
-
-        def scores(self, dividend, divisor, quotient, remainder):
-            scores = 0
-            if quotient is not None:
-                if quotient * divisor + remainder == dividend:
-                    scores += 2
-            if remainder < divisor:
-                scores += 1
-            return (scores, 3)
+    def scores(self, dividend, divisor, remainder, quotient=None):
+        scores = 0
+        if quotient is not None:
+            if quotient * divisor + remainder == dividend:
+                scores += 2
+        if remainder < divisor:
+            scores += 1
+        return (scores, 3)
