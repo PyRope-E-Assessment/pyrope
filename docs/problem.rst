@@ -83,10 +83,11 @@ Placeholders
 The syntax for a placeholder is ``<<name>>``, where ``name`` is the name of
 the input or output field. The delimiters ``<<`` and ``>>`` were chosen to
 interfere as little as possible with markup, :math:`\LaTeX`, HTML or Python.
-Placeholders can be placed within most Markdown elements. Note that there is
-no syntactical difference between placeholders for input and output fields.
-In the exercise below, for example, ``a`` and ``b`` are output fields whereas
-``answer`` is an input field.
+Placeholders can be placed within most Markdown elements, but only output
+fields can be inserted into :math:`\LaTeX` environments in the following manner
+``<<name:latex>>``. Note that there is no syntactical difference between
+placeholders for input and output fields. In the exercise below, for example,
+``a`` and ``b`` are output fields whereas ``answer`` is an input field.
 
 .. code-block:: python
 
