@@ -102,7 +102,7 @@ In the exercise below, for example, ``a`` and ``b`` are output fields whereas
 
         def problem(self, a, b):
             return pyrope.Problem(
-                r'$<<a>> \times <<b>> =$ <<answer>>',
+                r'$<<a:latex>> \times <<b:latex>> =$ <<answer>>',
                 answer=pyrope.Natural()
             )
 

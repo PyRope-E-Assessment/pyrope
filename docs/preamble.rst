@@ -38,7 +38,7 @@ information into the problem template.
 
         def problem(self):
             return pyrope.Problem(
-                r'$1+2+3+\cdots+<<n>>=$ <<sum_>>',
+                r'$1+2+3+\cdots+<<n:latex>>=$ <<sum_>>',
                 sum_=pyrope.Natural()
             )
 

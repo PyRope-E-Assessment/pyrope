@@ -19,7 +19,7 @@ Python's ``yield`` statement.
 
         def problem(self):
             return pyrope.Problem(
-                r'$1+2+3+\cdots+<<n>>=$ <<thesum_>>',
+                r'$1+2+3+\cdots+<<n:latex>>=$ <<thesum_>>',
                 thesum_=pyrope.Natural()
             )
 

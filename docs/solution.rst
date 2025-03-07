@@ -54,7 +54,7 @@ Implicit Sample Solution
 
         def problem(self, q):
             return pyrope.Problem(
-                'Give a root of the quadratic equation $x^2-<<q>>=0$: <<x_>>',
+                'Give a root of the quadratic equation $x^2-<<q:latex>>=0$: <<x_>>',
                 x_=pyrope.Integer()
             )
 

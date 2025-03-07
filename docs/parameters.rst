@@ -48,7 +48,7 @@ methods.
 
         def problem(self):
             return pyrope.Problem(
-                r'$<<a>> \times <<b>> =$ <<answer>>',
+                r'$<<a:latex>> \times <<b:latex>> =$ <<answer>>',
                 answer=pyrope.Natural()
             )
 
