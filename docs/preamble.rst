@@ -21,6 +21,8 @@ information into the problem template.
 
 .. code:: python
 
+    import random
+
     class Gauss(pyrope.Exercise):
 
         def preamble(self):
