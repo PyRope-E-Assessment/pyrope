@@ -141,7 +141,7 @@ class IntegerDivision(Exercise):
 
     def problem(self):
         return Problem(
-            '<<a>> divided by <<b>> is <<q_>> with r_ <<r_>>.',
+            '<<a>> divided by <<b>> is <<q_>> with remainder <<r_>>.',
             q_=Natural(),
             r_=Natural(),
         )
