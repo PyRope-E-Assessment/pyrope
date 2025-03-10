@@ -6,9 +6,6 @@ Make sure you have the following installed on your system:
 
 * `Python3 <https://www.python.org/downloads>`_, version 3.10 or
   higher
-* `Pandoc <https://pandoc.org/installing.html>`_, version >= 2.9.2 and < 4.0.0.
-  (If you are using a virtual environment, make sure that Pandoc is installed
-  into this environment.)
 * `Git <https://git-scm.com/downloads>`_
 
 .. note::

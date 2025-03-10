@@ -110,7 +110,6 @@ Installation <installation>`.
 First, install the following packages:
 
 * `Python3 <https://www.python.org/downloads>`_ (version >= 3.10)
-* `Pandoc <https://pandoc.org/installing.html>`_ (2.9.2 <= version < 4.0.0).
 * `Git <https://git-scm.com/downloads>`_
 
 Then change to your install directory and run the commands below.
