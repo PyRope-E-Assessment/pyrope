@@ -35,7 +35,7 @@ then create and activate it.
      .. code:: console
 
        python3 -m venv venv
-       source pyrope/bin/activate
+       source venv/bin/activate
 
 Download and install the current version of PyRope.
 
