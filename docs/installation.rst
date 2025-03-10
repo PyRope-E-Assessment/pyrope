@@ -8,9 +8,6 @@ Make sure you have the following installed on your system:
   higher
 * `Git <https://git-scm.com/downloads>`_
 
-.. note::
-  PyRope does not support Notebook 7 and JupyterLab yet.
-
 .. tip::
   We recommend to install PyRope into a virtual environment. This avoids
   conflicts with other Python packages on your system.
