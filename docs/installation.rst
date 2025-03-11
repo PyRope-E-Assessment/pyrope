@@ -90,26 +90,3 @@ Run the sample exercises.
      .. code:: console
 
        python3 -m pyrope run
-
-To generate this documentation yourself, you first need to install `Sphinx
-<https://www.sphinx-doc.org/>`_ together with the necessary extensions. Then
-change to the PyRope documentation directory and run Sphinx.
-
-.. tabs::
-
-   .. group-tab:: Windows
-
-     .. code:: console
-
-       python -m pip install sphinx sphinx-tabs sphinx_rtd_theme
-       cd docs
-       sphinx-build . build/
-
-   .. group-tab:: Linux
-
-     .. code:: console
-
-       python3 -m pip install sphinx sphinx-tabs sphinx_rtd_theme
-       cd docs
-       sphinx-build . build/
-
