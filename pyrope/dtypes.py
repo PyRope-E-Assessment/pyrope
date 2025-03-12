@@ -489,7 +489,7 @@ class IntType(DType):
 
     def parse(self, value):
         try:
-            value = int(value)
+            value = float(value)
         except ValueError:
             raise ValidationError(
                 f"Cannot convert '{value}' to an integer."
