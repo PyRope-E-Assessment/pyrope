@@ -6,7 +6,7 @@ asttokens==3.0.0
 async-lru==2.0.4
 attrs==25.1.0
 babel==2.17.0
-beautifulsoup4==4.13.1
+beautifulsoup4==4.13.3
 bleach==6.2.0
 certifi==2025.1.31
 cffi==1.17.1
@@ -15,12 +15,12 @@ colorama==0.4.6
 comm==0.2.2
 contourpy==1.3.1
 cycler==0.12.1
-debugpy==1.8.12
-decorator==5.1.1
+debugpy==1.8.13
+decorator==5.2.1
 defusedxml==0.7.1
 executing==2.2.0
 fastjsonschema==2.21.1
-fonttools==4.55.8
+fonttools==4.56.0
 fqdn==1.5.1
 greenlet==3.1.1
 h11==0.14.0
@@ -28,11 +28,12 @@ httpcore==1.0.7
 httpx==0.28.1
 idna==3.10
 ipykernel==6.29.5
-ipython==8.32.0
+ipython==9.0.2
+ipython_pygments_lexers==1.1.1
 ipywidgets==8.1.5
 isoduration==20.11.0
 jedi==0.19.2
-Jinja2==3.1.5
+Jinja2==3.1.6
 json5==0.10.0
 jsonpointer==3.0.0
 jsonschema==4.23.0
@@ -49,9 +50,9 @@ jupyterlab_server==2.27.3
 jupyterlab_widgets==3.0.13
 kiwisolver==1.4.8
 MarkupSafe==3.0.2
-matplotlib==3.10.0
+matplotlib==3.10.1
 matplotlib-inline==0.1.7
-mistune==3.1.1
+mistune==3.1.2
 mpmath==1.3.0
 nbclient==0.10.2
 nbconvert==7.16.6
@@ -59,7 +60,7 @@ nbformat==5.10.4
 nest-asyncio==1.6.0
 notebook==7.3.2
 notebook_shim==0.2.4
-numpy==2.2.2
+numpy==2.2.3
 overrides==7.7.0
 packaging==24.2
 pandocfilters==1.5.1
@@ -68,15 +69,15 @@ pillow==11.1.0
 platformdirs==4.3.6
 prometheus_client==0.21.1
 prompt_toolkit==3.0.50
-psutil==6.1.1
+psutil==7.0.0
 pure_eval==0.2.3
 pycparser==2.22
 Pygments==2.19.1
 pyparsing==3.2.1
-pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/main/dist/pyrope_ipywidgets-0.1.0-py3-none-any.whl#sha256=5a2ea56b5ad50e31bf861d9046433abd64d10a06489b4abd961bf4e186dd006d
+pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/0.1.X/dist/pyrope_ipywidgets-0.1.0-py3-none-any.whl
 python-dateutil==2.9.0.post0
-python-json-logger==3.2.1
-pywin32==308
+python-json-logger==3.3.0
+pywin32==309
 pywinpty==2.0.15
 PyYAML==6.0.2
 pyzmq==26.2.1
@@ -84,12 +85,12 @@ referencing==0.36.2
 requests==2.32.3
 rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
-rpds-py==0.22.3
+rpds-py==0.23.1
 Send2Trash==1.8.3
 six==1.17.0
 sniffio==1.3.1
 soupsieve==2.6
-SQLAlchemy==2.0.37
+SQLAlchemy==2.0.38
 stack-data==0.6.3
 sympy==1.13.3
 terminado==0.18.1
