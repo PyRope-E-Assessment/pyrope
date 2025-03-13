@@ -4,6 +4,16 @@ Changelog
 =========
 
 
+v0.1.2
+======
+
+Fixes
+-----
+
+* Parse and then cast strings like ``'42.0'`` correctly as integers in
+  :py:class:`IntType`.
+
+
 v0.1.1
 ======
 
