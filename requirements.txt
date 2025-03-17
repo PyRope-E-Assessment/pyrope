@@ -86,7 +86,7 @@ pyflakes==3.2.0
 Pygments==2.19.1
 pylint==3.3.5
 pyparsing==3.2.1
-pyrope_ipywidgets @ pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/main/dist/pyrope_ipywidgets-0.1.1-py3-none-any.whl
+pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/main/dist/pyrope_ipywidgets-0.1.1-py3-none-any.whl
 python-dateutil==2.9.0.post0
 python-json-logger==3.3.0
 pywin32==310;sys_platform=='win32'
