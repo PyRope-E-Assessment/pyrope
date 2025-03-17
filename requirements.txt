@@ -77,8 +77,8 @@ pyparsing==3.2.1
 pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/0.1.X/dist/pyrope_ipywidgets-0.1.0-py3-none-any.whl
 python-dateutil==2.9.0.post0
 python-json-logger==3.3.0
-pywin32==310
-pywinpty==2.0.15
+pywin32==310;sys_platform=='win32'
+pywinpty==2.0.15;sys_platform=='win32'
 PyYAML==6.0.2
 pyzmq==26.3.0
 referencing==0.36.2
