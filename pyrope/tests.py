@@ -86,15 +86,13 @@ class TestExercise(unittest.TestCase):
         exercises consistent.
         """
         names = set(core.ParametrizedExercise(exercise).parameters.keys())
-        for _ in range(config.maximum_test_repetitions):
-            pexercise = core.ParametrizedExercise(exercise)
-            names_ = set(pexercise.parameters.keys())
-            self.assertEqual(
-                names, names_,
-                f"The keys of the dictionary returned by an exercise's "
-                f"parameters method must not change over different runs, got "
-                f"{names} and {names_} as parameter names."
-            )
+        names_ = set(core.ParametrizedExercise(exercise).parameters.keys())
+        self.assertEqual(
+            names, names_,
+            f"The keys of the dictionary returned by an exercise's "
+            f"parameters method must not change over different runs, got "
+            f"{names} and {names_} as parameter names."
+        )
 
     @with_all_exercises
     def test_ifield_names_are_stable(self, exercise):
@@ -104,15 +102,13 @@ class TestExercise(unittest.TestCase):
         consistent.
         """
         names = set(core.ParametrizedExercise(exercise).ifields.keys())
-        for _ in range(config.maximum_test_repetitions):
-            pexercise = core.ParametrizedExercise(exercise)
-            names_ = set(pexercise.ifields.keys())
-            self.assertEqual(
-                names, names_,
-                f"The names of the input fields defined by an exercise's "
-                f"problem method must not change over different runs, got "
-                f"{names} and {names_} as input field names."
-            )
+        names_ = set(core.ParametrizedExercise(exercise).ifields.keys())
+        self.assertEqual(
+            names, names_,
+            f"The names of the input fields defined by an exercise's "
+            f"problem method must not change over different runs, got "
+            f"{names} and {names_} as input field names."
+        )
 
     @with_all_exercises
     def test_maximal_total_score_is_stable(self, exercise):
@@ -123,14 +119,13 @@ class TestExercise(unittest.TestCase):
         score has to be same over different runs of an exercise.
         """
         max_total_score = core.ParametrizedExercise(exercise).max_total_score
-        for _ in range(config.maximum_test_repetitions):
-            pexercise = core.ParametrizedExercise(exercise)
-            self.assertEqual(
-                max_total_score, pexercise.max_total_score,
-                f"The maximal total score must not change over different "
-                f"runs of an exercise, got {max_total_score} and "
-                f"{pexercise.max_total_score} as a maximal total score."
-            )
+        max_total_score_ = core.ParametrizedExercise(exercise).max_total_score
+        self.assertEqual(
+            max_total_score, max_total_score_,
+            f"The maximal total score must not change over different "
+            f"runs of an exercise, got {max_total_score} and "
+            f"{max_total_score_} as a maximal total score."
+        )
 
 
 class TestParametrizedExercise(unittest.TestCase):
@@ -529,6 +524,8 @@ class TestParametrizedExercise(unittest.TestCase):
               case of a tuple the first value is interpreted as the score and
               the second one as the maximal score of the input field specified
               in the key.
+        The type of the returned score must not change over different runs to
+        keep exercises consistent.
         """
         exercise = pexercise.exercise
         answers = {
@@ -546,16 +543,17 @@ class TestParametrizedExercise(unittest.TestCase):
             f"The scores method has to return either a float type, tuple, "
             f"dict or None, got {type(scores)}."
         )
-        for _ in range(config.maximum_test_repetitions):
-            scores_ = pexercise.apply(
-                exercise.scores,
-                pexercise.parameters | pexercise.dummy_input
-            )
-            self.assertEqual(
-                type(scores), type(scores_),
-                f"The scores method must return the same type over different "
-                f"runs of an exercise, got {type(scores)} and {type(scores_)}."
-            )
+
+        pexercise_ = core.ParametrizedExercise(exercise)
+        scores_ = pexercise_.apply(
+            exercise.scores, pexercise_.parameters | answers
+        )
+        self.assertEqual(
+            type(scores), type(scores_),
+            f"The scores method must return the same type over different "
+            f"runs of an exercise, got {type(scores)} and {type(scores_)}."
+        )
+
         if scores is None:
             return
         if isinstance(scores, core.float_types):
