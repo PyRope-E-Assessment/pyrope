@@ -62,7 +62,7 @@ class TestExercise(unittest.TestCase):
         self.assertFalse(
             hasattr(exercise, 'solution'),
             "Do not implement a 'solution' method. Use 'the_solution' "
-            "instead it the solution is unique or 'a_solution' if not."
+            "instead if the solution is unique or 'a_solution' if not."
         )
 
     @with_all_exercises
@@ -79,13 +79,49 @@ class TestExercise(unittest.TestCase):
         )
 
     @with_all_exercises
+    def test_parameter_names_are_stable(self, exercise):
+        """
+        The set of parameter names defined by an exercise through its
+        parameters method needs to be same over different runs to keep
+        exercises consistent.
+        """
+        names = set(core.ParametrizedExercise(exercise).parameters.keys())
+        for _ in range(config.maximum_test_repetitions):
+            pexercise = core.ParametrizedExercise(exercise)
+            names_ = set(pexercise.parameters.keys())
+            self.assertEqual(
+                names, names_,
+                f"The keys of the dictionary returned by an exercise's "
+                f"parameters method must not change over different runs, got "
+                f"{names} and {names_} as parameter names."
+            )
+
+    @with_all_exercises
+    def test_ifield_names_are_stable(self, exercise):
+        """
+        The set of input field names defined by an exercise through its problem
+        method needs to be the same over different runs to keep exercises
+        consistent.
+        """
+        names = set(core.ParametrizedExercise(exercise).ifields.keys())
+        for _ in range(config.maximum_test_repetitions):
+            pexercise = core.ParametrizedExercise(exercise)
+            names_ = set(pexercise.ifields.keys())
+            self.assertEqual(
+                names, names_,
+                f"The names of the input fields defined by an exercise's "
+                f"problem method must not change over different runs, got "
+                f"{names} and {names_} as input field names."
+            )
+
+    @with_all_exercises
     def test_maximal_total_score_is_stable(self, exercise):
-        '''
+        """
         The maximal total score of an exercise is calculated by inserting the
         sample solution. The sample solution depends on the exercise's
         parameters which could be randomized. Therefore, the maximal total
         score has to be same over different runs of an exercise.
-        '''
+        """
         max_total_score = core.ParametrizedExercise(exercise).max_total_score
         for _ in range(config.maximum_test_repetitions):
             pexercise = core.ParametrizedExercise(exercise)
@@ -510,6 +546,16 @@ class TestParametrizedExercise(unittest.TestCase):
             f"The scores method has to return either a float type, tuple, "
             f"dict or None, got {type(scores)}."
         )
+        for _ in range(config.maximum_test_repetitions):
+            scores_ = pexercise.apply(
+                exercise.scores,
+                pexercise.parameters | pexercise.dummy_input
+            )
+            self.assertEqual(
+                type(scores), type(scores_),
+                f"The scores method must return the same type over different "
+                f"runs of an exercise, got {type(scores)} and {type(scores_)}."
+            )
         if scores is None:
             return
         if isinstance(scores, core.float_types):
