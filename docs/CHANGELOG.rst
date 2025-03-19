@@ -7,6 +7,11 @@ Changelog
 v0.1.2
 ======
 
+New
+---
+
+* Render 1D and 2D :py:meth:`numpy.array` in :math:`\LaTeX`.
+
 Fixes
 -----
 
