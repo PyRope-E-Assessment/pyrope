@@ -234,37 +234,6 @@ class TestParametrizedExercise(unittest.TestCase):
         )
 
     @with_all_pexercises
-    def test_feedback_method(self, pexercise):
-        """
-        A feedback must be a string. Its output fields must be in the
-        exercise's parameters or in the answers.
-        """
-        kwargs = pexercise.parameters | pexercise.dummy_input
-        feedback = pexercise.apply(
-            pexercise.exercise.feedback, kwargs
-        )
-        self.assertIsNot(
-            feedback, None,
-            'Feedback is None. If you really want no feedback, return an '
-            'empty string in the last line.'
-        )
-        self.assertIsInstance(
-            feedback, str,
-            f"The 'feedback' method must return a string, not an instance "
-            f"of {feedback.__class__}."
-        )
-        ofields = {
-            ofield for _, ofield, _ in TemplateFormatter.parse(feedback)
-            if ofield is not None
-        }
-        for ofield in ofields:
-            self.assertIn(
-                ofield, kwargs,
-                f"There is no parameter or answer for output field '{ofield}' "
-                f"in the feedback string."
-            )
-
-    @with_all_pexercises
     def test_metadata(self, pexercise):
         """
         Metadata are either strings, tuples of strings or None. In case of
@@ -625,12 +594,33 @@ class TestParametrizedExercise(unittest.TestCase):
     def test_feedback_with_inputs(self, pexercise):
         """
         Test if inputs (especially None values) raise an exception in the
-        feedback method.
+        feedback method. Furthermore, a feedback must be a string and its
+        output fields must be in the exercise's parameters or answers.
         """
         try:
-            pexercise.feedback
+            feedback = pexercise.apply(
+                pexercise.exercise.feedback,
+                pexercise.parameters | pexercise.answers
+            )
         except Exception:
             self.fail(
                 f"The feedback method raises an error for the following "
                 f"inputs: {pexercise.answers}."
+            )
+        if feedback is None:
+            return
+        self.assertIsInstance(
+            feedback, str,
+            f"The 'feedback' method must return a string or None, not an "
+            f"instance of {feedback.__class__}."
+        )
+        ofields = {
+            ofield for _, ofield, _ in TemplateFormatter.parse(feedback)
+            if ofield is not None
+        }
+        for ofield in ofields:
+            self.assertIn(
+                ofield, pexercise.parameters | pexercise.answers,
+                f"There is no parameter or answer for output field '{ofield}' "
+                f"in the feedback string."
             )
