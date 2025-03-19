@@ -160,10 +160,12 @@ class TestParametrizedExercise(unittest.TestCase):
         preamble = pexercise.exercise.preamble
         if callable(preamble):
             preamble = pexercise.apply(preamble, pexercise.parameters)
+        if preamble is None:
+            return
         self.assertIsInstance(
             preamble, str,
-            f"The 'preamble' method must return a string, not an instance of "
-            f"{preamble.__class__}."
+            f"The 'preamble' method must return a string or None, not an "
+            f"instance of {preamble.__class__}."
         )
         ofields = {
             ofield for _, ofield, _ in TemplateFormatter.parse(preamble)
@@ -182,10 +184,12 @@ class TestParametrizedExercise(unittest.TestCase):
         If implemented, the 'parameters' method of an exercise must return a
         dictionary. Its keys must be strings, as they name the input fields.
         """
-        parameters = pexercise.parameters
+        parameters = pexercise.apply(pexercise.exercise.parameters, {})
+        if parameters is None:
+            return
         self.assertIsInstance(
             parameters, dict,
-            "The 'parameters' method must return a dictionary."
+            "The 'parameters' method must return a dictionary or None."
         )
         for key in parameters.keys():
             self.assertIsInstance(
