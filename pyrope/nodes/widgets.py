@@ -41,6 +41,7 @@ class Widget(Node):
         self.observers = []
         self.description = description
         self._value = None
+        self._value_string = ''
         self._valid = None
         self._the_solution = None
         self._a_solution = None
@@ -88,16 +89,29 @@ class Widget(Node):
         if isinstance(equal, numpy.ndarray):
             equal = equal.all()
         if not equal:
+            # update value
             self._value = value
             self.notify(ChangeWidgetAttribute(
                 repr(self), self.ID, 'value', value
             ))
+
+            # update value string
+            self._value_string = self.parent.dtype.stringify(value)
+            self.notify(ChangeWidgetAttribute(
+                repr(self), self.ID, 'value_string', self._value_string
+            ))
+
+            # validate value
             ifield = self
             while ifield.parent is not None:
                 if ifield.parent.parent is None:
                     break
                 ifield = ifield.parent
             ifield.validate()
+
+    @property
+    def value_string(self):
+        return self._value_string
 
     @property
     def valid(self):
