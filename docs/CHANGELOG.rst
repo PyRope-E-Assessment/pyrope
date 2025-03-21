@@ -10,7 +10,8 @@ v0.1.2
 New
 ---
 
-* Render 1D and 2D :py:meth:`numpy.array` in :math:`\LaTeX`.
+* Render 1D and 2D :py:meth:`numpy.array` and :py:class:`fractions.Fraction` in
+  :math:`\LaTeX` and improve rendering of :py:class:`sympy.Poly`.
 
 Fixes
 -----
