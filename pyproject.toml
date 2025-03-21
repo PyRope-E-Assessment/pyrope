@@ -9,7 +9,7 @@ dependencies = [
     "matplotlib>=3.7",
     "notebook>=7",
     "numpy>=1.24",
-    "pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/0.1.X/dist/pyrope_ipywidgets-0.1.0-py3-none-any.whl",
+    "pyrope_ipywidgets @ https://github.com/PyRope-E-Assessment/pyrope-ipywidgets/raw/refs/heads/0.1.X/dist/pyrope_ipywidgets-0.1.1-py3-none-any.whl",
     "SQLAlchemy>=2.0.30",
     "sympy>=1.11",
 ]
