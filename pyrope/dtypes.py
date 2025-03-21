@@ -95,6 +95,14 @@ class DType(abc.ABC):
             return wrapper
         cls.parse = wrap_parsing(cls.parse)
 
+        def wrap_stringify(f):
+            def wrapper(self, value):
+                if isinstance(value, str):
+                    return value
+                return f(self, value)
+            return wrapper
+        cls.stringify = wrap_stringify(cls.stringify)
+
     @property
     @abc.abstractmethod
     def dtype(self):
@@ -120,6 +128,9 @@ class DType(abc.ABC):
             raise ValidationError(
                 f"Cannot convert '{value}' to {self.dtype.__name__}."
             )
+
+    def stringify(self, value):
+        return str(value)
 
     def cast(self, value):
         return value
@@ -393,6 +404,9 @@ class PolynomialType(ExpressionType):
             value += summand
         return value
 
+    def stringify(self, value):
+        return str(value.as_expr())
+
     def cast(self, value):
         if isinstance(value, sympy.Expr):
             if not self.symbols:
@@ -584,6 +598,9 @@ class MatrixType(DType):
         if ncols is None:
             ncols = 1
         return np.array(np.zeros((nrows, ncols)))
+
+    def stringify(self, value):
+        return str(value.tolist())
 
     def cast(self, value):
         try:
