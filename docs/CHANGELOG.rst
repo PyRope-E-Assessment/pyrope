@@ -12,8 +12,11 @@ New
 
 * Render 1D and 2D :py:meth:`numpy.array` and :py:class:`fractions.Fraction` in
   :math:`\LaTeX` and improve rendering of :py:class:`sympy.Poly`.
-* :py:class:`JupyterFrontend`: New button for inserting solutions in debug
-  mode.
+* :py:class:`JupyterFrontend`: New button for clearing all inputs and inserting
+  solutions in debug mode.
+* The exercise method :py:meth:`hints` can now be used to return dictionaries
+  for input field-wise hints. Right now input field-wise hints cannot be
+  rendered with :py:class:`JupyterFrontend` yet.
 
 Fixes
 -----

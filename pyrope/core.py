@@ -397,6 +397,17 @@ class ParametrizedExercise:
         hints = self.apply(self.exercise.hints, self.parameters)
         if isinstance(hints, str):
             hints = (hints,)
+        if isinstance(hints, dict):
+            if len(hints) == 0:
+                return ()
+            for name in self.ifields.keys():
+                ifield_hints = hints.get(name, ())
+                if isinstance(ifield_hints, str):
+                    ifield_hints = (ifield_hints,)
+                hints[name] = tuple(ifield_hints)
+            if len(self.ifields) == 1:
+                return list(hints.values())[0]
+            return hints
         return tuple(hints)
 
     @cached_property
@@ -739,7 +750,10 @@ class ExerciseRunner:
             ))
             widget.observe_attributes()
             self.notify(ChangeWidgetAttribute(
-                self.sender, widget.ID, 'info', widget.info
+                repr(widget), widget.ID, 'info', widget.info
+            ))
+            self.notify(ChangeWidgetAttribute(
+                repr(widget), widget.ID, 'ifield_name', widget.ifield_name
             ))
         self.notify(RenderTemplate(
             self.sender, 'problem', self.pexercise.template

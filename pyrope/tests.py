@@ -2,6 +2,7 @@
 import inspect
 import itertools
 from packaging import version
+from typing import Generator
 import unittest
 
 import matplotlib.pyplot as plt
@@ -201,27 +202,48 @@ class TestParametrizedExercise(unittest.TestCase):
     @with_all_pexercises
     def test_hints_method(self, pexercise):
         """
-        The hints method has to return a string or an iterable object yielding
-        only strings.
+        The hints method has to return a string or a list, tuple, generator
+        where all elements are strings or a dictionary where keys are names of
+        input fields and values are of the just mentioned types.
         """
         hints = pexercise.apply(
             pexercise.exercise.hints, pexercise.parameters
         )
+        self.assertIsInstance(
+            hints, (str, dict, list, tuple, Generator),
+            f"The 'hints' method has to return a string, dictionary, list, "
+            f"tuple or generator, got {type(hints)}."
+
+        )
         if isinstance(hints, str):
             return
-        try:
-            hints = iter(hints)
-        except TypeError:
-            raise TypeError(
-                f"The 'hints' method has to return a string or an iterable "
-                f"object, got {type(hints)}."
-            )
-        for hint in hints:
-            self.assertIsInstance(
-                hint, str,
-                f"If 'hints' returns an iterable object, all elements have to "
-                f"be strings, got {type(hint)}."
-            )
+        elif isinstance(hints, dict):
+            for name, ifield_hints in hints.items():
+                self.assertIn(
+                    name, pexercise.ifields.keys(),
+                    f"There is no input field named {name}."
+                )
+                self.assertIsInstance(
+                    ifield_hints, (str, list, tuple, Generator),
+                    f"If 'hints' returns a dictionary, all values have to be "
+                    f"either strings, lists, tuples or generators, got "
+                    f"{type(ifield_hints)} for key {name}."
+                )
+                if isinstance(ifield_hints, str):
+                    continue
+                for hint in ifield_hints:
+                    self.assertIsInstance(
+                        hint, str,
+                        f"All elements have to be strings, got {type(hint)} "
+                        f"for key {name}."
+                    )
+        else:
+            for hint in hints:
+                self.assertIsInstance(
+                    hint, str,
+                    f"If 'hints' returns a list, tuple or generator, all "
+                    f"elements have to be strings, got {type(hint)}."
+                )
 
     @with_all_pexercises
     def test_problem_method(self, pexercise):

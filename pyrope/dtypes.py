@@ -97,8 +97,8 @@ class DType(abc.ABC):
 
         def wrap_stringify(f):
             def wrapper(self, value):
-                if isinstance(value, str):
-                    return value
+                if value is None:
+                    return ''
                 return f(self, value)
             return wrapper
         cls.stringify = wrap_stringify(cls.stringify)

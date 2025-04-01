@@ -79,6 +79,15 @@ class Widget(Node):
             self.valid = None
 
     @property
+    def ifield_name(self):
+        root = self
+        while root.parent is not None:
+            root = root.parent
+        for name, ifield in root.ifields.items():
+            if self in ifield.widgets:
+                return name
+
+    @property
     def value(self):
         return self._value
 
@@ -96,7 +105,12 @@ class Widget(Node):
             ))
 
             # update value string
-            self._value_string = self.parent.dtype.stringify(value)
+            try:
+                self._value_string = self.parent.dtype.stringify(
+                    self.parent.value
+                )
+            except ValidationError:
+                self._value_string = str(value)
             self.notify(ChangeWidgetAttribute(
                 repr(self), self.ID, 'value_string', self._value_string
             ))
