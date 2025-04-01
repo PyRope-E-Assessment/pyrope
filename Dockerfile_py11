@@ -6,6 +6,8 @@ RUN apk add --no-cache git
 
 RUN apk add gcc python3-dev musl-dev linux-headers
 
+COPY /pyrope/examples.py /pyrope/exercises.py
+
 COPY . .
 
 #RUN python3 -m pip install git+https://github.com/PyRope-E-Assessment/pyrope.git@0.1.X-notebook7 

@@ -1,0 +1,20 @@
+FROM python:3.12-alpine
+
+#RUN apk add --no-cache libc6-compat libstdc++
+
+RUN apk add --no-cache git
+
+RUN apk add gcc python3-dev musl-dev linux-headers
+
+COPY /pyrope/examples.py /pyrope/exercises.py
+
+COPY . .
+
+#RUN python3 -m pip install git+https://github.com/PyRope-E-Assessment/pyrope.git@0.1.X-notebook7 
+#RUN python3 -m pip install git+https://github.com/PyRope-E-Assessment/pyrope.git@0.1.X-notebook7 -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
+
+ENTRYPOINT [ "jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "/work" ]
+#ENTRYPOINT [ "python3", "-m", "pyrope", "run" ]
+
+EXPOSE 8888
