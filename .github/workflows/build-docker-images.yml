@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the PyRope Docker image for 3.10
+      run: docker build . --file Dockerfile_py3.10 --tag pyrope:latest-py3.10
+
+    - uses: actions/checkout@v4
+    - name: Build the PyRope Docker image for 3.11
+      run: docker build . --file Dockerfile_py3.11 --tag pyrope:latest-py3.11
+
+    - uses: actions/checkout@v4
+    - name: Build the PyRope Docker image for 3.12
+      run: docker build . --file Dockerfile_py3.12 --tag pyrope:latest-py3.12
+           docker image tag pyrope:latest-py3.12 pyrope:latest
