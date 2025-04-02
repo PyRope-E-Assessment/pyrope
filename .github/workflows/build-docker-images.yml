@@ -15,12 +15,13 @@ jobs:
             image-tag: pyrope:latest-py3.11
           - dockerfile: Dockerfile_py12
             image-tag: pyrope:latest-py3.12
+            additional-tag: pyrope:latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Build the PyRope Docker images
-      run: |
-        docker build . --file ${{ matrix.dockerfile }} --tag ${{ matrix.image-tag }}
-        docker image tag pyrope:latest-py3.12 pyrope:latest
+      run: docker build . --file ${{ matrix.dockerfile }} --tag ${{ matrix.image-tag }}
+    - if: ${{ matrix.additional-tag }}
+      run: docker image tag ${{ matrix.image-tag }} ${{ matrix.additional-tag }}
