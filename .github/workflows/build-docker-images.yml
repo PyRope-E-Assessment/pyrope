@@ -1,7 +1,9 @@
 name: Docker Image CI
 
 on:
-  push:
+  workflow_run:
+    workflows: ['Test PyRope']
+    types: [completed]
 
 jobs:
   build:
@@ -9,13 +11,13 @@ jobs:
     strategy:
       matrix:
         include:
-          - dockerfile: Dockerfile_py10
-            image-tag: pyrope:latest-py3.10
-          - dockerfile: Dockerfile_py11
-            image-tag: pyrope:latest-py3.11
-          - dockerfile: Dockerfile_py12
-            image-tag: pyrope:latest-py3.12
-            additional-tag: pyrope:latest
+        - dockerfile: Dockerfile_py10
+          image-tag: pyrope:latest-py3.10
+        - dockerfile: Dockerfile_py11
+          image-tag: pyrope:latest-py3.11
+        - dockerfile: Dockerfile_py12
+          image-tag: pyrope:latest-py3.12
+          additional-tag: pyrope:latest
 
     steps:
     - name: Checkout repository
@@ -23,5 +25,6 @@ jobs:
 
     - name: Build the PyRope Docker images
       run: docker build . --file ${{ matrix.dockerfile }} --tag ${{ matrix.image-tag }}
+    # give the python3.12 image an additional tag 'latest' with no python version specified
     - if: ${{ matrix.additional-tag }}
       run: docker image tag ${{ matrix.image-tag }} ${{ matrix.additional-tag }}
