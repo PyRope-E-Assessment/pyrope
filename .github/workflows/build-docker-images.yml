@@ -1,9 +1,16 @@
 name: Docker Image CI
 
 on:
-  workflow_run:
-    workflows: ['Test PyRope']
-    types: [completed]
+# run this workflow only after the tests were successful
+#
+# this only works when the file is on default branch
+# once this file is on main, the 'workflow_run' rule can be commented in and 'push' can be deleted
+#
+#  workflow_run:
+#    workflows: ['Test PyRope']
+#    types: [completed]
+
+  push
 
 jobs:
   build:
