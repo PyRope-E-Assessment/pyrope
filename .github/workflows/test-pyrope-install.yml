@@ -8,7 +8,7 @@ on:
     branches: [ "main", "0.1.X" ]
 
 jobs:
-  build:
+  install-test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
