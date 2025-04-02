@@ -6,17 +6,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - dockerfile: Dockerfile_py10
+            image-tag: pyrope:latest-py3.10
+          - dockerfile: Dockerfile_py11
+            image-tag: pyrope:latest-py3.11
+          - dockerfile: Dockerfile_py12
+            image-tag: pyrope:latest-py3.12
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the PyRope Docker image for 3.10
-      run: docker build . --file Dockerfile_py10 --tag pyrope:latest-py3.10
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - uses: actions/checkout@v4
-    - name: Build the PyRope Docker image for 3.11
-      run: docker build . --file Dockerfile_py11 --tag pyrope:latest-py3.11
-
-    - uses: actions/checkout@v4
-    - name: Build the PyRope Docker image for 3.12
-      run: docker build . --file Dockerfile_py12 --tag pyrope:latest-py3.12
-           docker image tag pyrope:latest-py3.12 pyrope:latest
+    - name: Build the PyRope Docker images
+      run: |
+        docker build . --file ${{ matrix.dockerfile }} --tag ${{ matrix.image-tag }}
+        docker image tag pyrope:latest-py3.12 pyrope:latest
