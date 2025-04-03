@@ -1,5 +1,7 @@
 FROM python:3.11-alpine
 
+RUN apk add --no-cache git
+
 RUN apk add gcc python3-dev musl-dev linux-headers
 
 COPY /pyrope/examples.py /pyrope/exercises.py
