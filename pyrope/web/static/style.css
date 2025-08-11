@@ -1,0 +1,82 @@
+body { font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    padding: 1em;
+    background-color: #f0f0f0;
+    margin: 0;
+}
+
+.main-container {
+    display: flex;
+    height: calc(100vh - 80px);
+}
+
+.task-list {
+    width: 300px;
+    padding: 1em;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+    border-right: 1px solid #ccc;
+}
+
+.task-sublist {
+    margin-top: 0.5em;
+}
+
+button {
+    display: block;
+    width: 100%;
+    margin: 4px 0;
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ccc;
+}
+
+button:disabled:hover {
+    background-color: #e0e0e0;
+    color: #888888;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+button.active-task {
+    background-color: #e0f0ff;
+    border: 2px solid #007acc;
+    color: black;
+    font-weight: bold;
+}
+button:disabled {
+    background-color: #e0e0e0;
+    color: #888888;
+    cursor: not-allowed;
+    border: 1px solid #cccccc;
+    opacity: 0.6;
+}
+
+.pool-label {
+    font-weight: bold;
+    margin-top: 1em;
+}
+
+.iframe-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.task-frame {
+    flex-grow: 1;
+    width: 100%;
+    border: none;
+    display: none;
+}
+

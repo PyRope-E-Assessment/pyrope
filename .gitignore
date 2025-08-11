@@ -1,6 +1,7 @@
 *.pyc
 __pycache__/
 *.egg-info/
+tmp_dir/ 
 docs/build/
 venv/
 
@@ -9,3 +10,4 @@ venv/
 
 # PyCharm
 .idea/
+

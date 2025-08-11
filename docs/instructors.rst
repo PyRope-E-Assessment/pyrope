@@ -10,4 +10,5 @@ For Instructors
     exercises
     examples
     running
+    hosting
     FAQ

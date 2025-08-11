@@ -68,7 +68,7 @@ class IntegerDivision(Exercise):
 
             with
 
-            $$0\leq r<m.$$
+            $$0\leq r\<m.$$
         '''
 
     def parameters(self):

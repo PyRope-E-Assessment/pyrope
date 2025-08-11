@@ -16,6 +16,8 @@ import pathlib
 import random
 import sys
 import unittest
+from typing import Iterable, Optional
+import inspect
 
 from IPython import get_ipython
 import numpy
@@ -160,7 +162,7 @@ class Exercise(abc.ABC):
             return None
         return '\n\n'.join(classes)
 
-    def run(self, debug=False, difficulty=None, global_parameters=None):
+    def run(self, debug=False, difficulty=None, global_parameters=None, callback=None):
         if difficulty is not None:
             if not (
                 isinstance(difficulty, float_types) and
@@ -173,7 +175,8 @@ class Exercise(abc.ABC):
             difficulty = float(difficulty)
         self.difficulty = difficulty
         runner = ExerciseRunner(
-            self, debug=debug, global_parameters=global_parameters
+            self, debug=debug, global_parameters=global_parameters,
+            callback=callback
         )
         if get_ipython() is not None:
             frontend = frontends.JupyterFrontend()
@@ -691,7 +694,7 @@ class ParametrizedExercise:
 
 class ExerciseRunner:
 
-    def __init__(self, exercise, debug=False, global_parameters=None):
+    def __init__(self, exercise, debug=False, global_parameters=None, callback=None):
         self.debug = debug
         self.observers = []
         self.pexercise = ParametrizedExercise(exercise, global_parameters)
@@ -701,6 +704,7 @@ class ExerciseRunner:
         self.widget_id_mapping = {
             widget.ID: widget for widget in self.pexercise.widgets
         }
+        self.callback = callback
         if self.pexercise.id is None:
             return
         with DBSession() as session:
@@ -745,9 +749,9 @@ class ExerciseRunner:
             self.notify(ChangeWidgetAttribute(
                 repr(widget), widget.ID, 'info', widget.info
             ))
-            self.notify(ChangeWidgetAttribute(
-                repr(widget), widget.ID, 'ifield_name', widget.ifield_name
-            ))
+            # self.notify(ChangeWidgetAttribute(
+            #     repr(widget), widget.ID, 'ifield_name', widget.ifield_name
+            # ))
         self.notify(RenderTemplate(
             self.sender, 'problem', self.pexercise.template
         ))
@@ -789,6 +793,11 @@ class ExerciseRunner:
                 score_given=self.pexercise.total_score
             ))
             session.commit()
+        if self.callback is not None:
+            self.callback(
+                self.pexercise.total_score,
+                self.pexercise.max_total_score
+            )
         history_log.info(json.dumps(self.pexercise.summary, default=str))
 
     def publish_solutions(self):
@@ -816,6 +825,115 @@ class ExerciseRunner:
         elif isinstance(msg, Submit):
             self.finish()
 
+
+# Allowed navigation modes for a quiz
+ALLOWED_NAV = {"free", "sequential"}
+
+class Quiz(list):
+    def __init__(
+        self,
+        items: Optional[Iterable] = None,
+        *,
+        title: Optional[str] = None,
+        select: int = 0,
+        shuffle: bool = False,
+        navigation: str = "free",
+        weights: Optional[dict[int, float]] = None,
+    ) -> None:
+        # Basic attributes
+        self.title = title
+        self.select = select
+        self.shuffle = shuffle
+        self._navigation = "free"
+        self.navigation = navigation  # validated via property
+        self.weights = weights or {}
+
+        # Initialize list items
+        super().__init__()
+        if items:
+            self.extend(items)
+
+        self._validate_uniform_max_score_if_needed()
+
+    # Navigation property with runtime validation    
+    @property
+    def navigation(self) -> str:
+        return self._navigation
+
+    @navigation.setter
+    def navigation(self, value: str) -> None:
+        if value not in ALLOWED_NAV:
+            raise ValueError(f"navigation must be one of {ALLOWED_NAV}")
+        self._navigation = value
+
+    # Internal type check helper
+    def _coerce(self, x):
+        if isinstance(x, (Exercise, Quiz)):
+            return x
+        raise TypeError(f"Quiz can only contain Exercise or Quiz, got {type(x)}")
+
+    # List modification methods with type enforcement
+    def append(self, x) -> None:
+        super().append(self._coerce(x))
+        self._validate_uniform_max_score_if_needed()
+
+    def insert(self, i, x) -> None:
+        super().insert(i, self._coerce(x))
+        self._validate_uniform_max_score_if_needed()
+
+    def extend(self, it: Iterable) -> None:
+        super().extend(self._coerce(y) for y in it)
+        self._validate_uniform_max_score_if_needed()
+
+    def __setitem__(self, i, x) -> None:
+        if isinstance(i, slice):
+            super().__setitem__(i, [self._coerce(y) for y in x])
+        else:
+            super().__setitem__(i, self._coerce(x))
+        self._validate_uniform_max_score_if_needed()
+
+    def __iadd__(self, it):
+        self.extend(it)
+        return self
+
+    # Add all non-abstract Exercise subclasses from a module
+    def add_exercises_from_module(self, module, *exercise_names) -> None:
+        names = exercise_names or module.__dir__()
+        for name in names:
+            obj = getattr(module, name, None)
+            if isinstance(obj, type) and issubclass(obj, Exercise) and not inspect.isabstract(obj):
+                self.append(obj())
+
+    # Validate equal max_score if select>0
+    def _extract_max_score(self, item, weights: dict[int, float], index: int) -> Optional[float]:
+        weight = weights.get(index, 1)
+        if isinstance(item, Exercise):
+            return ParametrizedExercise(item).max_total_score * weight
+        elif isinstance(item, Quiz):
+            if item.select == 0:
+                return sum(
+                    item._extract_max_score(sub, item.weights, idx) or 0
+                    for idx, sub in enumerate(item)
+                ) * weight
+            else:
+                first_score = item._extract_max_score(item[0], item.weights, 0)
+                return item.select * first_score * weight if first_score is not None else None
+        return None
+
+    def _validate_uniform_max_score_if_needed(self) -> None:
+        if not (isinstance(self.select, int) and self.select > 0):
+            return
+        scores = []
+        for idx, item in enumerate(self):
+            s = self._extract_max_score(item, self.weights, idx)
+            if s is not None:
+                scores.append(s)
+        if scores:
+            first = scores[0]
+            if any(abs(s - first) > 1e-9 for s in scores[1:]):
+                raise ValueError(
+                    "select>0 requires all items to have the same max_score (for immediate Exercises)."
+                )
 
 class ExercisePool(collections.UserList):
 
@@ -896,6 +1014,24 @@ class CLIParser:
             action='store_true',
             help='enables debug mode for the frontend',
         )
+
+        serve_parser = subparsers.add_parser(
+            'serve',
+            help='serve a pool of exercises in a web interface'
+        )
+        serve_parser.add_argument(
+            'filepath',
+            nargs='?',
+            type=str,
+            help='path to python script with definition of exercise pool'
+        )
+        serve_parser.add_argument(
+            '--webdir',
+            type=str,
+            default=None,
+            help='path to folder with frontend template (with ./index.html and ./static/)'
+        )
+
 
         test_parser = subparsers.add_parser(
             'test',

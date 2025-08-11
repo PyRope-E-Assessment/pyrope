@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pyrope Aufgabenübersicht</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div style="flex-direction: row; display: flex; background-color: #f0f0f0; align-items: center;">
+        <h1>Pyrope Aufgabenübersicht</h1>
+        <img src="/static/logo-pyrope-icon.png" style="height: 8rem;">
+        <div id="score-tracker" style="margin-left: auto; margin-right: 2rem; font-weight: bold;">
+            Gesamtpunktzahl: <span id="score-earned">0</span>/<span id="score-total">0</span>
+        </div>
+    </div>
+    <div class="main-container">
+        <div id="task-list" class="task-list"></div>
+        <div id="iframe-container" class="iframe-container"></div>
+    </div>
+
+    <script>
+        window.addEventListener("beforeunload", function (e) {
+            e.preventDefault();
+            e.returnValue = ''; // Standard-Text vom Browser
+        });
+
+        async function fetchStructure() {
+            const res = await fetch('/structure');
+            return await res.json();
+        }
+
+        function createTaskList(structure, basePath = '/', indent = 0, parentDisable = false) {
+            const container = document.createElement('div');
+            container.classList.add('task-sublist');
+            container.dataset.navigation = structure.navigation
+            container.style.marginLeft = `${indent * 20}px`;
+            let exerciseIndex = 0;
+            let isSequential = structure.navigation === 'sequential'
+            
+            let items = structure.items;
+            if (structure.select > 0) items = items.sort(() => Math.random() - 0.5).slice(0, structure.select);
+            if (structure.shuffle) items = items.sort(() => Math.random() - 0.5);
+
+            items.forEach(item => {
+                if (typeof item === 'string') {
+                    const fullPath = `${basePath}${item}`;
+
+                    const button = document.createElement('button');
+                    button.textContent = item.slice(2,-6);
+                    button.id = `btn_${fullPath.slice(0,-6)}`;
+                    button.onclick = () => showIframe(fullPath.slice(0,-6));
+
+                    if ((isSequential && exerciseIndex !== 0) || parentDisable) {
+                        button.disabled = true;
+                    }
+                    exerciseIndex++;
+
+                    container.appendChild(button);
+
+                    const iframe = document.createElement('iframe');
+                    const voilaBase = ["localhost", "0.0.0.0", "127.0.0.1"].includes(location.hostname)
+                        ? "http://localhost:8866"
+                        : "/voila";
+                    iframe.src = `${voilaBase}/voila/render${fullPath}?`;
+
+                    iframe.classList.add('task-frame');
+                    iframe.style.display = 'none';
+                    iframe.dataset.path = fullPath.slice(0,-6);
+
+                    document.getElementById('iframe-container').appendChild(iframe);
+                } else if (typeof item === 'object' && Array.isArray(item.items)) {
+                    const label = document.createElement('div');
+                    label.textContent = item.title;
+                    label.classList.add('quiz-label');
+                    container.appendChild(label);
+                    const disableChildren = parentDisable || (isSequential && exerciseIndex !== 0);
+                    exerciseIndex++;
+                    container.appendChild(
+                        createTaskList(item, `${basePath}${item.title}/`, indent + 1, disableChildren)
+                    );
+                }
+            });
+
+            return container;
+        }
+        
+        function showIframe(path) {
+            const iframes = document.querySelectorAll('.task-frame');
+            const buttons = document.querySelectorAll('button');
+
+            iframes.forEach(iframe => {
+                iframe.style.display = iframe.dataset.path === path ? 'block' : 'none';
+            });
+
+            buttons.forEach(btn => btn.classList.remove('active-task'));
+
+            const activeButton = document.getElementById(`btn_${path}`);
+            if (activeButton) {
+                activeButton.classList.add('active-task');
+            }
+        }
+
+        fetchStructure().then(structure => {
+            const root = document.getElementById('task-list');
+
+            const rootLabel = document.createElement('div');
+            rootLabel.textContent = structure.title || 'Quiz';
+            rootLabel.classList.add('quiz-label');
+            root.appendChild(rootLabel);
+
+            root.appendChild(createTaskList(structure));
+            document.getElementById('iframe-container').firstChild.style.display = 'block';
+            document.getElementById('task-list').children[1].firstChild.classList.add('active-task')
+        });
+        
+        window.addEventListener("message", function(event) {
+            // Sicherheits-Check optional: Nur eigene Domain erlauben
+            // if (event.origin !== "http://localhost:8000") return;
+
+            const data = event.data;
+            console.log(data)
+            if (data?.type === "results" && data.id) {
+                const btnId = `btn_${data.id}`;
+                const button = document.getElementById(btnId);
+
+                if (button) {
+                    const percentage = data.score / data.maxScore;
+                    
+                    if (percentage >= 0.5) {
+                        button.style.backgroundColor = "#d4edda"; // grünlich
+                        button.style.color = "#155724";
+                    } else {
+                        button.style.backgroundColor = "#f8d7da"; // rötlich
+                        button.style.color = "#721c24";
+                    }
+
+                    button.textContent = `${button.textContent} (${data.score}/${data.maxScore})`;
+                    const earnedElem = document.getElementById("score-earned");
+                    const totalElem = document.getElementById("score-total");
+
+                    earnedElem.textContent = Number(earnedElem.textContent) + data.score;
+                    totalElem.textContent = Number(totalElem.textContent) + data.maxScore;
+
+                    let current = button;
+                    const next = current.nextElementSibling
+                    if (next) enableObject(next)
+                    else {
+                        current = current.parentElement
+                        while (['task-list', 'task-sublist'].some(cls => current.classList.contains(cls))) {
+                            const next = current.nextElementSibling;
+                            if (next) {
+                                enableObject(next);
+                                break;
+                            }
+                            current = current.parentElement;
+                        }
+                    }
+                } else {
+                    console.warn("No button found for ID:", btnId);
+                }
+            }
+        }); 
+        function enableObject(el) {
+            if (!el) return;
+            console.log(el)
+
+            if (el.tagName === "BUTTON") {
+                el.disabled = false;
+            } else if (el.classList.contains("quiz-label")) {
+                el = el.nextElementSibling
+                console.log(el)
+                
+                const nav = el.dataset.navigation;
+                const children = Array.from(el.querySelectorAll(':scope > *'));
+
+                if (nav === 'free') {
+                    for (const child of children) {
+                        enableObject(child);
+                    }
+                } else if (nav === 'sequential') {
+                    for (const child of children) {
+                        if (child.tagName === 'BUTTON' || child.classList.contains('task-sublist')) {
+                            enableObject(child);
+                            break; // Nur das erste aktivieren
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
